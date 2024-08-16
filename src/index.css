@@ -49,7 +49,20 @@ body {
   padding: 15px 20px;
   /* background-color: blue; */
   overflow-y: auto;
+  /* scrollbar-color: gray transparent; */
+  scrollbar-color: rgb(100 100 100) transparent;
+  scrollbar-width: thin;
 }
+
+/* ::-webkit-scrollbar {
+  background: rgb(0 0 255);
+  width: 20px;
+} */
+
+/* ::-webkit-scrollbar-thumb:hover {
+  background: rgb(0 0 255);
+  scrollbar-color: blue transparent;
+} */
 
 .noteContent * {
   margin: 0;

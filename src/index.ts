@@ -35,6 +35,9 @@ const createWindow = (): void => {
     // hasShadow: false,
 
     // focusable: false,
+
+    minWidth: 200,
+    minHeight: 150,
   });
 
   const dockMenu = Menu.buildFromTemplate([
