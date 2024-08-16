@@ -26,10 +26,15 @@ const createWindow = (): void => {
     // but macos has vibrancy, apparently!
     vibrancy: "popover",
 
+    // could also use .setAlwaysOnTop() in order to set level/relativeLevel
     alwaysOnTop: true,
 
     // opacity: 0.5,
     transparent: true,
+    visualEffectState: "active",
+    // hasShadow: false,
+
+    // focusable: false,
   });
 
   const dockMenu = Menu.buildFromTemplate([
