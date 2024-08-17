@@ -74,6 +74,11 @@ body {
   /* display: inline-block; */
 }
 
+.noteContent p::after {
+  /* ensure all the empty paragraphs still have minimum height */
+  content: "\00a0";
+}
+
 /* .noteContent p.section {
   display: block;
 } */
