@@ -67,3 +67,8 @@ body {
 .noteContent * {
   margin: 0;
 }
+
+.noteContent p {
+  margin: 3px 0;
+  display: flow-root;
+}
