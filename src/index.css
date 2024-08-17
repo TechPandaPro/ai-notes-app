@@ -71,4 +71,9 @@ body {
 .noteContent p {
   margin: 3px 0;
   display: flow-root;
+  /* display: inline-block; */
 }
+
+/* .noteContent p.section {
+  display: block;
+} */
