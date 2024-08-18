@@ -45,13 +45,16 @@ body {
 
 .noteContent {
   /* flex-grow: 1; */
-  outline: none;
+  /* outline: none; */
   /* padding: 15px 20px; */
   /* background-color: blue; */
   overflow-y: auto;
   /* scrollbar-color: gray transparent; */
   scrollbar-color: rgb(100 100 100) transparent;
   scrollbar-width: thin;
+
+  display: flex;
+  flex-direction: column;
 }
 
 /* ::-webkit-scrollbar {
@@ -88,8 +91,37 @@ body {
   color: inherit;
   background-color: transparent;
   border: none;
+  outline: none;
   resize: none;
   padding: 15px 20px;
   width: 100%;
   box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+.block:focus {
+  background-image: linear-gradient(
+    to bottom,
+    transparent,
+    rgb(0 0 0 / 0.1) calc(10px),
+    rgb(0 0 0 / 0.1) calc(100% - 10px),
+    transparent
+  );
+}
+
+.blockAdd {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.blockAdd::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  background-color: gray;
+  height: 2px;
+  width: 40%;
+  left: 25%;
+  transform: translateX(-50%);
+  /* flex-shrink: 0; */
 }
