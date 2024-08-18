@@ -55,6 +55,7 @@ body {
   flex-grow: 1;
   display: flex;
   flex-direction: column;
+  position: relative;
 }
 
 /* ::-webkit-scrollbar {
@@ -87,6 +88,30 @@ body {
 } */
 
 .block {
+  position: relative;
+}
+
+.block::before {
+  content: "";
+  position: absolute;
+  background-color: rgb(211 211 211 / 0.3);
+  /* background: linear-gradient(
+    to bottom,
+    transparent,
+    rgb(211 211 211 / 0.3) 5px,
+    rgb(211 211 211 / 0.3) calc(100% - 5px),
+    transparent
+  ); */
+  box-shadow: 0 0 4px 1px rgb(211 211 211 / 0.3);
+  height: calc(100% - 15px);
+  width: 3px;
+  border-radius: 1px;
+  top: 50%;
+  left: 0px;
+  transform: translateY(-50%);
+}
+
+.blockEditable {
   font: inherit;
   color: inherit;
   background-color: transparent;
@@ -99,29 +124,67 @@ body {
   flex-shrink: 0;
 }
 
-.block:focus {
+.blockEditable:focus {
   background-image: linear-gradient(
     to bottom,
     transparent,
-    rgb(0 0 0 / 0.1) calc(10px),
+    rgb(0 0 0 / 0.1) 10px,
     rgb(0 0 0 / 0.1) calc(100% - 10px),
     transparent
   );
 }
 
+.blockAddContainer:first-of-type {
+  position: relative;
+  top: 10px;
+}
+
+.blockAddRegion {
+  position: absolute;
+  z-index: 1;
+  /* background-color: blue; */
+  height: 30px;
+  width: 100%;
+  transform: translateY(-50%);
+}
+
+.blockAddRegion,
 .blockAdd {
+  cursor: pointer;
+}
+
+/* .blockAddRegion:hover + .blockAdd,
+.blockAdd:hover {
+  opacity: 0.5;
+} */
+
+.blockAddRegion:hover + .blockAdd .blockAddInner:not(:hover),
+.blockAddRegion:hover + .blockAdd::before,
+.blockAddRegion:hover + .blockAdd::after,
+.blockAdd:hover .blockAddInner:not(:hover),
+.blockAdd:hover::before,
+.blockAdd:hover::after {
+  opacity: 0.5;
+}
+
+.blockAdd {
+  /* position: absolute; */
   position: relative;
   flex-shrink: 0;
-  height: 2px;
+  height: 0px;
   overflow: visible;
-  opacity: 0;
-  transition: opacity 0.05s;
+  /* opacity: 0; */
+  transition: opacity 0.1s;
+  z-index: 2;
+  /* left: 50%; */
+  /* width: 100%; */
+  /* transform: translate(-50%, -50%); */
   /* background-color: white; */
 }
 
-.blockAdd:hover {
+/* .blockAdd:hover {
   opacity: 0.5;
-}
+} */
 
 .blockAdd::before {
   content: "";
@@ -133,6 +196,8 @@ body {
   top: 50%;
   transform: translateX(-50%);
   border-radius: 1px;
+  opacity: 0;
+  transition: opacity 0.1s;
   /* flex-shrink: 0; */
 }
 
@@ -146,6 +211,8 @@ body {
   top: 50%;
   transform: translateX(50%);
   border-radius: 1px;
+  opacity: 0;
+  transition: opacity 0.1s;
   /* flex-shrink: 0; */
 }
 
@@ -158,8 +225,19 @@ body {
   height: 20px;
   border-radius: 50%;
   background-color: lightgray;
+  opacity: 0;
+  transition: opacity 0.1s, background-color 0.1s;
   /* position: relative; */
 }
+
+.blockAddInner:hover {
+  background-color: rgb(221, 221, 221);
+  opacity: 1;
+}
+
+/* .blockAddInner:hover {
+  background-color: rgb(221, 221, 221);
+} */
 
 .blockAddInner::before {
   content: "";

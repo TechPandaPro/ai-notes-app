@@ -5,12 +5,18 @@ import { KeyboardEvent, useEffect, useRef, useState } from "react";
 import BlockAdd from "./BlockAdd";
 
 interface BlockProps {
+  index: number;
   text: string;
   autoFocus: boolean;
-  onCreateBlock: () => void;
+  onCreateBlock: (createAtIndex: number) => void;
 }
 
-export default function Block({ text, autoFocus, onCreateBlock }: BlockProps) {
+export default function Block({
+  index,
+  text,
+  autoFocus,
+  onCreateBlock,
+}: BlockProps) {
   const [blockHeight, setBlockHeight] = useState<number | null>(null);
 
   const blockRef = useRef<HTMLTextAreaElement>(null);
@@ -41,7 +47,7 @@ export default function Block({ text, autoFocus, onCreateBlock }: BlockProps) {
   function handleKeyDown(e: KeyboardEvent) {
     if (e.key === "Enter") {
       e.preventDefault();
-      onCreateBlock();
+      onCreateBlock(index + 1);
     }
   }
 
@@ -53,25 +59,36 @@ export default function Block({ text, autoFocus, onCreateBlock }: BlockProps) {
     return () => window.removeEventListener("resize", setSize);
   }, []);
 
+  function handleAddBlock(createAtIndex: number) {
+    onCreateBlock(createAtIndex);
+  }
+
   return (
     // <textarea ref={blockRef} className="block" onInput={handleInput}>
     <>
-      <textarea
-        ref={blockRef}
-        style={{
-          height: blockHeight,
-          // backgroundColor: autoFocus ? "blue" : "transparent",
-        }} /* numbers are automatically converted to px */
-        rows={
-          1
-        } /* this will be overriden by the style prop when the textarea has a value */
-        className="block"
-        autoFocus={autoFocus}
-        onInput={handleInput}
-        onKeyDown={handleKeyDown}
-        defaultValue={text}
-      />
-      <BlockAdd />
+      {index === 0 ? (
+        <BlockAdd createAtIndex={index} onAddBlock={handleAddBlock} />
+      ) : (
+        ""
+      )}
+      <div className="block">
+        <textarea
+          ref={blockRef}
+          style={{
+            height: blockHeight,
+            // backgroundColor: autoFocus ? "blue" : "transparent",
+          }} /* numbers are automatically converted to px */
+          rows={
+            1
+          } /* this will be overriden by the style prop when the textarea has a value */
+          className="blockEditable"
+          autoFocus={autoFocus}
+          onInput={handleInput}
+          onKeyDown={handleKeyDown}
+          defaultValue={text}
+        />
+      </div>
+      <BlockAdd createAtIndex={index + 1} onAddBlock={handleAddBlock} />
     </>
   );
 }

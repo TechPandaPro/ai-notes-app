@@ -23,11 +23,11 @@ export default function NoteContent() {
   //   }
   // }
 
-  function handleCreateBlock(i: number) {
-    setFocusIndex(i + 1);
+  function handleCreateBlock(createAtIndex: number) {
+    setFocusIndex(createAtIndex);
 
     const nextBlocks = blocks.slice();
-    nextBlocks.splice(i + 1, 0, { text: "", key: generateBlockKey() });
+    nextBlocks.splice(createAtIndex, 0, { text: "", key: generateBlockKey() });
     console.log(nextBlocks);
     // setBlocks([...blocks, ""]);
     setBlocks(nextBlocks);
@@ -55,9 +55,10 @@ export default function NoteContent() {
         // TODO: add key prop
         <Block
           key={block.key}
+          index={i}
           text={block.text}
           autoFocus={i === focusIndex}
-          onCreateBlock={() => handleCreateBlock(i)}
+          onCreateBlock={handleCreateBlock}
         />
       ))}
     </div>
