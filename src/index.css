@@ -52,7 +52,7 @@ body {
   /* scrollbar-color: gray transparent; */
   scrollbar-color: rgb(100 100 100) transparent;
   scrollbar-width: thin;
-
+  flex-grow: 1;
   display: flex;
   flex-direction: column;
 }
@@ -112,16 +112,75 @@ body {
 .blockAdd {
   position: relative;
   flex-shrink: 0;
+  height: 2px;
+  overflow: visible;
+  opacity: 0;
+  transition: opacity 0.05s;
+  /* background-color: white; */
+}
+
+.blockAdd:hover {
+  opacity: 0.5;
 }
 
 .blockAdd::before {
   content: "";
   position: absolute;
-  left: 0;
-  background-color: gray;
+  background-color: lightgray;
   height: 2px;
-  width: 40%;
+  width: 45%;
   left: 25%;
+  top: 50%;
   transform: translateX(-50%);
+  border-radius: 1px;
   /* flex-shrink: 0; */
+}
+
+.blockAdd::after {
+  content: "";
+  position: absolute;
+  background-color: lightgray;
+  height: 2px;
+  width: 45%;
+  right: 25%;
+  top: 50%;
+  transform: translateX(50%);
+  border-radius: 1px;
+  /* flex-shrink: 0; */
+}
+
+.blockAddInner {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: lightgray;
+  /* position: relative; */
+}
+
+.blockAddInner::before {
+  content: "";
+  position: absolute;
+  background-color: rgb(64 64 64);
+  height: 60%;
+  width: 2px;
+  left: 50%;
+  top: 50%;
+  border-radius: 1px;
+  transform: translate(-50%, -50%);
+}
+
+.blockAddInner::after {
+  content: "";
+  position: absolute;
+  background-color: rgb(64 64 64);
+  width: 60%;
+  height: 2px;
+  left: 50%;
+  top: 50%;
+  border-radius: 1px;
+  transform: translate(-50%, -50%);
 }
