@@ -46,7 +46,7 @@ body {
 .noteContent {
   /* flex-grow: 1; */
   outline: none;
-  padding: 15px 20px;
+  /* padding: 15px 20px; */
   /* background-color: blue; */
   overflow-y: auto;
   /* scrollbar-color: gray transparent; */
@@ -64,21 +64,32 @@ body {
   scrollbar-color: blue transparent;
 } */
 
-.noteContent * {
+/* .noteContent * {
   margin: 0;
 }
 
 .noteContent p {
   margin: 3px 0;
   display: flow-root;
-  /* display: inline-block; */
+  * display: inline-block; *
 }
 
 .noteContent p::after {
-  /* ensure all the empty paragraphs still have minimum height */
+  * ensure all the empty paragraphs still have minimum height *
   content: "\00a0";
-}
+} */
 
 /* .noteContent p.section {
   display: block;
 } */
+
+.block {
+  font: inherit;
+  color: inherit;
+  background-color: transparent;
+  border: none;
+  resize: none;
+  padding: 15px 20px;
+  width: 100%;
+  box-sizing: border-box;
+}
