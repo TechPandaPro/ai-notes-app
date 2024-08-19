@@ -3,22 +3,28 @@
 // import { FormEvent, KeyboardEvent, useEffect, useRef, useState } from "react";
 import { KeyboardEvent, useEffect, useRef, useState } from "react";
 import BlockAdd from "./BlockAdd";
-import BlockMarker from "./BlockMarker";
+import BlockMarker, { Position } from "./BlockMarker";
 
 interface BlockProps {
-  index: number;
+  blockIndex: number;
   text: string;
   autoFocus: boolean;
+  position: Position;
+  moving: boolean;
   onSetFocus: (blockIndex: number, isFocused: boolean) => void;
   onCreateBlock: (createAtIndex: number) => void;
+  onMove: (blockIndex: number, position: Position) => void;
 }
 
 export default function Block({
-  index,
+  blockIndex,
   text,
   autoFocus,
+  position,
+  moving,
   onSetFocus,
   onCreateBlock,
+  onMove,
 }: BlockProps) {
   const [blockHeight, setBlockHeight] = useState<number | null>(null);
 
@@ -37,16 +43,16 @@ export default function Block({
   function handleKeyDown(e: KeyboardEvent) {
     if (e.key === "Enter") {
       e.preventDefault();
-      onCreateBlock(index + 1);
+      onCreateBlock(blockIndex + 1);
     }
   }
 
   function handleFocus() {
-    onSetFocus(index, true);
+    onSetFocus(blockIndex, true);
   }
 
   function handleBlur() {
-    onSetFocus(index, false);
+    onSetFocus(blockIndex, false);
   }
 
   function handleAddBlock(createAtIndex: number) {
@@ -75,13 +81,18 @@ export default function Block({
   return (
     // <textarea ref={blockRef} className="block" onInput={handleInput}>
     <>
-      {index === 0 ? (
-        <BlockAdd createAtIndex={index} onAddBlock={handleAddBlock} />
+      {blockIndex === 0 ? (
+        <BlockAdd createAtIndex={blockIndex} onAddBlock={handleAddBlock} />
       ) : (
         ""
       )}
       <div className={`block ${autoFocus ? "focus" : ""}`}>
-        <BlockMarker />
+        <BlockMarker
+          blockIndex={blockIndex}
+          onMove={onMove}
+          position={position}
+          moving={moving}
+        />
         <textarea
           ref={blockRef}
           style={{
@@ -100,7 +111,7 @@ export default function Block({
           defaultValue={text}
         />
       </div>
-      <BlockAdd createAtIndex={index + 1} onAddBlock={handleAddBlock} />
+      <BlockAdd createAtIndex={blockIndex + 1} onAddBlock={handleAddBlock} />
     </>
   );
 }

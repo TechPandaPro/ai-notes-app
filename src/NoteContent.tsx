@@ -1,16 +1,24 @@
 import { useState } from "react";
 import Block from "./Block";
+import { Position } from "./BlockMarker";
 
 interface BlockInfo {
   text: string;
   key: string;
+  position: Position;
+  moving: boolean;
 }
 
 export default function NoteContent() {
   // function handleInput() {}
 
   const [blocks, setBlocks] = useState<BlockInfo[]>([
-    { text: "hello, world", key: `${Date.now()}_0` },
+    {
+      text: "hello, world",
+      key: `${Date.now()}_0`,
+      position: null,
+      moving: false,
+    },
   ]);
   const [focusIndex, setFocusIndex] = useState<number | null>(null);
 
@@ -33,9 +41,23 @@ export default function NoteContent() {
     setFocusIndex(createAtIndex);
 
     const nextBlocks = blocks.slice();
-    nextBlocks.splice(createAtIndex, 0, { text: "", key: generateBlockKey() });
+    nextBlocks.splice(createAtIndex, 0, {
+      text: "",
+      key: generateBlockKey(),
+      position: null,
+      moving: false,
+    });
     console.log(nextBlocks);
     // setBlocks([...blocks, ""]);
+    setBlocks(nextBlocks);
+  }
+
+  function handleMove(blockIndex: number, position: Position) {
+    const nextBlocks = blocks.slice();
+    if (position) {
+      nextBlocks[blockIndex].position = position;
+      nextBlocks[blockIndex].moving = true;
+    } else nextBlocks[blockIndex].moving = false;
     setBlocks(nextBlocks);
   }
 
@@ -61,11 +83,14 @@ export default function NoteContent() {
         // TODO: add key prop
         <Block
           key={block.key}
-          index={i}
+          blockIndex={i}
           text={block.text}
           autoFocus={i === focusIndex}
+          position={block.position}
+          moving={block.moving}
           onSetFocus={handleSetFocus}
           onCreateBlock={handleCreateBlock}
+          onMove={handleMove}
         />
       ))}
     </div>

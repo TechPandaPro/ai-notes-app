@@ -122,7 +122,8 @@ body {
   /* width: 3px; */
   width: 100%;
   /* border-radius: 1px; */
-  border-radius: 0 3px 3px 0;
+  /* border-radius: 0 3px 3px 0; */
+  border-radius: 3px;
 
   cursor: pointer;
 
@@ -138,6 +139,23 @@ body {
 .block.focus .blockMarkerInner,
 .blockMarker.moving .blockMarkerInner {
   opacity: 1;
+}
+
+.blockMarker.moving {
+  position: fixed;
+  z-index: 100;
+}
+
+/* .blockMarker.moving::before { */
+/* content: ""; */
+.blockMarkerOverlay {
+  position: fixed;
+  /* background-color: blue; */
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  z-index: 99;
 }
 
 .blockMarker:not(:hover) .blockMarkerInner {

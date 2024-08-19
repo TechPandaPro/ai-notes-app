@@ -1,61 +1,123 @@
-import { MouseEvent as ReactMouseEvent, useRef, useState } from "react";
+import {
+  MouseEvent as ReactMouseEvent,
+  useEffect,
+  // useRef,
+  // useState,
+} from "react";
 
 interface PositionInterface {
   x: number;
   y: number;
-}
-
-interface OffsetInterface {
+  width: number;
+  height: number;
   offsetX: number;
   offsetY: number;
 }
 
-// TODO: prevent mouse events on other elems from registering while moving = true
-// TODO: prevent scrollbars when dragged off the page
-export default function BlockMarker() {
-  const [position, setPosition] = useState<PositionInterface | null>(null);
-  const [offset, setOffset] = useState<OffsetInterface | null>(null);
-  const [moving, setMoving] = useState<boolean>(false);
+export type Position = PositionInterface | null;
 
-  const blockMarkerRef = useRef<HTMLDivElement>(null);
+interface BlockMarkerProps {
+  blockIndex: number;
+  position: Position;
+  moving: boolean;
+  onMove: (blockIndex: number, position: Position) => void;
+}
 
-  function handleMouseDown(e: ReactMouseEvent<HTMLDivElement>) {
+export default function BlockMarker({
+  blockIndex,
+  position,
+  moving,
+  onMove,
+}: BlockMarkerProps) {
+  // const [position, setPosition] = useState<PositionInterface | null>(null);
+  // const [moving, setMoving] = useState<boolean>(false);
+
+  // const blockMarkerRef = useRef<HTMLDivElement>(null);
+
+  function handleMouseDown(e: ReactMouseEvent) {
+    if (moving) return;
+
+    e.preventDefault();
+
     const blockMarkerRect = (
       e.target as HTMLDivElement
     ).getBoundingClientRect();
 
-    setOffset({
-      // offsetX: e.clientX - blockMarkerRect.left,
-      // offsetY: e.clientY - blockMarkerRect.top,
-      // offsetX: e.nativeEvent.offsetX,
-      // offsetY: e.nativeEvent.offsetY,
+    // const parentRect =
+    //   blockMarkerRef.current.parentElement.getBoundingClientRect();
+
+    // setPosition({
+    //   // x: e.clientX - parentRect.left,
+    //   // y: e.clientY - parentRect.top,
+    //   x: e.clientX,
+    //   y: e.clientY,
+    //   width: blockMarkerRect.width,
+    //   height: blockMarkerRect.height,
+    //   offsetX: blockMarkerRect.width / 2 - e.nativeEvent.offsetX,
+    //   offsetY: blockMarkerRect.height / 2 - e.nativeEvent.offsetY,
+    // });
+
+    onMove(blockIndex, {
+      x: e.clientX,
+      y: e.clientY,
+      width: blockMarkerRect.width,
+      height: blockMarkerRect.height,
       offsetX: blockMarkerRect.width / 2 - e.nativeEvent.offsetX,
       offsetY: blockMarkerRect.height / 2 - e.nativeEvent.offsetY,
     });
 
-    window.addEventListener("mousemove", updateMouseState);
+    // window.addEventListener("mousemove", updateMouseState);
 
-    setMoving(true);
+    // setMoving(true);
   }
 
-  function handleMouseUp() {
-    window.removeEventListener("mousemove", updateMouseState);
+  function handleMouseUp(e: ReactMouseEvent) {
+    // window.removeEventListener("mousemove", updateMouseState);
 
-    setPosition(null);
-    setOffset(null);
+    e.preventDefault();
 
-    setMoving(false);
+    // setPosition(null);
+    // setOffset(null);
+
+    onMove(blockIndex, null);
+
+    // setMoving(false);
   }
 
   function updateMouseState(e: MouseEvent) {
     // const blockMarker = (e.target as HTMLDivElement).parentElement;
-    const parentRect =
-      blockMarkerRef.current.parentElement.getBoundingClientRect();
-    setPosition({
-      x: e.clientX - parentRect.left,
-      y: e.clientY - parentRect.top,
+    // const parentRect =
+    //   blockMarkerRef.current.parentElement.getBoundingClientRect();
+
+    e.preventDefault();
+
+    // setPosition({
+    //   // x: e.clientX - parentRect.left,
+    //   // y: e.clientY - parentRect.top,
+    //   x: e.clientX,
+    //   y: e.clientY,
+    //   width: position.width,
+    //   height: position.height,
+    //   offsetX: position.offsetX,
+    //   offsetY: position.offsetY,
+    // });
+
+    onMove(blockIndex, {
+      x: e.clientX,
+      y: e.clientY,
+      width: position.width,
+      height: position.height,
+      offsetX: position.offsetX,
+      offsetY: position.offsetY,
     });
   }
+
+  useEffect(() => {
+    if (moving) {
+      window.addEventListener("mousemove", updateMouseState);
+      return () => window.removeEventListener("mousemove", updateMouseState);
+    }
+  });
 
   // useEffect(() => {
   //   window.addEventListener("mousemove", updateMouseState);
@@ -65,23 +127,28 @@ export default function BlockMarker() {
   console.log(position);
 
   return (
-    <div
-      ref={blockMarkerRef}
-      className={`blockMarker ${moving ? "moving" : ""}`}
-      style={
-        moving && position
-          ? {
-              left: position.x + offset.offsetX,
-              top: position.y + offset.offsetY,
-            }
-          : {}
-      }
-    >
+    <>
+      {moving ? <div className="blockMarkerOverlay"></div> : ""}
       <div
-        className="blockMarkerInner"
-        onMouseDown={handleMouseDown}
-        onMouseUp={handleMouseUp}
-      ></div>
-    </div>
+        // ref={blockMarkerRef}
+        className={`blockMarker ${moving ? "moving" : ""}`}
+        style={
+          moving
+            ? {
+                width: position.width,
+                height: position.height,
+                left: position.x + position.offsetX,
+                top: position.y + position.offsetY,
+              }
+            : {}
+        }
+      >
+        <div
+          className="blockMarkerInner"
+          onMouseDown={handleMouseDown}
+          onMouseUp={handleMouseUp}
+        ></div>
+      </div>
+    </>
   );
 }
