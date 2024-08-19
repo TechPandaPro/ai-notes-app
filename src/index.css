@@ -89,6 +89,7 @@ body {
 
 .block {
   position: relative;
+  display: flex;
   animation: blockGrowIn 0.1s;
 }
 
@@ -97,15 +98,15 @@ body {
   width: 24px;
   height: calc(100% - 15px);
   top: 50%;
-  left: -10px; /* this will change to 0 once the animation plays */
+  left: 0;
   /* background-color: red; */
   transform: translateY(-50%);
   z-index: 3;
-  animation: blockMarkerSlideIn 0.2s 0s forwards ease-out;
+  /* background-color: rgb(255 0 0 / 0.5); */
+  animation: blockMarkerSlideIn 0.2s ease-out;
 }
 
-.blockMarker::before {
-  content: "";
+.blockMarkerInner {
   position: absolute;
   background-color: rgb(211 211 211);
   /* background: linear-gradient(
@@ -119,7 +120,7 @@ body {
   /* height: calc(100% - 15px); */
   height: 100%;
   /* width: 3px; */
-  width: 50%;
+  width: 100%;
   /* border-radius: 1px; */
   border-radius: 0 3px 3px 0;
 
@@ -134,21 +135,26 @@ body {
   transform: translateY(-50%); */
 }
 
-.block.focus .blockMarker::before {
+.block.focus .blockMarkerInner,
+.blockMarker.moving .blockMarkerInner {
   opacity: 1;
 }
 
-.blockMarker:not(:hover)::before {
+.blockMarker:not(:hover) .blockMarkerInner {
   transform: translateX(calc(-100% + 4px));
 }
 
-.block.focus .blockMarker:not(:hover)::before {
-  transform: translateX(calc(-100% + 6px));
+.block.focus .blockMarker:not(:hover) .blockMarkerInner {
+  transform: translateX(calc(-100% + 8px));
 }
 
-.blockMarker:hover::before {
+.blockMarker:hover .blockMarkerInner {
   /* background-color: red; */
-  translate: translateX(0);
+  transform: translateX(calc(-100% + 12px));
+}
+
+.blockMarker.moving .blockMarkerInner {
+  transform: translateX(0);
 }
 
 .blockEditable {
@@ -316,6 +322,10 @@ body {
 }
 
 @keyframes blockMarkerSlideIn {
+  from {
+    left: -10px;
+  }
+
   to {
     left: 0;
   }

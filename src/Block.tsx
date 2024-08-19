@@ -3,6 +3,7 @@
 // import { FormEvent, KeyboardEvent, useEffect, useRef, useState } from "react";
 import { KeyboardEvent, useEffect, useRef, useState } from "react";
 import BlockAdd from "./BlockAdd";
+import BlockMarker from "./BlockMarker";
 
 interface BlockProps {
   index: number;
@@ -48,6 +49,10 @@ export default function Block({
     onSetFocus(index, false);
   }
 
+  function handleAddBlock(createAtIndex: number) {
+    onCreateBlock(createAtIndex);
+  }
+
   function setSize() {
     // console.log("set size");
     // if (!blockRef) return;
@@ -61,17 +66,11 @@ export default function Block({
     else block.style.removeProperty("height");
   }
 
-  console.log(autoFocus);
-
   useEffect(() => {
     // console.log("create");
     window.addEventListener("resize", setSize);
     return () => window.removeEventListener("resize", setSize);
   }, []);
-
-  function handleAddBlock(createAtIndex: number) {
-    onCreateBlock(createAtIndex);
-  }
 
   return (
     // <textarea ref={blockRef} className="block" onInput={handleInput}>
@@ -82,7 +81,7 @@ export default function Block({
         ""
       )}
       <div className={`block ${autoFocus ? "focus" : ""}`}>
-        <div className="blockMarker"></div>
+        <BlockMarker />
         <textarea
           ref={blockRef}
           style={{
