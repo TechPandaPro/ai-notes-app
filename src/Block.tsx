@@ -8,6 +8,7 @@ interface BlockProps {
   index: number;
   text: string;
   autoFocus: boolean;
+  onSetFocus: (blockIndex: number, isFocused: boolean) => void;
   onCreateBlock: (createAtIndex: number) => void;
 }
 
@@ -15,6 +16,7 @@ export default function Block({
   index,
   text,
   autoFocus,
+  onSetFocus,
   onCreateBlock,
 }: BlockProps) {
   const [blockHeight, setBlockHeight] = useState<number | null>(null);
@@ -31,6 +33,21 @@ export default function Block({
     setSize();
   }
 
+  function handleKeyDown(e: KeyboardEvent) {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      onCreateBlock(index + 1);
+    }
+  }
+
+  function handleFocus() {
+    onSetFocus(index, true);
+  }
+
+  function handleBlur() {
+    onSetFocus(index, false);
+  }
+
   function setSize() {
     // console.log("set size");
     // if (!blockRef) return;
@@ -42,13 +59,6 @@ export default function Block({
     setBlockHeight(block.scrollHeight);
     if (oldHeight) block.style.setProperty("height", oldHeight);
     else block.style.removeProperty("height");
-  }
-
-  function handleKeyDown(e: KeyboardEvent) {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      onCreateBlock(index + 1);
-    }
   }
 
   console.log(autoFocus);
@@ -71,7 +81,8 @@ export default function Block({
       ) : (
         ""
       )}
-      <div className="block">
+      <div className={`block ${autoFocus ? "focus" : ""}`}>
+        <div className="blockMarker"></div>
         <textarea
           ref={blockRef}
           style={{
@@ -85,6 +96,8 @@ export default function Block({
           autoFocus={autoFocus}
           onInput={handleInput}
           onKeyDown={handleKeyDown}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
           defaultValue={text}
         />
       </div>

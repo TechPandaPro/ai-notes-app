@@ -89,12 +89,25 @@ body {
 
 .block {
   position: relative;
+  animation: blockGrowIn 0.1s;
 }
 
-.block::before {
+.blockMarker {
+  position: absolute;
+  width: 24px;
+  height: calc(100% - 15px);
+  top: 50%;
+  left: -10px; /* this will change to 0 once the animation plays */
+  /* background-color: red; */
+  transform: translateY(-50%);
+  z-index: 3;
+  animation: blockMarkerSlideIn 0.2s 0s forwards ease-out;
+}
+
+.blockMarker::before {
   content: "";
   position: absolute;
-  background-color: rgb(211 211 211 / 0.3);
+  background-color: rgb(211 211 211);
   /* background: linear-gradient(
     to bottom,
     transparent,
@@ -102,13 +115,40 @@ body {
     rgb(211 211 211 / 0.3) calc(100% - 5px),
     transparent
   ); */
-  box-shadow: 0 0 4px 1px rgb(211 211 211 / 0.3);
-  height: calc(100% - 15px);
-  width: 3px;
-  border-radius: 1px;
-  top: 50%;
+  box-shadow: 0 0 4px 1px rgb(211 211 211);
+  /* height: calc(100% - 15px); */
+  height: 100%;
+  /* width: 3px; */
+  width: 50%;
+  /* border-radius: 1px; */
+  border-radius: 0 3px 3px 0;
+
+  cursor: pointer;
+
+  transition: opacity 0.1s, transform 0.1s;
+
+  opacity: 0.3;
+
+  /* top: 50%;
   left: 0px;
-  transform: translateY(-50%);
+  transform: translateY(-50%); */
+}
+
+.block.focus .blockMarker::before {
+  opacity: 1;
+}
+
+.blockMarker:not(:hover)::before {
+  transform: translateX(calc(-100% + 4px));
+}
+
+.block.focus .blockMarker:not(:hover)::before {
+  transform: translateX(calc(-100% + 6px));
+}
+
+.blockMarker:hover::before {
+  /* background-color: red; */
+  translate: translateX(0);
 }
 
 .blockEditable {
@@ -261,4 +301,22 @@ body {
   top: 50%;
   border-radius: 1px;
   transform: translate(-50%, -50%);
+}
+
+@keyframes blockGrowIn {
+  from {
+    max-height: 0;
+    /* overflow: hidden; */
+  }
+
+  to {
+    max-height: 60px;
+    /* overflow: hidden; */
+  }
+}
+
+@keyframes blockMarkerSlideIn {
+  to {
+    left: 0;
+  }
 }

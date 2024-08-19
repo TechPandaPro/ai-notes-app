@@ -12,7 +12,7 @@ export default function NoteContent() {
   const [blocks, setBlocks] = useState<BlockInfo[]>([
     { text: "hello, world", key: `${Date.now()}_0` },
   ]);
-  const [focusIndex, setFocusIndex] = useState<number>(null);
+  const [focusIndex, setFocusIndex] = useState<number | null>(null);
 
   // for (let i = 0; i < blocks.length; i++) {
   //   const block = blocks[i];
@@ -22,6 +22,12 @@ export default function NoteContent() {
   //     setBlocks(newBlocks);
   //   }
   // }
+
+  function handleSetFocus(blockIndex: number, isFocused: boolean) {
+    if (isFocused) setFocusIndex(blockIndex);
+    else if (blockIndex === focusIndex) setFocusIndex(null);
+    console.log(isFocused);
+  }
 
   function handleCreateBlock(createAtIndex: number) {
     setFocusIndex(createAtIndex);
@@ -58,6 +64,7 @@ export default function NoteContent() {
           index={i}
           text={block.text}
           autoFocus={i === focusIndex}
+          onSetFocus={handleSetFocus}
           onCreateBlock={handleCreateBlock}
         />
       ))}
