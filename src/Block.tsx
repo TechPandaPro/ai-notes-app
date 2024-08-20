@@ -2,8 +2,8 @@ import { ChangeEvent, KeyboardEvent, useEffect, useRef, useState } from "react";
 
 interface BlockProps {
   blockIndex: number;
-  autoFocus: boolean;
   text: string;
+  isFocused: boolean;
   onTextUpdate: (blockIndex: number, newText: string) => void;
   onSetFocus: (blockIndex: number, isFocused: boolean) => void;
   onAddBlock: (createAtIndex: number) => void;
@@ -11,8 +11,8 @@ interface BlockProps {
 
 export default function Block({
   blockIndex,
-  autoFocus,
   text,
+  isFocused,
   onTextUpdate,
   onSetFocus,
   onAddBlock,
@@ -73,12 +73,12 @@ export default function Block({
         1
       } /* this will be overriden by the style prop when the textarea has a value */
       className="blockEditable"
-      autoFocus={autoFocus}
+      defaultValue={text}
+      autoFocus={isFocused}
       onInput={handleInput}
       onKeyDown={handleKeyDown}
       onFocus={handleFocus}
       onBlur={handleBlur}
-      defaultValue={text}
       // defaultValue={previewIndex}
     />
   );

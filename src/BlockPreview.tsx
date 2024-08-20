@@ -1,22 +1,23 @@
 import { BlockInfo } from "./NoteContent";
 
 interface BlockPreviewProps {
-  previewIndex: 0 | 1 | null;
-  texts: BlockInfo[];
+  // previewIndex: 0 | 1 | null;
+  text: BlockInfo;
 }
 
 export default function BlockPreview({
-  previewIndex,
-  texts,
+  // previewIndex,
+  text,
 }: BlockPreviewProps) {
   return (
     <div
-      className={`blockPreview ${
-        previewIndex === null ? "" : ["left", "right"][previewIndex]
-      }`}
+      className="blockPreview"
+      // className={`blockPreview ${
+      //   previewIndex === null ? "" : ["left", "right"][previewIndex]
+      // }`}
     >
       {/* FIXME: make multiple texts work with block preview */}
-      {texts.map((text) => text.text).join(", ")}
+      {text.text}
     </div>
   );
 }

@@ -87,7 +87,7 @@ body {
   display: block;
 } */
 
-.block {
+.blockGroup {
   position: relative;
   display: flex;
   animation: blockGrowIn 0.1s;
@@ -136,7 +136,7 @@ body {
   transform: translateY(-50%); */
 }
 
-.block.focus .blockMarkerInner,
+.blockGroup.focus .blockMarkerInner,
 .blockMarker.moving .blockMarkerInner {
   opacity: 1;
 }
@@ -162,7 +162,7 @@ body {
   transform: translateX(calc(-100% + 4px));
 }
 
-.block.focus .blockMarker:not(:hover, .moving) .blockMarkerInner {
+.blockGroup.focus .blockMarker:not(:hover, .moving) .blockMarkerInner {
   transform: translateX(calc(-100% + 8px));
 }
 
@@ -176,7 +176,7 @@ body {
 }
 
 .blockPreview {
-  position: absolute;
+  /* position: absolute; */
   /* background-color: red; */
   outline: 2px solid rgb(173 216 230 / 0.3);
   /* background-image: repeating-linear-gradient(
@@ -196,20 +196,23 @@ body {
     transparent 4px
   );
   border-radius: 4px;
-  width: calc(50% - 20px);
+  padding: 10px;
+  flex: 1 0 0;
+  margin: 5px 10px;
+  /* width: calc(50% - 20px);
   height: calc(100% - 10px);
   padding: 10px 10px;
   box-sizing: border-box;
-  top: 5px;
+  top: 5px; */
 }
 
-.blockPreview.left {
+/* .blockPreview.left {
   left: 10px;
 }
 
 .blockPreview.right {
   right: 10px;
-}
+} */
 
 .blockEditable {
   font: inherit;
@@ -219,11 +222,13 @@ body {
   outline: none;
   resize: none;
   padding: 15px 20px;
-  width: 100%;
+  /* width: 100%; */
   box-sizing: border-box;
-  flex-shrink: 0;
+  flex: 1 0 0;
+  /* flex-shrink: 0; */
 }
 
+/* TODO: make this "soft" on the left and right sides too. consider using box-shadow instead of gradient */
 .blockEditable:focus {
   background-image: linear-gradient(
     to bottom,

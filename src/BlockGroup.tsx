@@ -1,20 +1,18 @@
-// import { useRef } from "react";
-
 // import { FormEvent, KeyboardEvent, useEffect, useRef, useState } from "react";
 import { useEffect, useRef, useState } from "react";
 import BlockAdd from "./BlockAdd";
 import BlockMarker, { Position } from "./BlockMarker";
 import { BlockGroupInfo, BlockInfo } from "./NoteContent";
-import BlockPreview from "./BlockPreview";
 import Block from "./Block";
+import BlockPreview from "./BlockPreview";
 
 interface BlockGroupProps {
   blockGroupIndex: number;
   texts: BlockInfo[];
-  autoFocus: boolean;
+  focusBlockIndex: number | null;
   position: Position;
   moving: boolean;
-  currMovingBlock: BlockGroupInfo;
+  currMovingBlockGroup: BlockGroupInfo;
   onTextUpdate: (
     blockGroupIndex: number,
     blockIndex: number,
@@ -32,18 +30,18 @@ interface BlockGroupProps {
 export default function BlockGroup({
   blockGroupIndex,
   texts,
-  autoFocus,
+  focusBlockIndex,
   position,
   moving,
-  currMovingBlock,
+  currMovingBlockGroup,
   onTextUpdate,
   onSetFocus,
   onCreateBlock,
   onMove,
 }: BlockGroupProps) {
-  const [previewIndex, setPreviewIndex] = useState<0 | 1 | null>(null);
+  const [previewIndex, setPreviewIndex] = useState<number | null>(null);
 
-  const blockRef = useRef<HTMLDivElement>(null);
+  const blockGroupRef = useRef<HTMLDivElement>(null);
   // const blockEditableRef = useRef<HTMLTextAreaElement>(null);
 
   // function handleKeyDown(e: KeyboardEvent) {
@@ -74,18 +72,22 @@ export default function BlockGroup({
   }
 
   useEffect(() => {
-    // console.log(currMovingBlock);
-    if (currMovingBlock) {
+    // console.log(currMovingBlockGroup);
+    if (currMovingBlockGroup) {
       const top =
-        currMovingBlock.position.y - currMovingBlock.position.height / 2;
+        currMovingBlockGroup.position.y -
+        currMovingBlockGroup.position.height / 2;
       const left =
-        currMovingBlock.position.x - currMovingBlock.position.width / 2;
+        currMovingBlockGroup.position.x -
+        currMovingBlockGroup.position.width / 2;
       const right =
-        currMovingBlock.position.x + currMovingBlock.position.width / 2;
+        currMovingBlockGroup.position.x +
+        currMovingBlockGroup.position.width / 2;
       const bottom =
-        currMovingBlock.position.y + currMovingBlock.position.height / 2;
+        currMovingBlockGroup.position.y +
+        currMovingBlockGroup.position.height / 2;
 
-      const currRect = blockRef.current.getBoundingClientRect();
+      const blockGroupRect = blockGroupRef.current.getBoundingClientRect();
 
       // const isOverlapping =
       //   bottom > currRect.top &&
@@ -94,21 +96,32 @@ export default function BlockGroup({
       //   left < currRect.right;
 
       const isOverlapping =
-        bottom > currRect.top &&
-        top < currRect.bottom &&
-        right > currRect.left &&
-        left < currRect.right &&
-        (top > currRect.top ||
-          Math.abs(bottom - currRect.top) >=
-            currMovingBlock.position.height / 2) &&
-        (bottom < currRect.bottom ||
-          Math.abs(top - currRect.bottom) >
-            currMovingBlock.position.height / 2);
+        bottom > blockGroupRect.top &&
+        top < blockGroupRect.bottom &&
+        right > blockGroupRect.left &&
+        left < blockGroupRect.right &&
+        (top > blockGroupRect.top ||
+          Math.abs(bottom - blockGroupRect.top) >=
+            currMovingBlockGroup.position.height / 2) &&
+        (bottom < blockGroupRect.bottom ||
+          Math.abs(top - blockGroupRect.bottom) >
+            currMovingBlockGroup.position.height / 2);
+
+      // if (isOverlapping) {
+      //   const nextPreviewIndex = Number(
+      //     left + (right - left) / 2 > currRect.width / 2
+      //   ) as 0 | 1;
+      //   setPreviewIndex(nextPreviewIndex);
+      // } else setPreviewIndex(null);
 
       if (isOverlapping) {
-        const nextPreviewIndex = Number(
-          left + (right - left) / 2 > currRect.width / 2
-        ) as 0 | 1;
+        // const placementOptionsCount =
+        //   texts.length + currMovingBlockGroup.texts.length;
+        const placementOptionsCount = texts.length + 1;
+        const centerX = left + (right - left) / 2;
+        const nextPreviewIndex = Math.floor(
+          (centerX / blockGroupRect.width) * placementOptionsCount
+        );
         setPreviewIndex(nextPreviewIndex);
       } else setPreviewIndex(null);
 
@@ -122,7 +135,20 @@ export default function BlockGroup({
       //   isOverlapping ? "true" : "false"
       // } ${createAtIndex}`;
     } else setPreviewIndex(null);
-  }, [currMovingBlock]);
+  }, [currMovingBlockGroup]);
+
+  // const displayTexts = texts.slice();
+
+  const displayTexts: (BlockInfo & { moving: boolean })[] = texts.map(
+    (text) => ({ ...text, moving: false })
+  );
+
+  if (previewIndex !== null && currMovingBlockGroup)
+    displayTexts.splice(
+      previewIndex,
+      0,
+      ...currMovingBlockGroup.texts.map((text) => ({ ...text, moving: true }))
+    );
 
   return (
     // <textarea ref={blockRef} className="block" onInput={handleInput}>
@@ -132,32 +158,45 @@ export default function BlockGroup({
       ) : (
         ""
       )}
-      <div className={`block ${autoFocus ? "focus" : ""}`} ref={blockRef}>
+      <div
+        className={`blockGroup ${focusBlockIndex !== null ? "focus" : ""}`}
+        ref={blockGroupRef}
+      >
         <BlockMarker
           blockGroupIndex={blockGroupIndex}
           onMove={onMove}
           position={position}
           moving={moving}
         />
-        {previewIndex === null || !currMovingBlock ? null : (
+        {/* {previewIndex === null || !currMovingBlockGroup ? null : (
           <BlockPreview
             previewIndex={previewIndex}
-            texts={currMovingBlock.texts}
+            texts={currMovingBlockGroup.texts}
           />
+        )} */}
+        {/* {[
+          ...texts,
+          ...(previewIndex !== null && currMovingBlockGroup
+            ? currMovingBlockGroup.texts
+            : []),
+        ].map((text, blockIndex) => ( */}
+        {displayTexts.map((text, blockIndex) =>
+          // TODO: merge this previews. the background shouldn't break between them
+          text.moving ? (
+            <BlockPreview text={text} />
+          ) : (
+            <Block
+              key={text.key}
+              blockIndex={blockIndex}
+              text={text.text}
+              isFocused={focusBlockIndex === blockIndex}
+              onTextUpdate={handleTextUpdate}
+              onSetFocus={handleSetFocus}
+              onAddBlock={handleAddBlock}
+              // onCreateBlock={onCreateBlock}
+            />
+          )
         )}
-        {texts.map((text, blockIndex) => (
-          // FIXME: make sure autoFocus actually works
-          <Block
-            key={text.key}
-            blockIndex={blockIndex}
-            autoFocus={false}
-            text={text.text}
-            onTextUpdate={handleTextUpdate}
-            onSetFocus={handleSetFocus}
-            onAddBlock={handleAddBlock}
-            // onCreateBlock={onCreateBlock}
-          />
-        ))}
       </div>
       <BlockAdd
         createAtIndex={blockGroupIndex + 1}

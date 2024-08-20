@@ -29,6 +29,10 @@ export default function NoteContent() {
           text: "hello, world",
           key: `${Date.now()}_0`,
         },
+        {
+          text: "lorem ipsum",
+          key: `${Date.now()}_1`,
+        },
       ],
       key: `${Date.now()}_0`,
       position: null,
@@ -119,7 +123,7 @@ export default function NoteContent() {
     return `${stamp}_${foundCount}`;
   }
 
-  const currMovingBlock =
+  const currMovingBlockGroup =
     blockGroups.find((blockGroup) => blockGroup.moving) ?? null;
 
   return (
@@ -139,12 +143,16 @@ export default function NoteContent() {
           blockGroupIndex={blockGroupIndex}
           texts={blockGroup.texts}
           // FIXME: autoFocus should not be universal for group
-          autoFocus={
+          focusBlockIndex={
             focusIndex && blockGroupIndex === focusIndex.blockGroupIndex
+              ? focusIndex.blockIndex
+              : null
           }
           position={blockGroup.position}
           moving={blockGroup.moving}
-          currMovingBlock={!blockGroup.moving ? currMovingBlock : null}
+          currMovingBlockGroup={
+            !blockGroup.moving ? currMovingBlockGroup : null
+          }
           onTextUpdate={handleTextUpdate}
           onSetFocus={handleSetFocus}
           onCreateBlock={handleCreateBlock}
