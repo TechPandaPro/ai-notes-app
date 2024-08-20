@@ -1,9 +1,9 @@
 import { useState } from "react";
-import Block from "./Block";
 import { Position } from "./BlockMarker";
+import BlockGroup from "./BlockGroup";
 
 export interface BlockInfo {
-  text: string;
+  text: string[];
   key: string;
   position: Position;
   moving: boolean;
@@ -14,7 +14,7 @@ export default function NoteContent() {
 
   const [blocks, setBlocks] = useState<BlockInfo[]>([
     {
-      text: "hello, world",
+      text: ["hello, world"],
       key: `${Date.now()}_0`,
       position: null,
       moving: false,
@@ -35,7 +35,7 @@ export default function NoteContent() {
     const nextBlocks = blocks.slice();
     const nextBlock = { ...nextBlocks[blockIndex] };
     nextBlocks[blockIndex] = nextBlock;
-    nextBlock.text = newText;
+    nextBlock.text = [newText];
     setBlocks(nextBlocks);
   }
 
@@ -50,7 +50,7 @@ export default function NoteContent() {
 
     const nextBlocks = blocks.slice();
     nextBlocks.splice(createAtIndex, 0, {
-      text: "",
+      text: [""],
       key: generateBlockKey(),
       position: null,
       moving: false,
@@ -95,7 +95,7 @@ export default function NoteContent() {
       {/* <Block text="hello, world" onCreateBlock={handleCreateBlock} /> */}
       {blocks.map((block, i) => (
         // TODO: add key prop
-        <Block
+        <BlockGroup
           key={block.key}
           blockIndex={i}
           text={block.text}

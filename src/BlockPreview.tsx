@@ -1,6 +1,6 @@
 interface BlockPreviewProps {
   previewIndex: 0 | 1 | null;
-  text: string;
+  text: string[];
 }
 
 export default function BlockPreview({
