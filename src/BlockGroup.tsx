@@ -1,10 +1,9 @@
-// import { FormEvent, KeyboardEvent, useEffect, useRef, useState } from "react";
 import { useEffect, useRef, useState } from "react";
 import BlockAdd from "./BlockAdd";
 import BlockMarker, { Position } from "./BlockMarker";
 import { BlockGroupInfo, BlockInfo } from "./NoteContent";
 import Block from "./Block";
-import BlockPreview from "./BlockPreview";
+import BlockGroupPreview from "./BlockGroupPreview";
 
 interface BlockGroupProps {
   blockGroupIndex: number;
@@ -67,8 +66,8 @@ export default function BlockGroup({
     onSetFocus(blockGroupIndex, blockIndex, isFocused);
   }
 
-  function handleAddBlock(createAtIndex: number) {
-    onCreateBlock(createAtIndex);
+  function handleAddBlock() {
+    onCreateBlock(blockGroupIndex + 1);
   }
 
   useEffect(() => {
@@ -139,19 +138,49 @@ export default function BlockGroup({
 
   // const displayTexts = texts.slice();
 
-  const displayTexts: (BlockInfo & { moving: boolean })[] = texts.map(
-    (text) => ({ ...text, moving: false })
-  );
+  // const displayTexts: (BlockInfo & { moving: boolean })[] = texts.map(
+  //   (text) => ({ ...text, moving: false })
+  // );
+
+  // if (previewIndex !== null && currMovingBlockGroup)
+  //   displayTexts.splice(
+  //     previewIndex,
+  //     0,
+  //     ...currMovingBlockGroup.texts.map((text) => ({ ...text, moving: true }))
+  //   );
+
+  const blocks = texts.map((text, blockIndex) => (
+    <Block
+      key={text.key}
+      blockIndex={blockIndex}
+      text={text.text}
+      isFocused={focusBlockIndex === blockIndex}
+      onTextUpdate={handleTextUpdate}
+      onSetFocus={handleSetFocus}
+      onAddBlock={handleAddBlock}
+    />
+  ));
 
   if (previewIndex !== null && currMovingBlockGroup)
-    displayTexts.splice(
+    blocks.splice(
       previewIndex,
       0,
-      ...currMovingBlockGroup.texts.map((text) => ({ ...text, moving: true }))
+      <BlockGroupPreview texts={currMovingBlockGroup.texts} />
     );
+  // blocks.splice(
+  //   previewIndex,
+  //   0,
+  //   <div
+  //     className="blockGroupPreview"
+  //     style={{ flexGrow: currMovingBlockGroup.texts.length }}
+  //   >
+  //     {currMovingBlockGroup.texts.map((text) => (
+  //       <BlockPreview text={text} />
+  //     ))}
+  //   </div>
+  // );
 
   return (
-    // <textarea ref={blockRef} className="block" onInput={handleInput}>
     <>
       {blockGroupIndex === 0 ? (
         <BlockAdd createAtIndex={blockGroupIndex} onAddBlock={handleAddBlock} />
@@ -180,23 +209,7 @@ export default function BlockGroup({
             ? currMovingBlockGroup.texts
             : []),
         ].map((text, blockIndex) => ( */}
-        {displayTexts.map((text, blockIndex) =>
-          // TODO: merge this previews. the background shouldn't break between them
-          text.moving ? (
-            <BlockPreview text={text} />
-          ) : (
-            <Block
-              key={text.key}
-              blockIndex={blockIndex}
-              text={text.text}
-              isFocused={focusBlockIndex === blockIndex}
-              onTextUpdate={handleTextUpdate}
-              onSetFocus={handleSetFocus}
-              onAddBlock={handleAddBlock}
-              // onCreateBlock={onCreateBlock}
-            />
-          )
-        )}
+        {blocks}
       </div>
       <BlockAdd
         createAtIndex={blockGroupIndex + 1}

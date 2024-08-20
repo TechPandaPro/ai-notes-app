@@ -6,7 +6,7 @@ interface BlockProps {
   isFocused: boolean;
   onTextUpdate: (blockIndex: number, newText: string) => void;
   onSetFocus: (blockIndex: number, isFocused: boolean) => void;
-  onAddBlock: (createAtIndex: number) => void;
+  onAddBlock: () => void;
 }
 
 export default function Block({
@@ -42,7 +42,7 @@ export default function Block({
   function handleKeyDown(e: KeyboardEvent<HTMLTextAreaElement>) {
     if (e.key === "Enter") {
       e.preventDefault();
-      onAddBlock(blockIndex + 1);
+      onAddBlock();
     }
   }
 
@@ -63,23 +63,25 @@ export default function Block({
   }, []);
 
   return (
-    <textarea
-      ref={blockEditableRef}
-      style={{
-        height: blockHeight,
-        // backgroundColor: autoFocus ? "blue" : "transparent",
-      }} /* numbers are automatically converted to px */
-      rows={
-        1
-      } /* this will be overriden by the style prop when the textarea has a value */
-      className="blockEditable"
-      defaultValue={text}
-      autoFocus={isFocused}
-      onInput={handleInput}
-      onKeyDown={handleKeyDown}
-      onFocus={handleFocus}
-      onBlur={handleBlur}
-      // defaultValue={previewIndex}
-    />
+    <div className="block">
+      <textarea
+        ref={blockEditableRef}
+        style={{
+          height: blockHeight,
+          // backgroundColor: autoFocus ? "blue" : "transparent",
+        }} /* numbers are automatically converted to px */
+        rows={
+          1
+        } /* this will be overriden by the style prop when the textarea has a value */
+        className="blockEditable"
+        defaultValue={text}
+        autoFocus={isFocused}
+        onInput={handleInput}
+        onKeyDown={handleKeyDown}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
+        // defaultValue={previewIndex}
+      />
+    </div>
   );
 }

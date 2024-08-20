@@ -20,8 +20,6 @@ interface FullBlockIndex {
 }
 
 export default function NoteContent() {
-  // function handleInput() {}
-
   const [blockGroups, setBlockGroups] = useState<BlockGroupInfo[]>([
     {
       texts: [
@@ -33,22 +31,32 @@ export default function NoteContent() {
           text: "lorem ipsum",
           key: `${Date.now()}_1`,
         },
+        {
+          text: "dolor sit amet",
+          key: `${Date.now()}_2`,
+        },
       ],
       key: `${Date.now()}_0`,
       position: null,
       moving: false,
     },
+    {
+      texts: [
+        {
+          text: "hello, world",
+          key: `${Date.now()}_0`,
+        },
+        {
+          text: "lorem ipsum",
+          key: `${Date.now()}_1`,
+        },
+      ],
+      key: `${Date.now()}_1`,
+      position: null,
+      moving: false,
+    },
   ]);
   const [focusIndex, setFocusIndex] = useState<FullBlockIndex | null>(null);
-
-  // for (let i = 0; i < blocks.length; i++) {
-  //   const block = blocks[i];
-  //   if (!block.key) {
-  //     const newBlocks = blocks.slice();
-  //     newBlocks[i].key = generateBlockKey();
-  //     setBlocks(newBlocks);
-  //   }
-  // }
 
   function handleTextUpdate(
     blockGroupIndex: number,
@@ -57,10 +65,8 @@ export default function NoteContent() {
   ) {
     const nextBlocks = blockGroups.slice();
     const nextBlock = { ...nextBlocks[blockGroupIndex] };
-    // FIXME: support multiple texts
-    nextBlock.texts[0].text = newTexts;
+    nextBlock.texts[blockIndex].text = newTexts;
     nextBlocks[blockGroupIndex] = nextBlock;
-    // nextBlock.texts = [newTexts];
     setBlockGroups(nextBlocks);
   }
 
@@ -75,7 +81,6 @@ export default function NoteContent() {
       blockIndex === focusIndex.blockIndex
     )
       setFocusIndex(null);
-    // console.log(isFocused);
   }
 
   function handleCreateBlock(createAtIndex: number) {
@@ -95,8 +100,6 @@ export default function NoteContent() {
     const nextBlocks = blockGroups.slice();
     nextBlocks.splice(createAtIndex, 0, newBlockGroup);
 
-    // console.log(nextBlocks);
-    // setBlocks([...blocks, ""]);
     setBlockGroups(nextBlocks);
   }
 
@@ -105,16 +108,12 @@ export default function NoteContent() {
     const nextBlock = { ...nextBlocks[blockGroupIndex] };
     nextBlocks[blockGroupIndex] = nextBlock;
     if (position) {
-      // nextBlocks[blockIndex].position = position;
-      // nextBlocks[blockIndex].moving = true;
       nextBlock.position = position;
       nextBlock.moving = true;
     } else nextBlock.moving = false;
     setBlockGroups(nextBlocks);
   }
 
-  // function generateBlockKey(siblingBlocks: BlockGroupInfo[] | BlockInfo[]) {
-  // function generateBlockKey(siblingBlocks: { key: string }[]) {
   function generateBlockKey(siblingBlocks: (BlockGroupInfo | BlockInfo)[]) {
     const stamp = Date.now();
     const foundCount = siblingBlocks.filter(
@@ -127,22 +126,12 @@ export default function NoteContent() {
     blockGroups.find((blockGroup) => blockGroup.moving) ?? null;
 
   return (
-    // <div
-    //   className="noteContent"
-    //   contentEditable={true}
-    //   // onInput={handleInput}
-    //   suppressContentEditableWarning={true}
-    // ></div>
     <div className="noteContent">
-      {/* <textarea className="block">hello, world</textarea> */}
-      {/* <Block text="hello, world" onCreateBlock={handleCreateBlock} /> */}
       {blockGroups.map((blockGroup, blockGroupIndex) => (
-        // TODO: add key prop
         <BlockGroup
           key={blockGroup.key}
           blockGroupIndex={blockGroupIndex}
           texts={blockGroup.texts}
-          // FIXME: autoFocus should not be universal for group
           focusBlockIndex={
             focusIndex && blockGroupIndex === focusIndex.blockGroupIndex
               ? focusIndex.blockIndex
