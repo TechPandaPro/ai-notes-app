@@ -38,10 +38,10 @@ const root = createRoot(document.getElementById("root"));
 
 root.render(<App />);
 
-document.addEventListener("click", () => {
-  console.log("clicked");
-});
+// document.addEventListener("click", () => {
+//   console.log("clicked");
+// });
 
-document.addEventListener("drop", (e) => {
-  e.preventDefault();
-});
+// document.addEventListener("drop", (e) => {
+//   e.preventDefault();
+// });

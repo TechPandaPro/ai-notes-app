@@ -1,29 +1,37 @@
 // import { useRef } from "react";
 
 // import { FormEvent, KeyboardEvent, useEffect, useRef, useState } from "react";
-import { KeyboardEvent, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import BlockAdd from "./BlockAdd";
 import BlockMarker, { Position } from "./BlockMarker";
-import { BlockInfo } from "./NoteContent";
+import { BlockGroupInfo, BlockInfo } from "./NoteContent";
 import BlockPreview from "./BlockPreview";
 import Block from "./Block";
 
-interface BlockProps {
-  blockIndex: number;
-  text: string[];
+interface BlockGroupProps {
+  blockGroupIndex: number;
+  texts: BlockInfo[];
   autoFocus: boolean;
   position: Position;
   moving: boolean;
-  currMovingBlock: BlockInfo;
-  onTextUpdate: (blockIndex: number, newText: string) => void;
-  onSetFocus: (blockIndex: number, isFocused: boolean) => void;
+  currMovingBlock: BlockGroupInfo;
+  onTextUpdate: (
+    blockGroupIndex: number,
+    blockIndex: number,
+    newText: string
+  ) => void;
+  onSetFocus: (
+    blockGroupIndex: number,
+    blockIndex: number,
+    isFocused: boolean
+  ) => void;
   onCreateBlock: (createAtIndex: number) => void;
-  onMove: (blockIndex: number, position: Position) => void;
+  onMove: (blockGroupIndex: number, position: Position) => void;
 }
 
 export default function BlockGroup({
-  blockIndex,
-  text,
+  blockGroupIndex,
+  texts,
   autoFocus,
   position,
   moving,
@@ -32,25 +40,33 @@ export default function BlockGroup({
   onSetFocus,
   onCreateBlock,
   onMove,
-}: BlockProps) {
+}: BlockGroupProps) {
   const [previewIndex, setPreviewIndex] = useState<0 | 1 | null>(null);
 
   const blockRef = useRef<HTMLDivElement>(null);
   // const blockEditableRef = useRef<HTMLTextAreaElement>(null);
 
-  function handleKeyDown(e: KeyboardEvent) {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      onCreateBlock(blockIndex + 1);
-    }
+  // function handleKeyDown(e: KeyboardEvent) {
+  //   if (e.key === "Enter") {
+  //     e.preventDefault();
+  //     onCreateBlock(blockIndex + 1);
+  //   }
+  // }
+
+  // function handleFocus() {
+  //   onSetFocus(blockIndex, true);
+  // }
+
+  // function handleBlur() {
+  //   onSetFocus(blockIndex, false);
+  // }
+
+  function handleTextUpdate(blockIndex: number, newText: string) {
+    onTextUpdate(blockGroupIndex, blockIndex, newText);
   }
 
-  function handleFocus() {
-    onSetFocus(blockIndex, true);
-  }
-
-  function handleBlur() {
-    onSetFocus(blockIndex, false);
+  function handleSetFocus(blockIndex: number, isFocused: boolean) {
+    onSetFocus(blockGroupIndex, blockIndex, isFocused);
   }
 
   function handleAddBlock(createAtIndex: number) {
@@ -58,7 +74,7 @@ export default function BlockGroup({
   }
 
   useEffect(() => {
-    console.log(currMovingBlock);
+    // console.log(currMovingBlock);
     if (currMovingBlock) {
       const top =
         currMovingBlock.position.y - currMovingBlock.position.height / 2;
@@ -111,14 +127,14 @@ export default function BlockGroup({
   return (
     // <textarea ref={blockRef} className="block" onInput={handleInput}>
     <>
-      {blockIndex === 0 ? (
-        <BlockAdd createAtIndex={blockIndex} onAddBlock={handleAddBlock} />
+      {blockGroupIndex === 0 ? (
+        <BlockAdd createAtIndex={blockGroupIndex} onAddBlock={handleAddBlock} />
       ) : (
         ""
       )}
       <div className={`block ${autoFocus ? "focus" : ""}`} ref={blockRef}>
         <BlockMarker
-          blockIndex={blockIndex}
+          blockGroupIndex={blockGroupIndex}
           onMove={onMove}
           position={position}
           moving={moving}
@@ -126,20 +142,27 @@ export default function BlockGroup({
         {previewIndex === null || !currMovingBlock ? null : (
           <BlockPreview
             previewIndex={previewIndex}
-            text={currMovingBlock.text}
+            texts={currMovingBlock.texts}
           />
         )}
-        {text.map((t) => (
+        {texts.map((text, blockIndex) => (
           // FIXME: make sure autoFocus actually works
           <Block
-            blockGroupIndex={blockIndex}
+            key={text.key}
+            blockIndex={blockIndex}
             autoFocus={false}
-            text={t}
+            text={text.text}
+            onTextUpdate={handleTextUpdate}
+            onSetFocus={handleSetFocus}
+            onAddBlock={handleAddBlock}
             // onCreateBlock={onCreateBlock}
           />
         ))}
       </div>
-      <BlockAdd createAtIndex={blockIndex + 1} onAddBlock={handleAddBlock} />
+      <BlockAdd
+        createAtIndex={blockGroupIndex + 1}
+        onAddBlock={handleAddBlock}
+      />
     </>
   );
 }

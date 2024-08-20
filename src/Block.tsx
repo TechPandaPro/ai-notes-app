@@ -1,19 +1,21 @@
 import { ChangeEvent, KeyboardEvent, useEffect, useRef, useState } from "react";
 
 interface BlockProps {
-  blockGroupIndex: number;
+  blockIndex: number;
   autoFocus: boolean;
   text: string;
-  onTextUpdate: (blockGroupIndex: number, newText: string) => void;
-  onCreateBlock: (createAtIndex: number) => void;
+  onTextUpdate: (blockIndex: number, newText: string) => void;
+  onSetFocus: (blockIndex: number, isFocused: boolean) => void;
+  onAddBlock: (createAtIndex: number) => void;
 }
 
 export default function Block({
-  blockGroupIndex,
+  blockIndex,
   autoFocus,
   text,
   onTextUpdate,
-  onCreateBlock,
+  onSetFocus,
+  onAddBlock,
 }: BlockProps) {
   const [blockHeight, setBlockHeight] = useState<number | null>(null);
 
@@ -26,13 +28,21 @@ export default function Block({
     // console.log("input!");
 
     setSize();
-    onTextUpdate(blockGroupIndex, e.target.value);
+    onTextUpdate(blockIndex, e.target.value);
+  }
+
+  function handleFocus() {
+    onSetFocus(blockIndex, true);
+  }
+
+  function handleBlur() {
+    onSetFocus(blockIndex, false);
   }
 
   function handleKeyDown(e: KeyboardEvent<HTMLTextAreaElement>) {
     if (e.key === "Enter") {
       e.preventDefault();
-      onCreateBlock(blockGroupIndex + 1);
+      onAddBlock(blockIndex + 1);
     }
   }
 

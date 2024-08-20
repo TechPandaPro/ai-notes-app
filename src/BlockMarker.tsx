@@ -17,14 +17,14 @@ interface PositionInterface {
 export type Position = PositionInterface | null;
 
 interface BlockMarkerProps {
-  blockIndex: number;
+  blockGroupIndex: number;
   position: Position;
   moving: boolean;
-  onMove: (blockIndex: number, position: Position) => void;
+  onMove: (blockGroupIndex: number, position: Position) => void;
 }
 
 export default function BlockMarker({
-  blockIndex,
+  blockGroupIndex,
   position,
   moving,
   onMove,
@@ -57,7 +57,7 @@ export default function BlockMarker({
     //   offsetY: blockMarkerRect.height / 2 - e.nativeEvent.offsetY,
     // });
 
-    onMove(blockIndex, {
+    onMove(blockGroupIndex, {
       x: e.clientX,
       y: e.clientY,
       width: blockMarkerRect.width,
@@ -79,7 +79,7 @@ export default function BlockMarker({
     // setPosition(null);
     // setOffset(null);
 
-    onMove(blockIndex, null);
+    onMove(blockGroupIndex, null);
 
     // setMoving(false);
   }
@@ -102,7 +102,7 @@ export default function BlockMarker({
     //   offsetY: position.offsetY,
     // });
 
-    onMove(blockIndex, {
+    onMove(blockGroupIndex, {
       x: e.clientX,
       y: e.clientY,
       width: position.width,

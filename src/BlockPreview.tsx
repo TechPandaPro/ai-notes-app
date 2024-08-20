@@ -1,11 +1,13 @@
+import { BlockInfo } from "./NoteContent";
+
 interface BlockPreviewProps {
   previewIndex: 0 | 1 | null;
-  text: string[];
+  texts: BlockInfo[];
 }
 
 export default function BlockPreview({
   previewIndex,
-  text,
+  texts,
 }: BlockPreviewProps) {
   return (
     <div
@@ -13,7 +15,8 @@ export default function BlockPreview({
         previewIndex === null ? "" : ["left", "right"][previewIndex]
       }`}
     >
-      {text}
+      {/* FIXME: make multiple texts work with block preview */}
+      {texts.map((text) => text.text).join(", ")}
     </div>
   );
 }
