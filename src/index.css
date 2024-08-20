@@ -177,17 +177,38 @@ body {
 
 .blockPreview {
   position: absolute;
-  background-color: red;
-  width: 50%;
-  height: 100%;
+  /* background-color: red; */
+  outline: 2px solid rgb(173 216 230 / 0.3);
+  /* background-image: repeating-linear-gradient(
+    315deg,
+    transparent 0,
+    transparent 5px,
+    rgb(173 216 230 / 0.3) 6px,
+    rgb(173 216 230 / 0.3) 8px,
+    transparent 9px,
+    transparent 14px
+  ); */
+  background-image: repeating-linear-gradient(
+    315deg,
+    rgb(173 216 230 / 0.1) 0,
+    rgb(173 216 230 / 0.1) 2px,
+    transparent 2px,
+    transparent 4px
+  );
+  border-radius: 4px;
+  width: calc(50% - 20px);
+  height: calc(100% - 10px);
+  padding: 10px 10px;
+  box-sizing: border-box;
+  top: 5px;
 }
 
 .blockPreview.left {
-  left: 0;
+  left: 10px;
 }
 
 .blockPreview.right {
-  right: 0;
+  right: 10px;
 }
 
 .blockEditable {

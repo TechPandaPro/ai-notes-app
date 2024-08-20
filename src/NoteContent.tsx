@@ -31,6 +31,14 @@ export default function NoteContent() {
   //   }
   // }
 
+  function handleTextUpdate(blockIndex: number, newText: string) {
+    const nextBlocks = blocks.slice();
+    const nextBlock = { ...nextBlocks[blockIndex] };
+    nextBlocks[blockIndex] = nextBlock;
+    nextBlock.text = newText;
+    setBlocks(nextBlocks);
+  }
+
   function handleSetFocus(blockIndex: number, isFocused: boolean) {
     if (isFocused) setFocusIndex(blockIndex);
     else if (blockIndex === focusIndex) setFocusIndex(null);
@@ -95,6 +103,7 @@ export default function NoteContent() {
           position={block.position}
           moving={block.moving}
           currMovingBlock={!block.moving ? currMovingBlock : null}
+          onTextUpdate={handleTextUpdate}
           onSetFocus={handleSetFocus}
           onCreateBlock={handleCreateBlock}
           onMove={handleMove}

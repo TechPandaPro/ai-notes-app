@@ -1,7 +1,7 @@
 // import { useRef } from "react";
 
 // import { FormEvent, KeyboardEvent, useEffect, useRef, useState } from "react";
-import { KeyboardEvent, useEffect, useRef, useState } from "react";
+import { ChangeEvent, KeyboardEvent, useEffect, useRef, useState } from "react";
 import BlockAdd from "./BlockAdd";
 import BlockMarker, { Position } from "./BlockMarker";
 import { BlockInfo } from "./NoteContent";
@@ -14,6 +14,7 @@ interface BlockProps {
   position: Position;
   moving: boolean;
   currMovingBlock: BlockInfo;
+  onTextUpdate: (blockIndex: number, newText: string) => void;
   onSetFocus: (blockIndex: number, isFocused: boolean) => void;
   onCreateBlock: (createAtIndex: number) => void;
   onMove: (blockIndex: number, position: Position) => void;
@@ -26,6 +27,7 @@ export default function Block({
   position,
   moving,
   currMovingBlock,
+  onTextUpdate,
   onSetFocus,
   onCreateBlock,
   onMove,
@@ -38,12 +40,13 @@ export default function Block({
 
   // const blockRef = useRef(null);
 
-  function handleInput() {
+  function handleInput(e: ChangeEvent<HTMLTextAreaElement>) {
     // function handleInput(e: FormEvent<HTMLTextAreaElement>) {
     // const target = e.target as HTMLTextAreaElement;
     // console.log("input!");
 
     setSize();
+    onTextUpdate(blockIndex, e.target.value);
   }
 
   function handleKeyDown(e: KeyboardEvent) {
@@ -148,8 +151,11 @@ export default function Block({
           position={position}
           moving={moving}
         />
-        {previewIndex === null ? null : (
-          <BlockPreview previewIndex={previewIndex} />
+        {previewIndex === null || !currMovingBlock ? null : (
+          <BlockPreview
+            previewIndex={previewIndex}
+            text={currMovingBlock.text}
+          />
         )}
         <textarea
           ref={blockEditableRef}
