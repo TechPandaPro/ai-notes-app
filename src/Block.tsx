@@ -4,6 +4,8 @@
 import { KeyboardEvent, useEffect, useRef, useState } from "react";
 import BlockAdd from "./BlockAdd";
 import BlockMarker, { Position } from "./BlockMarker";
+import { BlockInfo } from "./NoteContent";
+import BlockPreview from "./BlockPreview";
 
 interface BlockProps {
   blockIndex: number;
@@ -11,6 +13,7 @@ interface BlockProps {
   autoFocus: boolean;
   position: Position;
   moving: boolean;
+  currMovingBlock: BlockInfo;
   onSetFocus: (blockIndex: number, isFocused: boolean) => void;
   onCreateBlock: (createAtIndex: number) => void;
   onMove: (blockIndex: number, position: Position) => void;
@@ -22,13 +25,16 @@ export default function Block({
   autoFocus,
   position,
   moving,
+  currMovingBlock,
   onSetFocus,
   onCreateBlock,
   onMove,
 }: BlockProps) {
   const [blockHeight, setBlockHeight] = useState<number | null>(null);
+  const [previewIndex, setPreviewIndex] = useState<0 | 1 | null>(null);
 
-  const blockRef = useRef<HTMLTextAreaElement>(null);
+  const blockRef = useRef<HTMLDivElement>(null);
+  const blockEditableRef = useRef<HTMLTextAreaElement>(null);
 
   // const blockRef = useRef(null);
 
@@ -62,7 +68,7 @@ export default function Block({
   function setSize() {
     // console.log("set size");
     // if (!blockRef) return;
-    const block = blockRef.current;
+    const block = blockEditableRef.current;
     // TODO: consider using invisible div to measure this. that way the dom that react manages won't be manipulated
     const oldHeight = block.style.height;
     block.style.height = "0";
@@ -73,10 +79,59 @@ export default function Block({
   }
 
   useEffect(() => {
+    console.log(currMovingBlock);
+    if (currMovingBlock) {
+      const top =
+        currMovingBlock.position.y - currMovingBlock.position.height / 2;
+      const left =
+        currMovingBlock.position.x - currMovingBlock.position.width / 2;
+      const right =
+        currMovingBlock.position.x + currMovingBlock.position.width / 2;
+      const bottom =
+        currMovingBlock.position.y + currMovingBlock.position.height / 2;
+
+      const currRect = blockRef.current.getBoundingClientRect();
+
+      // const isOverlapping =
+      //   bottom > currRect.top &&
+      //   top < currRect.bottom &&
+      //   right > currRect.left &&
+      //   left < currRect.right;
+
+      const isOverlapping =
+        bottom > currRect.top &&
+        top < currRect.bottom &&
+        right > currRect.left &&
+        left < currRect.right &&
+        (top > currRect.top ||
+          Math.abs(bottom - currRect.top) >=
+            currMovingBlock.position.height / 2) &&
+        (bottom < currRect.bottom ||
+          Math.abs(top - currRect.bottom) >
+            currMovingBlock.position.height / 2);
+
+      if (isOverlapping) {
+        const nextPreviewIndex = Number(
+          left + (right - left) / 2 > currRect.width / 2
+        ) as 0 | 1;
+        setPreviewIndex(nextPreviewIndex);
+      } else setPreviewIndex(null);
+
+      // const createAtIndex = Number(
+      //   left + (right - left) / 2 > currRect.width / 2
+      // );
+
+      // console.log("running?");
+
+      // blockEditableRef.current.value = `${
+      //   isOverlapping ? "true" : "false"
+      // } ${createAtIndex}`;
+    } else setPreviewIndex(null);
+
     // console.log("create");
     window.addEventListener("resize", setSize);
     return () => window.removeEventListener("resize", setSize);
-  }, []);
+  }, [currMovingBlock]);
 
   return (
     // <textarea ref={blockRef} className="block" onInput={handleInput}>
@@ -86,15 +141,18 @@ export default function Block({
       ) : (
         ""
       )}
-      <div className={`block ${autoFocus ? "focus" : ""}`}>
+      <div className={`block ${autoFocus ? "focus" : ""}`} ref={blockRef}>
         <BlockMarker
           blockIndex={blockIndex}
           onMove={onMove}
           position={position}
           moving={moving}
         />
+        {previewIndex === null ? null : (
+          <BlockPreview previewIndex={previewIndex} />
+        )}
         <textarea
-          ref={blockRef}
+          ref={blockEditableRef}
           style={{
             height: blockHeight,
             // backgroundColor: autoFocus ? "blue" : "transparent",
@@ -109,6 +167,7 @@ export default function Block({
           onFocus={handleFocus}
           onBlur={handleBlur}
           defaultValue={text}
+          // defaultValue={previewIndex}
         />
       </div>
       <BlockAdd createAtIndex={blockIndex + 1} onAddBlock={handleAddBlock} />

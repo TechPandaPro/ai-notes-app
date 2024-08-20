@@ -158,21 +158,36 @@ body {
   z-index: 99;
 }
 
-.blockMarker:not(:hover) .blockMarkerInner {
+.blockMarker:not(:hover, .moving) .blockMarkerInner {
   transform: translateX(calc(-100% + 4px));
 }
 
-.block.focus .blockMarker:not(:hover) .blockMarkerInner {
+.block.focus .blockMarker:not(:hover, .moving) .blockMarkerInner {
   transform: translateX(calc(-100% + 8px));
 }
 
-.blockMarker:hover .blockMarkerInner {
+.blockMarker:not(.moving):hover .blockMarkerInner {
   /* background-color: red; */
   transform: translateX(calc(-100% + 12px));
 }
 
 .blockMarker.moving .blockMarkerInner {
   transform: translateX(0);
+}
+
+.blockPreview {
+  position: absolute;
+  background-color: red;
+  width: 50%;
+  height: 100%;
+}
+
+.blockPreview.left {
+  left: 0;
+}
+
+.blockPreview.right {
+  right: 0;
 }
 
 .blockEditable {

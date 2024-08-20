@@ -2,7 +2,7 @@ import { useState } from "react";
 import Block from "./Block";
 import { Position } from "./BlockMarker";
 
-interface BlockInfo {
+export interface BlockInfo {
   text: string;
   key: string;
   position: Position;
@@ -54,10 +54,14 @@ export default function NoteContent() {
 
   function handleMove(blockIndex: number, position: Position) {
     const nextBlocks = blocks.slice();
+    const nextBlock = { ...nextBlocks[blockIndex] };
+    nextBlocks[blockIndex] = nextBlock;
     if (position) {
-      nextBlocks[blockIndex].position = position;
-      nextBlocks[blockIndex].moving = true;
-    } else nextBlocks[blockIndex].moving = false;
+      // nextBlocks[blockIndex].position = position;
+      // nextBlocks[blockIndex].moving = true;
+      nextBlock.position = position;
+      nextBlock.moving = true;
+    } else nextBlock.moving = false;
     setBlocks(nextBlocks);
   }
 
@@ -68,6 +72,8 @@ export default function NoteContent() {
     ).length;
     return `${stamp}_${foundCount}`;
   }
+
+  const currMovingBlock = blocks.find((block) => block.moving) ?? null;
 
   return (
     // <div
@@ -88,6 +94,7 @@ export default function NoteContent() {
           autoFocus={i === focusIndex}
           position={block.position}
           moving={block.moving}
+          currMovingBlock={!block.moving ? currMovingBlock : null}
           onSetFocus={handleSetFocus}
           onCreateBlock={handleCreateBlock}
           onMove={handleMove}

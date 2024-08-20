@@ -124,8 +124,6 @@ export default function BlockMarker({
   //   return () => window.removeEventListener("mousemove", updateMouseState);
   // }, []);
 
-  console.log(position);
-
   return (
     <>
       {moving ? <div className="blockMarkerOverlay"></div> : ""}
