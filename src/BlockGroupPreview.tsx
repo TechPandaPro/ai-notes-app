@@ -9,7 +9,7 @@ export default function BlockGroupPreview({ texts }: BlockGroupPreviewProps) {
   return (
     <div className="blockGroupPreview" style={{ flexGrow: texts.length }}>
       {texts.map((text) => (
-        <BlockPreview text={text} />
+        <BlockPreview key={text.key} text={text} />
       ))}
     </div>
   );

@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+// import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import BlockAdd from "./BlockAdd";
 import BlockMarker, { Position } from "./BlockMarker";
 import { BlockGroupInfo, BlockInfo } from "./NoteContent";
@@ -12,6 +13,7 @@ interface BlockGroupProps {
   position: Position;
   moving: boolean;
   currMovingBlockGroup: BlockGroupInfo;
+  previewIndex: number;
   onTextUpdate: (
     blockGroupIndex: number,
     blockIndex: number,
@@ -24,6 +26,10 @@ interface BlockGroupProps {
   ) => void;
   onCreateBlock: (createAtIndex: number) => void;
   onMove: (blockGroupIndex: number, position: Position) => void;
+  onPreviewIndexUpdate: (
+    blockGroupIndex: number,
+    previewIndex: number | null
+  ) => void;
 }
 
 export default function BlockGroup({
@@ -33,12 +39,14 @@ export default function BlockGroup({
   position,
   moving,
   currMovingBlockGroup,
+  previewIndex,
   onTextUpdate,
   onSetFocus,
   onCreateBlock,
   onMove,
+  onPreviewIndexUpdate,
 }: BlockGroupProps) {
-  const [previewIndex, setPreviewIndex] = useState<number | null>(null);
+  // const [previewIndex, setPreviewIndex] = useState<number | null>(null);
 
   const blockGroupRef = useRef<HTMLDivElement>(null);
   // const blockEditableRef = useRef<HTMLTextAreaElement>(null);
@@ -121,8 +129,10 @@ export default function BlockGroup({
         const nextPreviewIndex = Math.floor(
           (centerX / blockGroupRect.width) * placementOptionsCount
         );
-        setPreviewIndex(nextPreviewIndex);
-      } else setPreviewIndex(null);
+        // setPreviewIndex(nextPreviewIndex);
+        onPreviewIndexUpdate(blockGroupIndex, nextPreviewIndex);
+        // } else setPreviewIndex(null);
+      } else onPreviewIndexUpdate(blockGroupIndex, null);
 
       // const createAtIndex = Number(
       //   left + (right - left) / 2 > currRect.width / 2
@@ -133,7 +143,8 @@ export default function BlockGroup({
       // blockEditableRef.current.value = `${
       //   isOverlapping ? "true" : "false"
       // } ${createAtIndex}`;
-    } else setPreviewIndex(null);
+      // } else setPreviewIndex(null);
+    } else onPreviewIndexUpdate(blockGroupIndex, null);
   }, [currMovingBlockGroup]);
 
   // const displayTexts = texts.slice();
@@ -165,7 +176,10 @@ export default function BlockGroup({
     blocks.splice(
       previewIndex,
       0,
-      <BlockGroupPreview texts={currMovingBlockGroup.texts} />
+      <BlockGroupPreview
+        key={`${currMovingBlockGroup.key}_preview`}
+        texts={currMovingBlockGroup.texts}
+      />
     );
   // blocks.splice(
   //   previewIndex,

@@ -12,6 +12,7 @@ export interface BlockGroupInfo {
   key: string;
   position: Position;
   moving: boolean;
+  previewIndex: number | null;
 }
 
 interface FullBlockIndex {
@@ -39,6 +40,7 @@ export default function NoteContent() {
       key: `${Date.now()}_0`,
       position: null,
       moving: false,
+      previewIndex: null,
     },
     {
       texts: [
@@ -54,9 +56,11 @@ export default function NoteContent() {
       key: `${Date.now()}_1`,
       position: null,
       moving: false,
+      previewIndex: null,
     },
   ]);
   const [focusIndex, setFocusIndex] = useState<FullBlockIndex | null>(null);
+  const [previewIndex, setPreviewIndex] = useState<FullBlockIndex | null>(null);
 
   function handleTextUpdate(
     blockGroupIndex: number,
@@ -91,6 +95,7 @@ export default function NoteContent() {
       key: generateBlockKey(blockGroups),
       position: null,
       moving: false,
+      previewIndex: null,
     };
     newBlockGroup.texts.push({
       text: "",
@@ -112,6 +117,16 @@ export default function NoteContent() {
       nextBlock.moving = true;
     } else nextBlock.moving = false;
     setBlockGroups(nextBlocks);
+  }
+
+  function handlePreviewIndexUpdate(
+    blockGroupIndex: number,
+    blockIndex: number | null
+  ) {
+    console.log({ blockGroupIndex, blockIndex });
+    if (blockIndex !== null) setPreviewIndex({ blockGroupIndex, blockIndex });
+    else if (previewIndex && blockGroupIndex === previewIndex?.blockGroupIndex)
+      setPreviewIndex(null);
   }
 
   function generateBlockKey(siblingBlocks: (BlockGroupInfo | BlockInfo)[]) {
@@ -142,10 +157,16 @@ export default function NoteContent() {
           currMovingBlockGroup={
             !blockGroup.moving ? currMovingBlockGroup : null
           }
+          previewIndex={
+            previewIndex && blockGroupIndex === previewIndex.blockGroupIndex
+              ? previewIndex.blockIndex
+              : null
+          }
           onTextUpdate={handleTextUpdate}
           onSetFocus={handleSetFocus}
           onCreateBlock={handleCreateBlock}
           onMove={handleMove}
+          onPreviewIndexUpdate={handlePreviewIndexUpdate}
         />
       ))}
     </div>
