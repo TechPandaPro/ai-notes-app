@@ -26,6 +26,7 @@ interface BlockGroupPropsBase {
     blockIndex: number,
     isFocused: boolean
   ) => void;
+  onAddBlock: (blockGroupIndex: number, createAtIndex: number) => void;
   onAddBlockGroup: (createAtIndex: number) => void;
   onMove: (blockGroupIndex: number, position: Position) => void;
   onPreviewIndexUpdate: (
@@ -57,6 +58,7 @@ export default function BlockGroup({
   previewIndex,
   onTextUpdate,
   onSetFocus,
+  onAddBlock,
   onAddBlockGroup,
   onMove,
   onPreviewIndexUpdate,
@@ -94,8 +96,16 @@ export default function BlockGroup({
     onSetFocus(blockGroupIndex, blockIndex, isFocused);
   }
 
+  function handleAddBlock(createAtIndex: number) {
+    onAddBlock(blockGroupIndex, createAtIndex);
+  }
+
   function handleAddBlockGroup(createAtIndex: number) {
     onAddBlockGroup(createAtIndex);
+  }
+
+  function handleAddBlockGroupFromBlock() {
+    onAddBlockGroup(blockGroupIndex + 1);
   }
 
   useEffect(() => {
@@ -199,7 +209,8 @@ export default function BlockGroup({
       isFocused={focusBlockIndex === blockIndex}
       onTextUpdate={handleTextUpdate}
       onSetFocus={handleSetFocus}
-      onAddBlockGroup={() => onAddBlockGroup(blockGroupIndex + 1)}
+      onAddBlock={handleAddBlock}
+      onAddBlockGroup={handleAddBlockGroupFromBlock}
     />
   ));
 

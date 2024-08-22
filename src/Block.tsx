@@ -44,6 +44,8 @@ export default function Block({
     onSetFocus(blockIndex, false);
   }
 
+  // TODO: allow user to press esc to unfocus, and maybe press it again to enter "edit mode"
+  // doesn't necessarily need to be within block component though
   function handleKeyDown(e: KeyboardEvent<HTMLTextAreaElement>) {
     if (e.key === "Enter") {
       e.preventDefault();
@@ -51,6 +53,8 @@ export default function Block({
     }
   }
 
+  // TODO: make sure that size gets updated when another block's size is updated within the same group
+  // (i.e. the backgrounds shouldn't be inconsistent)
   function setSize() {
     const block = blockEditableRef.current;
     if (!block) return;
@@ -79,6 +83,15 @@ export default function Block({
 
   return (
     <div className="block">
+      {siblingCount + 1 < 5 && blockIndex === 0 ? (
+        <BlockAddInline
+          createAtIndex={blockIndex}
+          position={-1}
+          onAddBlock={handleAddBlock}
+        />
+      ) : (
+        ""
+      )}
       <textarea
         ref={blockEditableRef}
         style={{
@@ -97,10 +110,16 @@ export default function Block({
         onBlur={handleBlur}
         // defaultValue={previewIndex}
       />
-      <BlockAddInline
-        createAtIndex={blockIndex + 1}
-        onAddBlock={handleAddBlock}
-      />
+      {/* FIXME: fix bug where this is positioned at 1 instead of 0, even though it's last block in group (caused by previews) */}
+      {siblingCount + 1 < 5 ? (
+        <BlockAddInline
+          createAtIndex={blockIndex + 1}
+          position={blockIndex === siblingCount ? 0 : 1}
+          onAddBlock={handleAddBlock}
+        />
+      ) : (
+        ""
+      )}
     </div>
   );
 }

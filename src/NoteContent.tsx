@@ -101,6 +101,17 @@ export default function NoteContent() {
       setFocusIndex(null);
   }
 
+  function handleAddBlock(blockGroupIndex: number, createAtIndex: number) {
+    const nextBlocks = blockGroups.slice();
+    const nextBlock = { ...nextBlocks[blockGroupIndex] };
+    nextBlock.texts.splice(createAtIndex, 0, {
+      text: "",
+      key: generateBlockKey(nextBlock.texts),
+    });
+    setBlockGroups(nextBlocks);
+    setFocusIndex({ blockGroupIndex, blockIndex: createAtIndex });
+  }
+
   function handleAddBlockGroup(createAtIndex: number) {
     setFocusIndex({ blockGroupIndex: createAtIndex, blockIndex: 0 });
 
@@ -230,6 +241,7 @@ export default function NoteContent() {
           }
           onTextUpdate={handleTextUpdate}
           onSetFocus={handleSetFocus}
+          onAddBlock={handleAddBlock}
           onAddBlockGroup={handleAddBlockGroup}
           onMove={handleMove}
           onPreviewIndexUpdate={handlePreviewIndexUpdate}

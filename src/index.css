@@ -257,11 +257,13 @@ body {
   flex: 1 0 0;
 }
 
+/* TODO: maybe consider adding a similar divider between block groups */
 .block + .block::after,
 .block + .blockGroupPreview::after,
 .blockGroupPreview + .block::after {
   content: "";
   position: absolute;
+  pointer-events: none;
   width: 1px;
   height: 60%;
   left: 0;
@@ -307,19 +309,6 @@ body {
   /* box-shadow: 0 0 10px rgb(0 0 0 / 0.1); */
 }
 
-.blockAddContainerVertical {
-  position: absolute;
-  /* z-index: -1; */
-  pointer-events: none;
-  right: 0;
-  /* right: 5px; */
-  top: 50%;
-  transform: translateY(-50%);
-  width: 75px;
-  height: 30px;
-  /* background-color: blue; */
-}
-
 .blockAddContainer:first-of-type {
   position: relative;
   top: 10px;
@@ -336,7 +325,7 @@ body {
 
 .blockAddRegion,
 .blockAdd,
-.blockAddInnerVertical {
+.blockAddInnerInline {
   cursor: pointer;
 }
 
@@ -403,8 +392,69 @@ body {
   /* flex-shrink: 0; */
 }
 
+.blockAddContainerInline {
+  position: absolute;
+  z-index: 2;
+  /* z-index: -1; */
+  pointer-events: none;
+  /* right: 0; */
+  /* right: 5px; */
+  /* top: 50%;
+  transform: translateY(-50%); */
+  width: 75px;
+  height: 30px;
+  /* background-color: blue; */
+}
+
+.blockAddContainerInline.left {
+  left: 24px;
+  top: 50%;
+  /* bottom: 5px; */
+  width: 25px;
+  height: 25px;
+  transform: translateY(-50%);
+}
+
+.blockAddContainerInline.middle,
+.blockAddContainerInline.right {
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* .blockAddContainerVertical.left .blockAddInnerVertical {
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+} */
+
+.blockAddContainerInline.left .blockAddInnerInline {
+  /* left: 20px; */
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.blockAddContainerInline.middle .blockAddInnerInline {
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.blockAddContainerInline.right {
+  right: 0;
+  top: 50%;
+  transform: translate(50%, -50%);
+}
+
+.blockAddContainerInline.right .blockAddInnerInline {
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
 .blockAddInner,
-.blockAddInnerVertical {
+.blockAddInnerInline {
   position: absolute;
   /* left: 50%;
   top: 50%;
@@ -418,22 +468,33 @@ body {
   /* position: relative; */
 }
 
+/* .blockGroup .block:first-of-type {
+  background-color: blue;
+}
+
+.blockGroup
+  .block:first-of-type
+  .blockAddContainerVertical
+  .blockAddInnerVertical {
+  background-color: blue !important;
+} */
+
 .blockAddInner {
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
 }
 
-.blockAddInnerVertical {
+.blockAddInnerInline {
   pointer-events: auto;
-  right: 10px;
+  /* right: 10px; */
   top: 50%;
   transform: translateY(-50%);
   /* z-index: 100; */
 }
 
 .blockAddInner:hover,
-.blockAddInnerVertical:hover {
+.blockAddInnerInline:hover {
   background-color: rgb(221 221 221);
   opacity: 1;
 }
@@ -442,7 +503,7 @@ body {
   opacity: 0.5;
 } */
 
-.blockAddContainerVertical.show .blockAddInnerVertical:not(:hover) {
+.blockAddContainerInline.show .blockAddInnerInline:not(:hover) {
   opacity: 0.5;
 }
 
@@ -451,7 +512,7 @@ body {
 } */
 
 .blockAddInner::before,
-.blockAddInnerVertical::before {
+.blockAddInnerInline::before {
   content: "";
   position: absolute;
   background-color: rgb(64 64 64);
@@ -464,7 +525,7 @@ body {
 }
 
 .blockAddInner::after,
-.blockAddInnerVertical::after {
+.blockAddInnerInline::after {
   content: "";
   position: absolute;
   background-color: rgb(64 64 64);

@@ -2,14 +2,16 @@ import { useEffect, useRef, useState } from "react";
 
 interface BlockAddInlineProps {
   createAtIndex: number;
+  position: -1 | 0 | 1;
   onAddBlock: (blockIndex: number) => void;
 }
 
 export default function BlockAddInline({
   createAtIndex,
+  position,
   onAddBlock,
 }: BlockAddInlineProps) {
-  const [showButton, setShowButton] = useState<boolean>(true);
+  const [showButton, setShowButton] = useState<boolean>(false);
   const blockAddInlineRef = useRef<HTMLDivElement>(null);
 
   function checkRegion(e: MouseEvent) {
@@ -41,7 +43,9 @@ export default function BlockAddInline({
 
   return (
     <div
-      className={`blockAddContainerVertical ${showButton ? "show" : ""}`}
+      className={`blockAddContainerInline ${showButton ? "show" : ""} ${
+        ["left", "middle", "right"][position + 1]
+      }`}
       ref={blockAddInlineRef}
     >
       {/* <div
@@ -49,7 +53,7 @@ export default function BlockAddInline({
     onClick={() => console.log("create")}
   ></div> */}
       <div
-        className="blockAddInnerVertical"
+        className="blockAddInnerInline"
         onClick={() => onAddBlock(createAtIndex)}
       ></div>
     </div>
