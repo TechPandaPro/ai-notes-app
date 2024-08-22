@@ -200,12 +200,12 @@ export default function BlockGroup({
     <Block
       key={text.key}
       blockIndex={blockIndex}
+      text={text.text}
       siblingCount={
         texts.length -
         1 +
         (doAddPreview ? currMovingBlockGroup.texts.length : 0)
       }
-      text={text.text}
       isFocused={focusBlockIndex === blockIndex}
       onTextUpdate={handleTextUpdate}
       onSetFocus={handleSetFocus}

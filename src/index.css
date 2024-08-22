@@ -265,7 +265,7 @@ body {
   position: absolute;
   pointer-events: none;
   width: 1px;
-  height: 60%;
+  height: calc(100% - 20px);
   left: 0;
   top: 50%;
   background-color: rgb(211 211 211 / 0.3);
@@ -390,6 +390,10 @@ body {
   opacity: 0;
   transition: opacity 0.1s;
   /* flex-shrink: 0; */
+}
+
+.noteContent.moving .blockAddContainerInline {
+  display: none;
 }
 
 .blockAddContainerInline {

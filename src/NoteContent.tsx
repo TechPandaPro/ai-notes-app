@@ -193,7 +193,7 @@ export default function NoteContent() {
     blockGroups.find((blockGroup) => blockGroup.moving) ?? null;
 
   return (
-    <div className="noteContent">
+    <div className={`noteContent ${currMovingBlockGroup ? "moving" : ""}`}>
       {blockGroups.map((blockGroup, blockGroupIndex) => (
         <BlockGroup
           key={blockGroup.key}

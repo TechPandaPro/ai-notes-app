@@ -1,10 +1,13 @@
+// TODO: AI! keybind can maybe be shift+enter to send to GPT
+
 import { ChangeEvent, KeyboardEvent, useEffect, useRef, useState } from "react";
 import BlockAddInline from "./BlockAddInline";
 
 interface BlockProps {
   blockIndex: number;
-  siblingCount: number;
   text: string;
+  siblingCount: number;
+  // lastInGroup: boolean;
   isFocused: boolean;
   onTextUpdate: (blockIndex: number, newText: string) => void;
   onSetFocus: (blockIndex: number, isFocused: boolean) => void;
@@ -14,8 +17,9 @@ interface BlockProps {
 
 export default function Block({
   blockIndex,
-  siblingCount,
   text,
+  siblingCount,
+  // lastInGroup,
   isFocused,
   onTextUpdate,
   onSetFocus,
@@ -65,6 +69,15 @@ export default function Block({
     setBlockHeight(block.scrollHeight);
     if (oldHeight) block.style.setProperty("height", oldHeight);
     else block.style.removeProperty("height");
+
+    const measureElem = document.createElement("div");
+    // TODO: make sure this has same padding/etc as blockEditable, and it needs to be absolute and have visibility: hidden
+    measureElem.classList.add("measureElem");
+    measureElem.innerText = block.value;
+    document.body.append(measureElem);
+    // do stuff with the height accordingly
+    console.log(measureElem.offsetHeight);
+    measureElem.remove();
   }
 
   function handleAddBlock(createAtIndex: number) {
@@ -110,11 +123,11 @@ export default function Block({
         onBlur={handleBlur}
         // defaultValue={previewIndex}
       />
-      {/* FIXME: fix bug where this is positioned at 1 instead of 0, even though it's last block in group (caused by previews) */}
       {siblingCount + 1 < 5 ? (
         <BlockAddInline
           createAtIndex={blockIndex + 1}
           position={blockIndex === siblingCount ? 0 : 1}
+          // position={lastInGroup ? 0 : 1}
           onAddBlock={handleAddBlock}
         />
       ) : (
