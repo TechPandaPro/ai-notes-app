@@ -1,4 +1,5 @@
 import { ChangeEvent, KeyboardEvent, useEffect, useRef, useState } from "react";
+import BlockAddInline from "./BlockAddInline";
 
 interface BlockProps {
   blockIndex: number;
@@ -7,7 +8,8 @@ interface BlockProps {
   isFocused: boolean;
   onTextUpdate: (blockIndex: number, newText: string) => void;
   onSetFocus: (blockIndex: number, isFocused: boolean) => void;
-  onAddBlock: () => void;
+  onAddBlock: (createAtIndex: number) => void;
+  onAddBlockGroup: () => void;
 }
 
 export default function Block({
@@ -18,6 +20,7 @@ export default function Block({
   onTextUpdate,
   onSetFocus,
   onAddBlock,
+  onAddBlockGroup,
 }: BlockProps) {
   const [blockHeight, setBlockHeight] = useState<number | null>(null);
 
@@ -44,7 +47,7 @@ export default function Block({
   function handleKeyDown(e: KeyboardEvent<HTMLTextAreaElement>) {
     if (e.key === "Enter") {
       e.preventDefault();
-      onAddBlock();
+      onAddBlockGroup();
     }
   }
 
@@ -58,6 +61,10 @@ export default function Block({
     setBlockHeight(block.scrollHeight);
     if (oldHeight) block.style.setProperty("height", oldHeight);
     else block.style.removeProperty("height");
+  }
+
+  function handleAddBlock(createAtIndex: number) {
+    onAddBlock(createAtIndex);
   }
 
   useEffect(() => {
@@ -90,15 +97,10 @@ export default function Block({
         onBlur={handleBlur}
         // defaultValue={previewIndex}
       />
-      <div className="blockAddContainerVertical">
-        <div
-          className="blockAddRegionVertical"
-          onClick={() => console.log("create")}
-        ></div>
-        <div className="blockAddVertical">
-          <div className="blockAddInnerVertical"></div>
-        </div>
-      </div>
+      <BlockAddInline
+        createAtIndex={blockIndex + 1}
+        onAddBlock={handleAddBlock}
+      />
     </div>
   );
 }

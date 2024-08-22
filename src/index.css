@@ -252,6 +252,7 @@ body {
 
 .block {
   position: relative;
+  /* pointer-events: none; */
   /* box-sizing: border-box; */
   flex: 1 0 0;
 }
@@ -270,6 +271,7 @@ body {
 }
 
 .blockEditable {
+  /* pointer-events: auto; */
   font: inherit;
   color: inherit;
   background-color: transparent;
@@ -305,6 +307,19 @@ body {
   /* box-shadow: 0 0 10px rgb(0 0 0 / 0.1); */
 }
 
+.blockAddContainerVertical {
+  position: absolute;
+  /* z-index: -1; */
+  pointer-events: none;
+  right: 0;
+  /* right: 5px; */
+  top: 50%;
+  transform: translateY(-50%);
+  width: 75px;
+  height: 30px;
+  /* background-color: blue; */
+}
+
 .blockAddContainer:first-of-type {
   position: relative;
   top: 10px;
@@ -314,13 +329,14 @@ body {
   position: absolute;
   z-index: 1;
   /* background-color: blue; */
-  height: 30px;
+  height: 25px;
   width: 100%;
   transform: translateY(-50%);
 }
 
 .blockAddRegion,
-.blockAdd {
+.blockAdd,
+.blockAddInnerVertical {
   cursor: pointer;
 }
 
@@ -387,11 +403,12 @@ body {
   /* flex-shrink: 0; */
 }
 
-.blockAddInner {
+.blockAddInner,
+.blockAddInnerVertical {
   position: absolute;
-  left: 50%;
+  /* left: 50%;
   top: 50%;
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%); */
   width: 20px;
   height: 20px;
   border-radius: 50%;
@@ -401,16 +418,40 @@ body {
   /* position: relative; */
 }
 
-.blockAddInner:hover {
-  background-color: rgb(221, 221, 221);
+.blockAddInner {
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.blockAddInnerVertical {
+  pointer-events: auto;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  /* z-index: 100; */
+}
+
+.blockAddInner:hover,
+.blockAddInnerVertical:hover {
+  background-color: rgb(221 221 221);
   opacity: 1;
+}
+
+/* .blockAddContainerVertical:hover .blockAddInnerVertical:not(:hover) {
+  opacity: 0.5;
+} */
+
+.blockAddContainerVertical.show .blockAddInnerVertical:not(:hover) {
+  opacity: 0.5;
 }
 
 /* .blockAddInner:hover {
   background-color: rgb(221, 221, 221);
 } */
 
-.blockAddInner::before {
+.blockAddInner::before,
+.blockAddInnerVertical::before {
   content: "";
   position: absolute;
   background-color: rgb(64 64 64);
@@ -422,7 +463,8 @@ body {
   transform: translate(-50%, -50%);
 }
 
-.blockAddInner::after {
+.blockAddInner::after,
+.blockAddInnerVertical::after {
   content: "";
   position: absolute;
   background-color: rgb(64 64 64);
@@ -432,28 +474,6 @@ body {
   top: 50%;
   border-radius: 1px;
   transform: translate(-50%, -50%);
-}
-
-.blockAddContainerVertical {
-  position: absolute;
-  right: 5px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 30px;
-  height: 30px;
-  background-color: blue;
-}
-
-.blockAddInnerVertical {
-  /* content: ""; */
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background-color: lightgray;
 }
 
 @keyframes blockGrowIn {

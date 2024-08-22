@@ -1,6 +1,6 @@
 interface BlockAddProps {
   createAtIndex: number;
-  onAddBlock: (index: number) => void;
+  onAddBlock: (createAtIndex: number) => void;
 }
 
 export default function BlockAdd({ createAtIndex, onAddBlock }: BlockAddProps) {

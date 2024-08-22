@@ -101,7 +101,7 @@ export default function NoteContent() {
       setFocusIndex(null);
   }
 
-  function handleCreateBlock(createAtIndex: number) {
+  function handleAddBlockGroup(createAtIndex: number) {
     setFocusIndex({ blockGroupIndex: createAtIndex, blockIndex: 0 });
 
     const newBlockGroup: BlockGroupInfo = {
@@ -230,7 +230,7 @@ export default function NoteContent() {
           }
           onTextUpdate={handleTextUpdate}
           onSetFocus={handleSetFocus}
-          onCreateBlock={handleCreateBlock}
+          onAddBlockGroup={handleAddBlockGroup}
           onMove={handleMove}
           onPreviewIndexUpdate={handlePreviewIndexUpdate}
         />
