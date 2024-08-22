@@ -7,13 +7,26 @@ export interface BlockInfo {
   key: string;
 }
 
-export interface BlockGroupInfo {
+interface BlockGroupBase {
+  // export interface BlockGroupInfo {
   texts: BlockInfo[];
   key: string;
   position: Position;
   moving: boolean;
   previewIndex: number | null;
 }
+
+export interface BlockGroupStatic extends BlockGroupBase {
+  moving: false;
+  position: null;
+}
+
+export interface BlockGroupMoving extends BlockGroupBase {
+  moving: true;
+  position: Exclude<Position, null>;
+}
+
+export type BlockGroupInfo = BlockGroupStatic | BlockGroupMoving;
 
 interface FullBlockIndex {
   blockGroupIndex: number;
@@ -115,7 +128,29 @@ export default function NoteContent() {
     if (position) {
       nextBlock.position = position;
       nextBlock.moving = true;
-    } else nextBlock.moving = false;
+    } else {
+      nextBlock.position = null;
+      nextBlock.moving = false;
+      if (previewIndex !== null) {
+        // TODO: add a limit for merging
+        const nextPreviewedBlock = {
+          ...nextBlocks[previewIndex.blockGroupIndex],
+        };
+        nextPreviewedBlock.texts.splice(
+          previewIndex.blockIndex,
+          0,
+          ...nextBlock.texts
+        );
+        nextBlocks.splice(blockGroupIndex, 1);
+        // TODO: in general, the use of "block" vs "block groups" might be confusing.
+        // maybe try to update this for consistency. "blocks" should be "block groups", and
+        // "texts" should be "blocks". (UNLESS you strictly think of "blocks" as the components
+        // themselves, in which case it's fine to call them texts. think about this later.)
+        for (const text of nextBlock.texts)
+          text.key = generateBlockKey(nextPreviewedBlock.texts);
+        setPreviewIndex(null);
+      }
+    }
     setBlockGroups(nextBlocks);
   }
 
@@ -123,7 +158,7 @@ export default function NoteContent() {
     blockGroupIndex: number,
     blockIndex: number | null
   ) {
-    console.log({ blockGroupIndex, blockIndex });
+    // console.log({ blockGroupIndex, blockIndex });
     if (blockIndex !== null) setPreviewIndex({ blockGroupIndex, blockIndex });
     else if (previewIndex && blockGroupIndex === previewIndex?.blockGroupIndex)
       setPreviewIndex(null);
@@ -156,6 +191,11 @@ export default function NoteContent() {
           moving={blockGroup.moving}
           currMovingBlockGroup={
             !blockGroup.moving ? currMovingBlockGroup : null
+          }
+          failMove={
+            blockGroup.texts.length + currMovingBlockGroup.texts.length > 5
+              ? true
+              : false
           }
           previewIndex={
             previewIndex && blockGroupIndex === previewIndex.blockGroupIndex

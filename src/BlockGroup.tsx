@@ -2,7 +2,7 @@
 import { useEffect, useRef } from "react";
 import BlockAdd from "./BlockAdd";
 import BlockMarker, { Position } from "./BlockMarker";
-import { BlockGroupInfo, BlockInfo } from "./NoteContent";
+import { BlockGroupMoving, BlockInfo } from "./NoteContent";
 import Block from "./Block";
 import BlockGroupPreview from "./BlockGroupPreview";
 
@@ -12,7 +12,8 @@ interface BlockGroupProps {
   focusBlockIndex: number | null;
   position: Position;
   moving: boolean;
-  currMovingBlockGroup: BlockGroupInfo;
+  currMovingBlockGroup: BlockGroupMoving;
+  failMove: boolean;
   previewIndex: number;
   onTextUpdate: (
     blockGroupIndex: number,
@@ -39,6 +40,7 @@ export default function BlockGroup({
   position,
   moving,
   currMovingBlockGroup,
+  failMove,
   previewIndex,
   onTextUpdate,
   onSetFocus,
@@ -80,7 +82,7 @@ export default function BlockGroup({
 
   useEffect(() => {
     // console.log(currMovingBlockGroup);
-    if (currMovingBlockGroup) {
+    if (currMovingBlockGroup && blockGroupRef.current) {
       const top =
         currMovingBlockGroup.position.y -
         currMovingBlockGroup.position.height / 2;
@@ -160,6 +162,8 @@ export default function BlockGroup({
   //     ...currMovingBlockGroup.texts.map((text) => ({ ...text, moving: true }))
   //   );
 
+  // console.log(texts);
+
   const blocks = texts.map((text, blockIndex) => (
     <Block
       key={text.key}
@@ -202,7 +206,9 @@ export default function BlockGroup({
         ""
       )}
       <div
-        className={`blockGroup ${focusBlockIndex !== null ? "focus" : ""}`}
+        className={`blockGroup ${focusBlockIndex !== null ? "focus" : ""} ${
+          failMove ? "failMove" : ""
+        }`}
         ref={blockGroupRef}
       >
         <BlockMarker

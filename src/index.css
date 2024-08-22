@@ -255,6 +255,7 @@ body {
 }
 
 /* TODO: make this "soft" on the left and right sides too. consider using box-shadow instead of gradient */
+/* ^ could also consider adding a focus class to focused blocks, and then using ::before on that */
 /* .blockEditable:focus::before {
   content: "";
   position: absolute;
@@ -270,6 +271,7 @@ body {
     rgb(0 0 0 / 0.1) calc(100% - 10px),
     transparent
   );
+  /* box-shadow: 0 0 10px rgb(0 0 0 / 0.1); */
 }
 
 .blockAddContainer:first-of-type {
