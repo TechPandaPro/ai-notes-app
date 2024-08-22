@@ -34,7 +34,12 @@ console.log(
   '👋 This message is being logged by "renderer.js", included via webpack'
 );
 
-const root = createRoot(document.getElementById("root"));
+const rootElem = document.createElement("div");
+rootElem.id = "root";
+document.body.append(rootElem);
+
+const root = createRoot(rootElem);
+// const root = createRoot(document.getElementById("root"));
 
 root.render(<App />);
 

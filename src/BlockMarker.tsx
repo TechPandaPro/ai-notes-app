@@ -16,12 +16,24 @@ interface PositionInterface {
 
 export type Position = PositionInterface | null;
 
-interface BlockMarkerProps {
+interface BlockMarkerPropsBase {
   blockGroupIndex: number;
-  position: Position;
   moving: boolean;
+  position: Position;
   onMove: (blockGroupIndex: number, position: Position) => void;
 }
+
+interface BlockMarkerPropsStatic extends BlockMarkerPropsBase {
+  moving: false;
+  position: null;
+}
+
+interface BlockMarkerPropsMoving extends BlockMarkerPropsBase {
+  moving: true;
+  position: Exclude<Position, null>;
+}
+
+type BlockMarkerProps = BlockMarkerPropsStatic | BlockMarkerPropsMoving;
 
 export default function BlockMarker({
   blockGroupIndex,
@@ -72,6 +84,8 @@ export default function BlockMarker({
   }
 
   function handleMouseUp(e: ReactMouseEvent) {
+    if (!moving) return;
+
     // window.removeEventListener("mousemove", updateMouseState);
 
     e.preventDefault();
@@ -85,6 +99,8 @@ export default function BlockMarker({
   }
 
   function updateMouseState(e: MouseEvent) {
+    if (!moving) return;
+
     // const blockMarker = (e.target as HTMLDivElement).parentElement;
     // const parentRect =
     //   blockMarkerRef.current.parentElement.getBoundingClientRect();

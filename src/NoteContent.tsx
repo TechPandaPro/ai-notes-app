@@ -11,8 +11,8 @@ interface BlockGroupBase {
   // export interface BlockGroupInfo {
   texts: BlockInfo[];
   key: string;
-  position: Position;
   moving: boolean;
+  position: Position;
   previewIndex: number | null;
 }
 
@@ -94,6 +94,7 @@ export default function NoteContent() {
   ) {
     if (isFocused) setFocusIndex({ blockGroupIndex, blockIndex });
     else if (
+      focusIndex && // for type checking
       blockGroupIndex === focusIndex.blockGroupIndex &&
       blockIndex === focusIndex.blockIndex
     )
@@ -187,12 +188,19 @@ export default function NoteContent() {
               ? focusIndex.blockIndex
               : null
           }
-          position={blockGroup.position}
-          moving={blockGroup.moving}
+          // moving={blockGroup.moving}
+          // position={blockGroup.position}
+          {...(blockGroup.moving
+            ? {
+                moving: true as const,
+                position: blockGroup.position as Exclude<Position, null>,
+              }
+            : { moving: false as const, position: null })}
           currMovingBlockGroup={
             !blockGroup.moving ? currMovingBlockGroup : null
           }
           failMove={
+            currMovingBlockGroup &&
             blockGroup.texts.length + currMovingBlockGroup.texts.length > 5
               ? true
               : false

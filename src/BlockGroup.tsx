@@ -6,15 +6,16 @@ import { BlockGroupMoving, BlockInfo } from "./NoteContent";
 import Block from "./Block";
 import BlockGroupPreview from "./BlockGroupPreview";
 
-interface BlockGroupProps {
+interface BlockGroupPropsBase {
+  // interface BlockGroupProps {
   blockGroupIndex: number;
   texts: BlockInfo[];
   focusBlockIndex: number | null;
-  position: Position;
   moving: boolean;
-  currMovingBlockGroup: BlockGroupMoving;
+  position: Position;
+  currMovingBlockGroup: BlockGroupMoving | null;
   failMove: boolean;
-  previewIndex: number;
+  previewIndex: number | null;
   onTextUpdate: (
     blockGroupIndex: number,
     blockIndex: number,
@@ -33,6 +34,18 @@ interface BlockGroupProps {
   ) => void;
 }
 
+interface BlockGroupPropsStatic extends BlockGroupPropsBase {
+  moving: false;
+  position: null;
+}
+
+interface BlockGroupPropsMoving extends BlockGroupPropsBase {
+  moving: true;
+  position: Exclude<Position, null>;
+}
+
+type BlockGroupProps = BlockGroupPropsStatic | BlockGroupPropsMoving;
+
 export default function BlockGroup({
   blockGroupIndex,
   texts,
@@ -48,6 +61,11 @@ export default function BlockGroup({
   onMove,
   onPreviewIndexUpdate,
 }: BlockGroupProps) {
+  // decided to move this down to the jsx instead
+  // const movingInfo = moving
+  //   ? { moving: true as const, position: position as Exclude<Position, null> }
+  //   : { moving: false as const, position: null };
+
   // const [previewIndex, setPreviewIndex] = useState<number | null>(null);
 
   const blockGroupRef = useRef<HTMLDivElement>(null);
@@ -214,8 +232,15 @@ export default function BlockGroup({
         <BlockMarker
           blockGroupIndex={blockGroupIndex}
           onMove={onMove}
-          position={position}
-          moving={moving}
+          // moving={moving}
+          // position={position}
+          // {...{ moving, position }}
+          {...(moving
+            ? {
+                moving: true as const,
+                position: position as Exclude<Position, null>,
+              }
+            : { moving: false as const, position: null })}
         />
         {/* {previewIndex === null || !currMovingBlockGroup ? null : (
           <BlockPreview

@@ -48,6 +48,7 @@ export default function Block({
 
   function setSize() {
     const block = blockEditableRef.current;
+    if (!block) return;
     // TODO: consider using invisible div to measure this. that way the dom that react manages won't be manipulated
     const oldHeight = block.style.height;
     block.style.height = "0";
@@ -67,7 +68,7 @@ export default function Block({
       <textarea
         ref={blockEditableRef}
         style={{
-          height: blockHeight,
+          height: blockHeight ?? undefined,
           // backgroundColor: autoFocus ? "blue" : "transparent",
         }} /* numbers are automatically converted to px */
         rows={
