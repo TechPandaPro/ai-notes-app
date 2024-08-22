@@ -90,7 +90,24 @@ body {
 .blockGroup {
   position: relative;
   display: flex;
+  transition: opacity 0.1s, background-color 0.1s;
   animation: blockGrowIn 0.1s;
+}
+
+/* .blockGroup.failMove {
+  background-color: red;
+  } */
+
+.blockGroup.invalidMove {
+  opacity: 0.5;
+}
+
+.blockGroup.invalidMove .blockGroupPreview {
+  display: none;
+}
+
+.blockGroup.failMove {
+  background-color: rgb(255 0 0 / 0.5);
 }
 
 .blockMarker {
@@ -234,8 +251,22 @@ body {
 } */
 
 .block {
+  position: relative;
   /* box-sizing: border-box; */
   flex: 1 0 0;
+}
+
+.block + .block::after,
+.block + .blockGroupPreview::after,
+.blockGroupPreview + .block::after {
+  content: "";
+  position: absolute;
+  width: 1px;
+  height: 60%;
+  left: 0;
+  top: 50%;
+  background-color: rgb(211 211 211 / 0.3);
+  transform: translate(-50%, -50%);
 }
 
 .blockEditable {
@@ -401,6 +432,28 @@ body {
   top: 50%;
   border-radius: 1px;
   transform: translate(-50%, -50%);
+}
+
+.blockAddContainerVertical {
+  position: absolute;
+  right: 5px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 30px;
+  height: 30px;
+  background-color: blue;
+}
+
+.blockAddInnerVertical {
+  /* content: ""; */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: lightgray;
 }
 
 @keyframes blockGrowIn {

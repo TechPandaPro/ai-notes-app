@@ -2,6 +2,7 @@ import { ChangeEvent, KeyboardEvent, useEffect, useRef, useState } from "react";
 
 interface BlockProps {
   blockIndex: number;
+  siblingCount: number;
   text: string;
   isFocused: boolean;
   onTextUpdate: (blockIndex: number, newText: string) => void;
@@ -11,6 +12,7 @@ interface BlockProps {
 
 export default function Block({
   blockIndex,
+  siblingCount,
   text,
   isFocused,
   onTextUpdate,
@@ -63,6 +65,11 @@ export default function Block({
     return () => window.removeEventListener("resize", setSize);
   }, []);
 
+  useEffect(() => {
+    console.log("resie");
+    setSize();
+  }, [siblingCount]);
+
   return (
     <div className="block">
       <textarea
@@ -83,6 +90,15 @@ export default function Block({
         onBlur={handleBlur}
         // defaultValue={previewIndex}
       />
+      <div className="blockAddContainerVertical">
+        <div
+          className="blockAddRegionVertical"
+          onClick={() => console.log("create")}
+        ></div>
+        <div className="blockAddVertical">
+          <div className="blockAddInnerVertical"></div>
+        </div>
+      </div>
     </div>
   );
 }

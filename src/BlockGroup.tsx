@@ -14,7 +14,7 @@ interface BlockGroupPropsBase {
   moving: boolean;
   position: Position;
   currMovingBlockGroup: BlockGroupMoving | null;
-  failMove: boolean;
+  invalidMove: boolean;
   previewIndex: number | null;
   onTextUpdate: (
     blockGroupIndex: number,
@@ -53,7 +53,7 @@ export default function BlockGroup({
   position,
   moving,
   currMovingBlockGroup,
-  failMove,
+  invalidMove,
   previewIndex,
   onTextUpdate,
   onSetFocus,
@@ -182,10 +182,19 @@ export default function BlockGroup({
 
   // console.log(texts);
 
+  /* even invalid previews are still added. such previews
+   * are considered "failed" and are hidden by the CSS */
+  const doAddPreview = previewIndex !== null && currMovingBlockGroup;
+
   const blocks = texts.map((text, blockIndex) => (
     <Block
       key={text.key}
       blockIndex={blockIndex}
+      siblingCount={
+        texts.length -
+        1 +
+        (doAddPreview ? currMovingBlockGroup.texts.length : 0)
+      }
       text={text.text}
       isFocused={focusBlockIndex === blockIndex}
       onTextUpdate={handleTextUpdate}
@@ -194,7 +203,8 @@ export default function BlockGroup({
     />
   ));
 
-  if (previewIndex !== null && currMovingBlockGroup)
+  if (doAddPreview)
+    // if (!invalidMove && previewIndex !== null && currMovingBlockGroup)
     blocks.splice(
       previewIndex,
       0,
@@ -225,8 +235,8 @@ export default function BlockGroup({
       )}
       <div
         className={`blockGroup ${focusBlockIndex !== null ? "focus" : ""} ${
-          failMove ? "failMove" : ""
-        }`}
+          invalidMove ? "invalidMove" : ""
+        } ${doAddPreview && invalidMove ? "failMove" : ""}`}
         ref={blockGroupRef}
       >
         <BlockMarker

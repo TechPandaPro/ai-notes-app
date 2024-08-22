@@ -132,7 +132,12 @@ export default function NoteContent() {
     } else {
       nextBlock.position = null;
       nextBlock.moving = false;
-      if (previewIndex !== null) {
+      if (
+        previewIndex !== null &&
+        nextBlocks[previewIndex.blockGroupIndex].texts.length +
+          nextBlock.texts.length <=
+          5
+      ) {
         // TODO: add a limit for merging
         const nextPreviewedBlock = {
           ...nextBlocks[previewIndex.blockGroupIndex],
@@ -198,12 +203,25 @@ export default function NoteContent() {
             : { moving: false as const, position: null })}
           currMovingBlockGroup={
             !blockGroup.moving ? currMovingBlockGroup : null
+            // !blockGroup.moving
+            //   ? currMovingBlockGroup &&
+            //     blockGroup.texts.length + currMovingBlockGroup.texts.length <= 5
+            //     ? currMovingBlockGroup
+            //     : null
+            //   : null
           }
-          failMove={
-            currMovingBlockGroup &&
-            blockGroup.texts.length + currMovingBlockGroup.texts.length > 5
-              ? true
-              : false
+          invalidMove={
+            !!(
+              !blockGroup.moving &&
+              currMovingBlockGroup &&
+              blockGroup.texts.length + currMovingBlockGroup.texts.length > 5
+            )
+            // currMovingBlockGroup &&
+            // previewIndex &&
+            // blockGroupIndex === previewIndex.blockGroupIndex &&
+            // blockGroup.texts.length + currMovingBlockGroup.texts.length > 5
+            //   ? true
+            //   : false
           }
           previewIndex={
             previewIndex && blockGroupIndex === previewIndex.blockGroupIndex
