@@ -16,6 +16,7 @@ interface BlockGroupPropsBase {
   currMovingBlockGroup: BlockGroupMoving | null;
   invalidMove: boolean;
   previewIndex: number | null;
+  isDeleting: boolean;
   onTextUpdate: (
     blockGroupIndex: number,
     blockIndex: number,
@@ -56,6 +57,7 @@ export default function BlockGroup({
   currMovingBlockGroup,
   invalidMove,
   previewIndex,
+  isDeleting,
   onTextUpdate,
   onSetFocus,
   onAddBlock,
@@ -207,6 +209,7 @@ export default function BlockGroup({
         (doAddPreview ? currMovingBlockGroup.texts.length : 0)
       }
       isFocused={focusBlockIndex === blockIndex}
+      isDeleting={isDeleting}
       onTextUpdate={handleTextUpdate}
       onSetFocus={handleSetFocus}
       onAddBlock={handleAddBlock}
@@ -237,9 +240,11 @@ export default function BlockGroup({
   //   </div>
   // );
 
+  console.log(isDeleting);
+
   return (
     <>
-      {blockGroupIndex === 0 ? (
+      {!isDeleting && blockGroupIndex === 0 ? (
         <BlockAdd
           createAtIndex={blockGroupIndex}
           onAddBlock={handleAddBlockGroup}
@@ -280,10 +285,14 @@ export default function BlockGroup({
         ].map((text, blockIndex) => ( */}
         {blocks}
       </div>
-      <BlockAdd
-        createAtIndex={blockGroupIndex + 1}
-        onAddBlock={handleAddBlockGroup}
-      />
+      {!isDeleting ? (
+        <BlockAdd
+          createAtIndex={blockGroupIndex + 1}
+          onAddBlock={handleAddBlockGroup}
+        />
+      ) : (
+        ""
+      )}
     </>
   );
 }

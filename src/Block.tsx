@@ -9,6 +9,7 @@ interface BlockProps {
   siblingCount: number;
   // lastInGroup: boolean;
   isFocused: boolean;
+  isDeleting: boolean;
   onTextUpdate: (blockIndex: number, newText: string) => void;
   onSetFocus: (blockIndex: number, isFocused: boolean) => void;
   onAddBlock: (createAtIndex: number) => void;
@@ -21,6 +22,7 @@ export default function Block({
   siblingCount,
   // lastInGroup,
   isFocused,
+  isDeleting,
   onTextUpdate,
   onSetFocus,
   onAddBlock,
@@ -63,20 +65,23 @@ export default function Block({
     const block = blockEditableRef.current;
     if (!block) return;
     // TODO: consider using invisible div to measure this. that way the dom that react manages won't be manipulated
-    const oldHeight = block.style.height;
-    block.style.height = "0";
-    block.offsetHeight;
-    setBlockHeight(block.scrollHeight);
-    if (oldHeight) block.style.setProperty("height", oldHeight);
-    else block.style.removeProperty("height");
+    // const oldHeight = block.style.height;
+    // block.style.height = "0";
+    // block.offsetHeight;
+    // setBlockHeight(block.scrollHeight);
+    // if (oldHeight) block.style.setProperty("height", oldHeight);
+    // else block.style.removeProperty("height");
 
     const measureElem = document.createElement("div");
     // TODO: make sure this has same padding/etc as blockEditable, and it needs to be absolute and have visibility: hidden
     measureElem.classList.add("measureElem");
     measureElem.innerText = block.value;
+    measureElem.style.width = `${block.offsetWidth}px`;
     document.body.append(measureElem);
     // do stuff with the height accordingly
-    console.log(measureElem.offsetHeight);
+    // console.log(measureElem.offsetHeight);
+    setBlockHeight(measureElem.offsetHeight);
+    // console.log(measureElem.offsetHeight);
     measureElem.remove();
   }
 
@@ -90,13 +95,18 @@ export default function Block({
   }, []);
 
   useEffect(() => {
-    console.log("resie");
+    // console.log("resize");
     setSize();
   }, [siblingCount]);
 
+  useEffect(() => {
+    if (!blockEditableRef.current) return;
+    if (!isFocused) blockEditableRef.current.blur();
+  }, [isFocused]);
+
   return (
     <div className="block">
-      {siblingCount + 1 < 5 && blockIndex === 0 ? (
+      {!isDeleting && siblingCount + 1 < 5 && blockIndex === 0 ? (
         <BlockAddInline
           createAtIndex={blockIndex}
           position={-1}
@@ -117,13 +127,14 @@ export default function Block({
         className="blockEditable"
         defaultValue={text}
         autoFocus={isFocused}
+        disabled={isDeleting}
         onInput={handleInput}
         onKeyDown={handleKeyDown}
         onFocus={handleFocus}
         onBlur={handleBlur}
         // defaultValue={previewIndex}
       />
-      {siblingCount + 1 < 5 ? (
+      {!isDeleting && siblingCount + 1 < 5 ? (
         <BlockAddInline
           createAtIndex={blockIndex + 1}
           position={blockIndex === siblingCount ? 0 : 1}

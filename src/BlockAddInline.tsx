@@ -14,6 +14,11 @@ export default function BlockAddInline({
   const [showButton, setShowButton] = useState<boolean>(false);
   const blockAddInlineRef = useRef<HTMLDivElement>(null);
 
+  function handleClick() {
+    setShowButton(false);
+    onAddBlock(createAtIndex);
+  }
+
   function checkRegion(e: MouseEvent) {
     if (!blockAddInlineRef.current) return;
     const mouseX = e.clientX;
@@ -52,10 +57,7 @@ export default function BlockAddInline({
     className="blockAddRegionVertical"
     onClick={() => console.log("create")}
   ></div> */}
-      <div
-        className="blockAddInnerInline"
-        onClick={() => onAddBlock(createAtIndex)}
-      ></div>
+      <div className="blockAddInnerInline" onClick={handleClick}></div>
     </div>
   );
 }

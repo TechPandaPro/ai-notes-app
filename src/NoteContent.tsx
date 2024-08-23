@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Position } from "./BlockMarker";
 import BlockGroup from "./BlockGroup";
 
@@ -74,6 +74,7 @@ export default function NoteContent() {
   ]);
   const [focusIndex, setFocusIndex] = useState<FullBlockIndex | null>(null);
   const [previewIndex, setPreviewIndex] = useState<FullBlockIndex | null>(null);
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
 
   function handleTextUpdate(
     blockGroupIndex: number,
@@ -189,11 +190,37 @@ export default function NoteContent() {
     return `${stamp}_${foundCount}`;
   }
 
+  function handleKeyDown(e: KeyboardEvent) {
+    console.log("key pressed");
+    if (e.key === "Escape") {
+      e.preventDefault();
+      console.log(focusIndex);
+      if (focusIndex) {
+        // console.log("received escape");
+        setFocusIndex(null);
+      } else {
+        console.log("should set deleting");
+        setIsDeleting(!isDeleting);
+      }
+    }
+  }
+
+  useEffect(() => {
+    // console.log("key pressed down");
+    // console.log(e.key);
+    console.log("add listener!");
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [focusIndex, isDeleting]);
+
   const currMovingBlockGroup =
     blockGroups.find((blockGroup) => blockGroup.moving) ?? null;
 
   return (
-    <div className={`noteContent ${currMovingBlockGroup ? "moving" : ""}`}>
+    <div
+      className={`noteContent ${currMovingBlockGroup ? "moving" : ""}`}
+      // onKeyDown={handleKeyDown}
+    >
       {blockGroups.map((blockGroup, blockGroupIndex) => (
         <BlockGroup
           key={blockGroup.key}
@@ -239,6 +266,7 @@ export default function NoteContent() {
               ? previewIndex.blockIndex
               : null
           }
+          isDeleting={isDeleting}
           onTextUpdate={handleTextUpdate}
           onSetFocus={handleSetFocus}
           onAddBlock={handleAddBlock}

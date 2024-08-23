@@ -231,9 +231,9 @@ body {
 }
 
 .blockPreview {
-  padding: 15px 20px;
+  /* padding: 15px 20px; */
   flex: 1 0 0;
-  overflow-wrap: break-word;
+  /* overflow-wrap: break-word; */
   /* margin: 5px 10px; */
   /* width: calc(50% - 20px);
   height: calc(100% - 10px);
@@ -272,6 +272,25 @@ body {
   transform: translate(-50%, -50%);
 }
 
+.blockGroup ~ .blockGroup::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  width: calc(100% - 40px);
+  height: 1px;
+  left: 50%;
+  top: 0;
+  background-color: rgb(211 211 211 / 0.3);
+  transform: translate(-50%, -50%);
+  transition: opacity 0.1s;
+}
+
+.blockGroup
+  + .blockAddContainer:has(.blockAddRegion:hover, .blockAdd:hover)
+  + .blockGroup::after {
+  opacity: 0;
+}
+
 .blockEditable {
   /* pointer-events: auto; */
   font: inherit;
@@ -280,13 +299,33 @@ body {
   border: none;
   outline: none;
   resize: none;
-  padding: 15px 20px;
+  /* padding: 15px 20px; */
   width: 100%;
-  height: 100%;
-  box-sizing: border-box;
+  min-height: 100%;
+  /* box-sizing: border-box; */
   overflow: hidden;
   /* flex: 1 0 0; */
   /* flex-shrink: 0; */
+}
+
+.blockPreview,
+.blockEditable,
+.measureElem {
+  padding: 15px 20px;
+  box-sizing: border-box;
+  overflow-wrap: break-word;
+}
+
+.measureElem {
+  /* content: "\00a0"; */
+  position: fixed;
+  top: 0;
+  left: 0;
+  visibility: hidden;
+}
+
+.measureElem::after {
+  content: "\00a0";
 }
 
 /* TODO: make this "soft" on the left and right sides too. consider using box-shadow instead of gradient */
