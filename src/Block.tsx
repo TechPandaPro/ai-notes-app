@@ -3,6 +3,7 @@
 import { ChangeEvent, KeyboardEvent, useEffect, useRef, useState } from "react";
 import BlockAddInline from "./BlockAddInline";
 import DeleteBlock from "./DeleteBlock";
+import BlockTypePicker from "./BlockTypePicker";
 
 interface BlockProps {
   blockIndex: number;
@@ -78,7 +79,7 @@ export default function Block({
     const measureElem = document.createElement("div");
     // TODO: make sure this has same padding/etc as blockEditable, and it needs to be absolute and have visibility: hidden
     measureElem.classList.add("measureElem");
-    measureElem.innerText = block.value;
+    measureElem.innerText = block.value || "\\00a0";
     measureElem.style.width = `${block.offsetWidth}px`;
     document.body.append(measureElem);
     // do stuff with the height accordingly
@@ -141,6 +142,7 @@ export default function Block({
         onBlur={handleBlur}
         // defaultValue={previewIndex}
       />
+      <BlockTypePicker selectedOption="text" />
       {isDeleting ? (
         <DeleteBlock
           deleteIndex={blockIndex}

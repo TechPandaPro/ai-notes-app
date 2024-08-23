@@ -325,9 +325,9 @@ body {
   visibility: hidden;
 }
 
-.measureElem::after {
+/* .measureElem::after {
   content: "\00a0";
-}
+} */
 
 /* TODO: make this "soft" on the left and right sides too. consider using box-shadow instead of gradient */
 /* ^ could also consider adding a focus class to focused blocks, and then using ::before on that */
@@ -625,6 +625,63 @@ body {
 
 .block:has(.deleteBlock:hover) {
   background-color: rgb(211 211 211 / 0.1);
+}
+
+.blockTypePicker {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgb(211 211 211 / 0.1);
+  display: flex;
+  gap: 5px;
+  padding: 4px 5px;
+  border-radius: 6px;
+}
+
+.blockTypeOption {
+  display: flex;
+  cursor: pointer;
+  background-color: rgb(211 211 211 / 0.2);
+  padding: 3px;
+  border-radius: 3px;
+  transition: background-color 0.1s;
+}
+
+.blockTypeTextOption {
+  padding: 3px 5px;
+}
+
+/* .blockTypeOption .blockTypeOptionInner { */
+.blockTypeOption svg {
+  /* line-height: 1em; */
+  height: 15px;
+  width: auto;
+  color: rgb(211 211 211 / 0.5);
+  transition: color 0.1s;
+}
+
+/* .blockTextOption,
+.blockHeaderOption {
+  position: absolute;
+}
+
+.blockTextOption {
+  font-size: 15px;
+}
+
+.blockHeaderOption {
+  font-weight: bold;
+  font-size: 18px;
+} */
+
+.blockTypeOption:hover {
+  background-color: rgb(211 211 211 / 0.4);
+}
+
+/* .blockTypeOption:hover .blockTypeOptionInner { */
+.blockTypeOption:hover svg {
+  color: rgb(211 211 211);
 }
 
 @keyframes blockGrowIn {
