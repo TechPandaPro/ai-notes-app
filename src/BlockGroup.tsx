@@ -9,7 +9,7 @@ import BlockGroupPreview from "./BlockGroupPreview";
 interface BlockGroupPropsBase {
   // interface BlockGroupProps {
   blockGroupIndex: number;
-  texts: BlockInfo[];
+  blocks: BlockInfo[];
   focusBlockIndex: number | null;
   moving: boolean;
   position: Position;
@@ -28,6 +28,7 @@ interface BlockGroupPropsBase {
     isFocused: boolean
   ) => void;
   onAddBlock: (blockGroupIndex: number, createAtIndex: number) => void;
+  onDeleteBlock: (blockGroupIndex: number, deleteIndex: number) => void;
   onAddBlockGroup: (createAtIndex: number) => void;
   onMove: (blockGroupIndex: number, position: Position) => void;
   onPreviewIndexUpdate: (
@@ -50,7 +51,7 @@ type BlockGroupProps = BlockGroupPropsStatic | BlockGroupPropsMoving;
 
 export default function BlockGroup({
   blockGroupIndex,
-  texts,
+  blocks,
   focusBlockIndex,
   position,
   moving,
@@ -61,6 +62,7 @@ export default function BlockGroup({
   onTextUpdate,
   onSetFocus,
   onAddBlock,
+  onDeleteBlock,
   onAddBlockGroup,
   onMove,
   onPreviewIndexUpdate,
@@ -100,6 +102,10 @@ export default function BlockGroup({
 
   function handleAddBlock(createAtIndex: number) {
     onAddBlock(blockGroupIndex, createAtIndex);
+  }
+
+  function handleDeleteBlock(deleteIndex: number) {
+    onDeleteBlock(blockGroupIndex, deleteIndex);
   }
 
   function handleAddBlockGroup(createAtIndex: number) {
@@ -156,7 +162,7 @@ export default function BlockGroup({
       if (isOverlapping) {
         // const placementOptionsCount =
         //   texts.length + currMovingBlockGroup.texts.length;
-        const placementOptionsCount = texts.length + 1;
+        const placementOptionsCount = blocks.length + 1;
         const centerX = left + (right - left) / 2;
         const nextPreviewIndex = Math.floor(
           (centerX / blockGroupRect.width) * placementOptionsCount
@@ -198,33 +204,34 @@ export default function BlockGroup({
    * are considered "failed" and are hidden by the CSS */
   const doAddPreview = previewIndex !== null && currMovingBlockGroup;
 
-  const blocks = texts.map((text, blockIndex) => (
+  const blockComponents = blocks.map((text, blockIndex) => (
     <Block
       key={text.key}
       blockIndex={blockIndex}
       text={text.text}
       siblingCount={
-        texts.length -
+        blocks.length -
         1 +
-        (doAddPreview ? currMovingBlockGroup.texts.length : 0)
+        (doAddPreview ? currMovingBlockGroup.blocks.length : 0)
       }
       isFocused={focusBlockIndex === blockIndex}
       isDeleting={isDeleting}
       onTextUpdate={handleTextUpdate}
       onSetFocus={handleSetFocus}
       onAddBlock={handleAddBlock}
+      onDeleteBlock={handleDeleteBlock}
       onAddBlockGroup={handleAddBlockGroupFromBlock}
     />
   ));
 
   if (doAddPreview)
     // if (!invalidMove && previewIndex !== null && currMovingBlockGroup)
-    blocks.splice(
+    blockComponents.splice(
       previewIndex,
       0,
       <BlockGroupPreview
         key={`${currMovingBlockGroup.key}_preview`}
-        texts={currMovingBlockGroup.texts}
+        blocks={currMovingBlockGroup.blocks}
       />
     );
   // blocks.splice(
@@ -283,7 +290,7 @@ export default function BlockGroup({
             ? currMovingBlockGroup.texts
             : []),
         ].map((text, blockIndex) => ( */}
-        {blocks}
+        {blockComponents}
       </div>
       {!isDeleting ? (
         <BlockAdd

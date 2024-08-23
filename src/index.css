@@ -255,6 +255,7 @@ body {
   /* pointer-events: none; */
   /* box-sizing: border-box; */
   flex: 1 0 0;
+  transition: background-color 0.1s;
 }
 
 /* TODO: maybe consider adding a similar divider between block groups */
@@ -578,6 +579,52 @@ body {
   top: 50%;
   border-radius: 1px;
   transform: translate(-50%, -50%);
+}
+
+.deleteBlock {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: rgb(211 211 211);
+  opacity: 0.5;
+  cursor: pointer;
+  transition: opacity 0.1s;
+}
+
+.deleteBlock:hover {
+  opacity: 1;
+}
+
+.deleteBlock::before {
+  content: "";
+  position: absolute;
+  background-color: rgb(64 64 64);
+  height: 60%;
+  width: 2px;
+  left: 50%;
+  top: 50%;
+  border-radius: 1px;
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.deleteBlock::after {
+  content: "";
+  position: absolute;
+  background-color: rgb(64 64 64);
+  height: 60%;
+  width: 2px;
+  left: 50%;
+  top: 50%;
+  border-radius: 1px;
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+.block:has(.deleteBlock:hover) {
+  background-color: rgb(211 211 211 / 0.1);
 }
 
 @keyframes blockGrowIn {

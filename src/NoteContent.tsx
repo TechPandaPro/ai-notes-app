@@ -9,7 +9,7 @@ export interface BlockInfo {
 
 interface BlockGroupBase {
   // export interface BlockGroupInfo {
-  texts: BlockInfo[];
+  blocks: BlockInfo[];
   key: string;
   moving: boolean;
   position: Position;
@@ -36,7 +36,7 @@ interface FullBlockIndex {
 export default function NoteContent() {
   const [blockGroups, setBlockGroups] = useState<BlockGroupInfo[]>([
     {
-      texts: [
+      blocks: [
         {
           text: "hello, world",
           key: `${Date.now()}_0`,
@@ -56,7 +56,7 @@ export default function NoteContent() {
       previewIndex: null,
     },
     {
-      texts: [
+      blocks: [
         {
           text: "hello, world",
           key: `${Date.now()}_0`,
@@ -79,13 +79,13 @@ export default function NoteContent() {
   function handleTextUpdate(
     blockGroupIndex: number,
     blockIndex: number,
-    newTexts: string
+    newText: string
   ) {
-    const nextBlocks = blockGroups.slice();
-    const nextBlock = { ...nextBlocks[blockGroupIndex] };
-    nextBlock.texts[blockIndex].text = newTexts;
-    nextBlocks[blockGroupIndex] = nextBlock;
-    setBlockGroups(nextBlocks);
+    const nextBlockGroups = blockGroups.slice();
+    const nextBlockGroup = { ...nextBlockGroups[blockGroupIndex] };
+    nextBlockGroup.blocks[blockIndex].text = newText;
+    nextBlockGroups[blockGroupIndex] = nextBlockGroup;
+    setBlockGroups(nextBlockGroups);
   }
 
   function handleSetFocus(
@@ -103,73 +103,93 @@ export default function NoteContent() {
   }
 
   function handleAddBlock(blockGroupIndex: number, createAtIndex: number) {
-    const nextBlocks = blockGroups.slice();
-    const nextBlock = { ...nextBlocks[blockGroupIndex] };
-    nextBlock.texts.splice(createAtIndex, 0, {
+    const nextBlockGroups = blockGroups.slice();
+    const nextBlockGroup = { ...nextBlockGroups[blockGroupIndex] };
+    nextBlockGroups[blockGroupIndex] = nextBlockGroup;
+    nextBlockGroup.blocks.splice(createAtIndex, 0, {
       text: "",
-      key: generateBlockKey(nextBlock.texts),
+      key: generateBlockKey(nextBlockGroup.blocks),
     });
-    setBlockGroups(nextBlocks);
+    setBlockGroups(nextBlockGroups);
     setFocusIndex({ blockGroupIndex, blockIndex: createAtIndex });
+  }
+
+  function handleDeleteBlock(blockGroupIndex: number, deleteIndex: number) {
+    const nextBlockGroups = blockGroups.slice();
+    const nextBlockGroup = { ...nextBlockGroups[blockGroupIndex] };
+    nextBlockGroups[blockGroupIndex] = nextBlockGroup;
+    nextBlockGroup.blocks.splice(deleteIndex, 1);
+    if (nextBlockGroup.blocks.length === 0)
+      nextBlockGroups.splice(blockGroupIndex, 1);
+    if (nextBlockGroups.length === 0) {
+      const newBlockGroup: BlockGroupInfo = {
+        blocks: [],
+        key: generateBlockKey(blockGroups),
+        position: null,
+        moving: false,
+        previewIndex: null,
+      };
+      newBlockGroup.blocks.push({
+        text: "",
+        key: generateBlockKey(newBlockGroup.blocks),
+      });
+      nextBlockGroups.push(newBlockGroup);
+    }
+    setBlockGroups(nextBlockGroups);
   }
 
   function handleAddBlockGroup(createAtIndex: number) {
     setFocusIndex({ blockGroupIndex: createAtIndex, blockIndex: 0 });
 
     const newBlockGroup: BlockGroupInfo = {
-      texts: [],
+      blocks: [],
       key: generateBlockKey(blockGroups),
       position: null,
       moving: false,
       previewIndex: null,
     };
-    newBlockGroup.texts.push({
+    newBlockGroup.blocks.push({
       text: "",
-      key: generateBlockKey(newBlockGroup.texts),
+      key: generateBlockKey(newBlockGroup.blocks),
     });
 
-    const nextBlocks = blockGroups.slice();
-    nextBlocks.splice(createAtIndex, 0, newBlockGroup);
+    const nextBlockGroups = blockGroups.slice();
+    nextBlockGroups.splice(createAtIndex, 0, newBlockGroup);
 
-    setBlockGroups(nextBlocks);
+    setBlockGroups(nextBlockGroups);
   }
 
   function handleMove(blockGroupIndex: number, position: Position) {
-    const nextBlocks = blockGroups.slice();
-    const nextBlock = { ...nextBlocks[blockGroupIndex] };
-    nextBlocks[blockGroupIndex] = nextBlock;
+    const nextBlockGroups = blockGroups.slice();
+    const nextBlockGroup = { ...nextBlockGroups[blockGroupIndex] };
+    nextBlockGroups[blockGroupIndex] = nextBlockGroup;
     if (position) {
-      nextBlock.position = position;
-      nextBlock.moving = true;
+      nextBlockGroup.position = position;
+      nextBlockGroup.moving = true;
     } else {
-      nextBlock.position = null;
-      nextBlock.moving = false;
+      nextBlockGroup.position = null;
+      nextBlockGroup.moving = false;
       if (
         previewIndex !== null &&
-        nextBlocks[previewIndex.blockGroupIndex].texts.length +
-          nextBlock.texts.length <=
+        nextBlockGroups[previewIndex.blockGroupIndex].blocks.length +
+          nextBlockGroup.blocks.length <=
           5
       ) {
-        // TODO: add a limit for merging
         const nextPreviewedBlock = {
-          ...nextBlocks[previewIndex.blockGroupIndex],
+          ...nextBlockGroups[previewIndex.blockGroupIndex],
         };
-        nextPreviewedBlock.texts.splice(
+        nextPreviewedBlock.blocks.splice(
           previewIndex.blockIndex,
           0,
-          ...nextBlock.texts
+          ...nextBlockGroup.blocks
         );
-        nextBlocks.splice(blockGroupIndex, 1);
-        // TODO: in general, the use of "block" vs "block groups" might be confusing.
-        // maybe try to update this for consistency. "blocks" should be "block groups", and
-        // "texts" should be "blocks". (UNLESS you strictly think of "blocks" as the components
-        // themselves, in which case it's fine to call them texts. think about this later.)
-        for (const text of nextBlock.texts)
-          text.key = generateBlockKey(nextPreviewedBlock.texts);
+        nextBlockGroups.splice(blockGroupIndex, 1);
+        for (const text of nextBlockGroup.blocks)
+          text.key = generateBlockKey(nextPreviewedBlock.blocks);
         setPreviewIndex(null);
       }
     }
-    setBlockGroups(nextBlocks);
+    setBlockGroups(nextBlockGroups);
   }
 
   function handlePreviewIndexUpdate(
@@ -225,7 +245,7 @@ export default function NoteContent() {
         <BlockGroup
           key={blockGroup.key}
           blockGroupIndex={blockGroupIndex}
-          texts={blockGroup.texts}
+          blocks={blockGroup.blocks}
           focusBlockIndex={
             focusIndex && blockGroupIndex === focusIndex.blockGroupIndex
               ? focusIndex.blockIndex
@@ -243,7 +263,7 @@ export default function NoteContent() {
             !blockGroup.moving ? currMovingBlockGroup : null
             // !blockGroup.moving
             //   ? currMovingBlockGroup &&
-            //     blockGroup.texts.length + currMovingBlockGroup.texts.length <= 5
+            //     blockGroup.blocks.length + currMovingBlockGroup.blocks.length <= 5
             //     ? currMovingBlockGroup
             //     : null
             //   : null
@@ -252,12 +272,12 @@ export default function NoteContent() {
             !!(
               !blockGroup.moving &&
               currMovingBlockGroup &&
-              blockGroup.texts.length + currMovingBlockGroup.texts.length > 5
+              blockGroup.blocks.length + currMovingBlockGroup.blocks.length > 5
             )
             // currMovingBlockGroup &&
             // previewIndex &&
             // blockGroupIndex === previewIndex.blockGroupIndex &&
-            // blockGroup.texts.length + currMovingBlockGroup.texts.length > 5
+            // blockGroup.blocks.length + currMovingBlockGroup.blocks.length > 5
             //   ? true
             //   : false
           }
@@ -270,6 +290,7 @@ export default function NoteContent() {
           onTextUpdate={handleTextUpdate}
           onSetFocus={handleSetFocus}
           onAddBlock={handleAddBlock}
+          onDeleteBlock={handleDeleteBlock}
           onAddBlockGroup={handleAddBlockGroup}
           onMove={handleMove}
           onPreviewIndexUpdate={handlePreviewIndexUpdate}

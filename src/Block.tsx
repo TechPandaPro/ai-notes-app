@@ -2,6 +2,7 @@
 
 import { ChangeEvent, KeyboardEvent, useEffect, useRef, useState } from "react";
 import BlockAddInline from "./BlockAddInline";
+import DeleteBlock from "./DeleteBlock";
 
 interface BlockProps {
   blockIndex: number;
@@ -13,6 +14,7 @@ interface BlockProps {
   onTextUpdate: (blockIndex: number, newText: string) => void;
   onSetFocus: (blockIndex: number, isFocused: boolean) => void;
   onAddBlock: (createAtIndex: number) => void;
+  onDeleteBlock: (deleteIndex: number) => void;
   onAddBlockGroup: () => void;
 }
 
@@ -26,6 +28,7 @@ export default function Block({
   onTextUpdate,
   onSetFocus,
   onAddBlock,
+  onDeleteBlock,
   onAddBlockGroup,
 }: BlockProps) {
   const [blockHeight, setBlockHeight] = useState<number | null>(null);
@@ -89,6 +92,10 @@ export default function Block({
     onAddBlock(createAtIndex);
   }
 
+  function handleDeleteBlock(deleteIndex: number) {
+    onDeleteBlock(deleteIndex);
+  }
+
   useEffect(() => {
     window.addEventListener("resize", setSize);
     return () => window.removeEventListener("resize", setSize);
@@ -134,6 +141,14 @@ export default function Block({
         onBlur={handleBlur}
         // defaultValue={previewIndex}
       />
+      {isDeleting ? (
+        <DeleteBlock
+          deleteIndex={blockIndex}
+          onDeleteBlock={handleDeleteBlock}
+        />
+      ) : (
+        ""
+      )}
       {!isDeleting && siblingCount + 1 < 5 ? (
         <BlockAddInline
           createAtIndex={blockIndex + 1}
