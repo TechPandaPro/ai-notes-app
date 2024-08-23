@@ -17,6 +17,11 @@ interface BlockGroupPropsBase {
   invalidMove: boolean;
   previewIndex: number | null;
   isDeleting: boolean;
+  onTypeUpdate: (
+    blockGroupIndex: number,
+    blockIndex: number,
+    typeId: string
+  ) => void;
   onTextUpdate: (
     blockGroupIndex: number,
     blockIndex: number,
@@ -59,6 +64,7 @@ export default function BlockGroup({
   invalidMove,
   previewIndex,
   isDeleting,
+  onTypeUpdate,
   onTextUpdate,
   onSetFocus,
   onAddBlock,
@@ -91,6 +97,10 @@ export default function BlockGroup({
   // function handleBlur() {
   //   onSetFocus(blockIndex, false);
   // }
+
+  function handleTypeUpdate(blockIndex: number, typeId: string) {
+    onTypeUpdate(blockGroupIndex, blockIndex, typeId);
+  }
 
   function handleTextUpdate(blockIndex: number, newText: string) {
     onTextUpdate(blockGroupIndex, blockIndex, newText);
@@ -204,11 +214,12 @@ export default function BlockGroup({
    * are considered "failed" and are hidden by the CSS */
   const doAddPreview = previewIndex !== null && currMovingBlockGroup;
 
-  const blockComponents = blocks.map((text, blockIndex) => (
+  const blockComponents = blocks.map((block, blockIndex) => (
     <Block
-      key={text.key}
+      key={block.key}
       blockIndex={blockIndex}
-      text={text.text}
+      typeId={block.type}
+      text={block.text}
       siblingCount={
         blocks.length -
         1 +
@@ -216,6 +227,7 @@ export default function BlockGroup({
       }
       isFocused={focusBlockIndex === blockIndex}
       isDeleting={isDeleting}
+      onTypeUpdate={handleTypeUpdate}
       onTextUpdate={handleTextUpdate}
       onSetFocus={handleSetFocus}
       onAddBlock={handleAddBlock}

@@ -5,10 +5,12 @@ import BlockTypeOption from "./BlockTypeOption";
 
 interface BlockTypePickerProps {
   selectedOption: string;
+  onTypeUpdate: (typeId: string) => void;
 }
 
 export default function BlockTypePicker({
   selectedOption,
+  onTypeUpdate,
 }: BlockTypePickerProps) {
   return (
     <div className="blockTypePicker">
@@ -29,6 +31,8 @@ export default function BlockTypePicker({
             />
           </svg>
         }
+        isSelected={selectedOption === "text"}
+        onSelectOption={onTypeUpdate}
       />
       <BlockTypeOption
         id="header"
@@ -47,6 +51,8 @@ export default function BlockTypePicker({
             />
           </svg>
         }
+        isSelected={selectedOption === "header"}
+        onSelectOption={onTypeUpdate}
       />
       <BlockTypeOption
         id="image"
@@ -73,6 +79,8 @@ export default function BlockTypePicker({
             />
           </svg>
         }
+        isSelected={selectedOption === "image"}
+        onSelectOption={onTypeUpdate}
       />
     </div>
   );

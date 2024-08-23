@@ -1,19 +1,36 @@
-import { ReactNode } from "react";
+import { MouseEvent, ReactNode } from "react";
 
 interface BlockTypeOptionProps {
   id: string;
   isTextOption: boolean;
   svg: ReactNode;
+  isSelected: boolean;
+  onSelectOption: (id: string) => void;
 }
 
 export default function BlockTypeOption({
   id,
   isTextOption,
   svg,
+  isSelected,
+  onSelectOption,
 }: BlockTypeOptionProps) {
+  function handleMouseDown(e: MouseEvent) {
+    e.preventDefault();
+  }
+
+  function handleClick() {
+    onSelectOption(id);
+  }
+
   return (
     <div
-      className={`blockTypeOption ${isTextOption ? "blockTypeTextOption" : ""}`}
+      className={`blockTypeOption ${
+        isTextOption ? "blockTypeTextOption" : ""
+      } ${isSelected ? "selected" : ""}`}
+      // data-selected={isSelected}
+      onMouseDown={handleMouseDown}
+      onClick={handleClick}
     >
       {svg}
     </div>

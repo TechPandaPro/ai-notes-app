@@ -294,7 +294,7 @@ body {
 
 .blockEditable {
   /* pointer-events: auto; */
-  font: inherit;
+  font-family: inherit;
   color: inherit;
   background-color: transparent;
   border: none;
@@ -307,6 +307,17 @@ body {
   overflow: hidden;
   /* flex: 1 0 0; */
   /* flex-shrink: 0; */
+}
+
+.block[data-type="text"] .blockEditable,
+.measureElem[data-type="text"] {
+  font-size: 1em;
+}
+
+.block[data-type="header"] .blockEditable,
+.measureElem[data-type="header"] {
+  font-size: 1.4em;
+  font-weight: bold;
 }
 
 .blockPreview,
@@ -637,6 +648,9 @@ body {
   gap: 5px;
   padding: 4px 5px;
   border-radius: 6px;
+  /* max-width: 100%;
+  flex-wrap: wrap;
+  justify-content: center; */
 }
 
 .blockTypeOption {
@@ -675,13 +689,22 @@ body {
   font-size: 18px;
 } */
 
-.blockTypeOption:hover {
+.blockTypeOption.selected {
   background-color: rgb(211 211 211 / 0.4);
 }
 
 /* .blockTypeOption:hover .blockTypeOptionInner { */
-.blockTypeOption:hover svg {
+.blockTypeOption.selected svg {
   color: rgb(211 211 211);
+}
+
+.blockTypeOption:not(.selected):hover {
+  background-color: rgb(211 211 211 / 0.3);
+}
+
+/* .blockTypeOption:hover .blockTypeOptionInner { */
+.blockTypeOption:not(.selected):hover svg {
+  color: rgb(211 211 211 / 0.7);
 }
 
 @keyframes blockGrowIn {

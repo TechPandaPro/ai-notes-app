@@ -1,3 +1,5 @@
+// TODO: maybe make it possible to change BlockMarker color
+
 import {
   MouseEvent as ReactMouseEvent,
   useEffect,

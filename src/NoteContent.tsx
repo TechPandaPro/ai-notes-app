@@ -3,6 +3,7 @@ import { Position } from "./BlockMarker";
 import BlockGroup from "./BlockGroup";
 
 export interface BlockInfo {
+  type: string;
   text: string;
   key: string;
 }
@@ -38,14 +39,17 @@ export default function NoteContent() {
     {
       blocks: [
         {
+          type: "text",
           text: "hello, world",
           key: `${Date.now()}_0`,
         },
         {
+          type: "text",
           text: "lorem ipsum",
           key: `${Date.now()}_1`,
         },
         {
+          type: "text",
           text: "dolor sit amet",
           key: `${Date.now()}_2`,
         },
@@ -58,10 +62,12 @@ export default function NoteContent() {
     {
       blocks: [
         {
+          type: "text",
           text: "hello, world",
           key: `${Date.now()}_0`,
         },
         {
+          type: "text",
           text: "lorem ipsum",
           key: `${Date.now()}_1`,
         },
@@ -76,6 +82,18 @@ export default function NoteContent() {
   const [previewIndex, setPreviewIndex] = useState<FullBlockIndex | null>(null);
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
 
+  function handleTypeUpdate(
+    blockGroupIndex: number,
+    blockIndex: number,
+    typeId: string
+  ) {
+    const nextBlockGroups = blockGroups.slice();
+    const nextBlockGroup = { ...nextBlockGroups[blockGroupIndex] };
+    nextBlockGroups[blockGroupIndex] = nextBlockGroup;
+    nextBlockGroup.blocks[blockIndex].type = typeId;
+    setBlockGroups(nextBlockGroups);
+  }
+
   function handleTextUpdate(
     blockGroupIndex: number,
     blockIndex: number,
@@ -83,8 +101,8 @@ export default function NoteContent() {
   ) {
     const nextBlockGroups = blockGroups.slice();
     const nextBlockGroup = { ...nextBlockGroups[blockGroupIndex] };
-    nextBlockGroup.blocks[blockIndex].text = newText;
     nextBlockGroups[blockGroupIndex] = nextBlockGroup;
+    nextBlockGroup.blocks[blockIndex].text = newText;
     setBlockGroups(nextBlockGroups);
   }
 
@@ -107,6 +125,7 @@ export default function NoteContent() {
     const nextBlockGroup = { ...nextBlockGroups[blockGroupIndex] };
     nextBlockGroups[blockGroupIndex] = nextBlockGroup;
     nextBlockGroup.blocks.splice(createAtIndex, 0, {
+      type: "text",
       text: "",
       key: generateBlockKey(nextBlockGroup.blocks),
     });
@@ -130,6 +149,7 @@ export default function NoteContent() {
         previewIndex: null,
       };
       newBlockGroup.blocks.push({
+        type: "text",
         text: "",
         key: generateBlockKey(newBlockGroup.blocks),
       });
@@ -149,6 +169,7 @@ export default function NoteContent() {
       previewIndex: null,
     };
     newBlockGroup.blocks.push({
+      type: "text",
       text: "",
       key: generateBlockKey(newBlockGroup.blocks),
     });
@@ -287,6 +308,7 @@ export default function NoteContent() {
               : null
           }
           isDeleting={isDeleting}
+          onTypeUpdate={handleTypeUpdate}
           onTextUpdate={handleTextUpdate}
           onSetFocus={handleSetFocus}
           onAddBlock={handleAddBlock}

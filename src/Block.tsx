@@ -7,11 +7,13 @@ import BlockTypePicker from "./BlockTypePicker";
 
 interface BlockProps {
   blockIndex: number;
+  typeId: string;
   text: string;
   siblingCount: number;
   // lastInGroup: boolean;
   isFocused: boolean;
   isDeleting: boolean;
+  onTypeUpdate: (blockIndex: number, typeId: string) => void;
   onTextUpdate: (blockIndex: number, newText: string) => void;
   onSetFocus: (blockIndex: number, isFocused: boolean) => void;
   onAddBlock: (createAtIndex: number) => void;
@@ -21,11 +23,13 @@ interface BlockProps {
 
 export default function Block({
   blockIndex,
+  typeId,
   text,
   siblingCount,
   // lastInGroup,
   isFocused,
   isDeleting,
+  onTypeUpdate,
   onTextUpdate,
   onSetFocus,
   onAddBlock,
@@ -33,6 +37,7 @@ export default function Block({
   onAddBlockGroup,
 }: BlockProps) {
   const [blockHeight, setBlockHeight] = useState<number | null>(null);
+  // const [selectedOption, setSelectedOption] = useState<string>("text");
 
   const blockEditableRef = useRef<HTMLTextAreaElement>(null);
 
@@ -79,7 +84,9 @@ export default function Block({
     const measureElem = document.createElement("div");
     // TODO: make sure this has same padding/etc as blockEditable, and it needs to be absolute and have visibility: hidden
     measureElem.classList.add("measureElem");
-    measureElem.innerText = block.value || "\\00a0";
+    measureElem.dataset.type = typeId;
+    measureElem.innerText =
+      block.value.trim().length >= 1 ? block.value : "\\00a0";
     measureElem.style.width = `${block.offsetWidth}px`;
     document.body.append(measureElem);
     // do stuff with the height accordingly
@@ -93,6 +100,14 @@ export default function Block({
     onAddBlock(createAtIndex);
   }
 
+  // function handleSelectOption(id: string) {
+  //   setSelectedOption(id);
+  // }
+
+  function handleSelectType(typeId: string) {
+    onTypeUpdate(blockIndex, typeId);
+  }
+
   function handleDeleteBlock(deleteIndex: number) {
     onDeleteBlock(deleteIndex);
   }
@@ -100,12 +115,12 @@ export default function Block({
   useEffect(() => {
     window.addEventListener("resize", setSize);
     return () => window.removeEventListener("resize", setSize);
-  }, []);
+  }, [typeId]);
 
   useEffect(() => {
     // console.log("resize");
     setSize();
-  }, [siblingCount]);
+  }, [typeId, siblingCount]);
 
   useEffect(() => {
     if (!blockEditableRef.current) return;
@@ -113,7 +128,8 @@ export default function Block({
   }, [isFocused]);
 
   return (
-    <div className="block">
+    // TODO: allow individual blocks to be dragged when in delete mode
+    <div className="block" data-type={typeId}>
       {!isDeleting && siblingCount + 1 < 5 && blockIndex === 0 ? (
         <BlockAddInline
           createAtIndex={blockIndex}
@@ -142,7 +158,15 @@ export default function Block({
         onBlur={handleBlur}
         // defaultValue={previewIndex}
       />
-      <BlockTypePicker selectedOption="text" />
+      {blockEditableRef.current &&
+      blockEditableRef.current.value.length === 0 ? (
+        <BlockTypePicker
+          selectedOption={typeId}
+          onTypeUpdate={handleSelectType}
+        />
+      ) : (
+        ""
+      )}
       {isDeleting ? (
         <DeleteBlock
           deleteIndex={blockIndex}
