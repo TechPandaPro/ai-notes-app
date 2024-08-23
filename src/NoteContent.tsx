@@ -5,6 +5,8 @@ import BlockGroup from "./BlockGroup";
 export interface BlockInfo {
   type: string;
   text: string;
+  // TODO: improve these typings
+  imgUrl?: string | null;
   key: string;
 }
 
@@ -103,6 +105,18 @@ export default function NoteContent() {
     const nextBlockGroup = { ...nextBlockGroups[blockGroupIndex] };
     nextBlockGroups[blockGroupIndex] = nextBlockGroup;
     nextBlockGroup.blocks[blockIndex].text = newText;
+    setBlockGroups(nextBlockGroups);
+  }
+
+  function handleImageUpdate(
+    blockGroupIndex: number,
+    blockIndex: number,
+    imgUrl: string | null
+  ) {
+    const nextBlockGroups = blockGroups.slice();
+    const nextBlockGroup = { ...nextBlockGroups[blockGroupIndex] };
+    nextBlockGroups[blockGroupIndex] = nextBlockGroup;
+    nextBlockGroup.blocks[blockIndex].imgUrl = imgUrl;
     setBlockGroups(nextBlockGroups);
   }
 
@@ -310,6 +324,7 @@ export default function NoteContent() {
           isDeleting={isDeleting}
           onTypeUpdate={handleTypeUpdate}
           onTextUpdate={handleTextUpdate}
+          onImageUpdate={handleImageUpdate}
           onSetFocus={handleSetFocus}
           onAddBlock={handleAddBlock}
           onDeleteBlock={handleDeleteBlock}

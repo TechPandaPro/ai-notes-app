@@ -5,7 +5,7 @@ interface BlockTypeOptionProps {
   isTextOption: boolean;
   svg: ReactNode;
   isSelected: boolean;
-  onSelectOption: (id: string) => void;
+  onSelectOption: (typeId: string) => void;
 }
 
 export default function BlockTypeOption({

@@ -4,17 +4,20 @@ import { ChangeEvent, KeyboardEvent, useEffect, useRef, useState } from "react";
 import BlockAddInline from "./BlockAddInline";
 import DeleteBlock from "./DeleteBlock";
 import BlockTypePicker from "./BlockTypePicker";
+import BlockImage from "./BlockImage";
 
 interface BlockProps {
   blockIndex: number;
   typeId: string;
   text: string;
+  imgUrl: string | null;
   siblingCount: number;
   // lastInGroup: boolean;
   isFocused: boolean;
   isDeleting: boolean;
   onTypeUpdate: (blockIndex: number, typeId: string) => void;
   onTextUpdate: (blockIndex: number, newText: string) => void;
+  onImageUpdate: (blockIndex: number, imgUrl: string | null) => void;
   onSetFocus: (blockIndex: number, isFocused: boolean) => void;
   onAddBlock: (createAtIndex: number) => void;
   onDeleteBlock: (deleteIndex: number) => void;
@@ -25,12 +28,14 @@ export default function Block({
   blockIndex,
   typeId,
   text,
+  imgUrl,
   siblingCount,
   // lastInGroup,
   isFocused,
   isDeleting,
   onTypeUpdate,
   onTextUpdate,
+  onImageUpdate,
   onSetFocus,
   onAddBlock,
   onDeleteBlock,
@@ -40,6 +45,10 @@ export default function Block({
   // const [selectedOption, setSelectedOption] = useState<string>("text");
 
   const blockEditableRef = useRef<HTMLTextAreaElement>(null);
+
+  function handleImageUpdate(imgUrl: string | null) {
+    onImageUpdate(blockIndex, imgUrl);
+  }
 
   // function handleInput(e: ChangeEvent<HTMLTextAreaElement>) {
   function handleInput(e: ChangeEvent<HTMLTextAreaElement>) {
@@ -139,27 +148,30 @@ export default function Block({
       ) : (
         ""
       )}
-      <textarea
-        ref={blockEditableRef}
-        style={{
-          height: blockHeight ?? undefined,
-          // backgroundColor: autoFocus ? "blue" : "transparent",
-        }} /* numbers are automatically converted to px */
-        rows={
-          1
-        } /* this will be overriden by the style prop when the textarea has a value */
-        className="blockEditable"
-        defaultValue={text}
-        autoFocus={isFocused}
-        disabled={isDeleting}
-        onInput={handleInput}
-        onKeyDown={handleKeyDown}
-        onFocus={handleFocus}
-        onBlur={handleBlur}
-        // defaultValue={previewIndex}
-      />
-      {blockEditableRef.current &&
-      blockEditableRef.current.value.length === 0 ? (
+      {typeId === "image" ? (
+        <BlockImage imgUrl={imgUrl} onImageUpdate={handleImageUpdate} />
+      ) : (
+        <textarea
+          ref={blockEditableRef}
+          style={{
+            height: blockHeight ?? undefined,
+            // backgroundColor: autoFocus ? "blue" : "transparent",
+          }} /* numbers are automatically converted to px */
+          rows={
+            1
+          } /* this will be overriden by the style prop when the textarea has a value */
+          className="blockEditable"
+          defaultValue={text}
+          autoFocus={isFocused}
+          disabled={isDeleting}
+          onInput={handleInput}
+          onKeyDown={handleKeyDown}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+          // defaultValue={previewIndex}
+        />
+      )}
+      {text.length === 0 ? (
         <BlockTypePicker
           selectedOption={typeId}
           onTypeUpdate={handleSelectType}
