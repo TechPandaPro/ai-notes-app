@@ -1,8 +1,10 @@
 import { FormEvent, useEffect, useRef, useState } from "react";
+import BlockImageControls from "./BlockImageControls";
 
 interface BlockImageProps {
   imgUrl: string | null;
   attemptLoad: boolean;
+  isDeleting: boolean;
   onImageUpdate: (imgUrl: string | null) => void;
   onAttemptLoadUpdate: (attemptLoad: boolean) => void;
 }
@@ -21,6 +23,7 @@ interface ImageOpenInfo {
 export default function BlockImage({
   imgUrl,
   attemptLoad,
+  isDeleting,
   onImageUpdate,
   onAttemptLoadUpdate,
 }: BlockImageProps) {
@@ -33,10 +36,22 @@ export default function BlockImage({
   const imageInnerRef = useRef<HTMLImageElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  function handleClick() {
-    if (!imageInnerRef.current || imageOpenInfo?.animatingOut) return;
-    const imageRect = imageInnerRef.current.getBoundingClientRect();
-    if (imageOpenInfo)
+  function handleKeyDown(e: KeyboardEvent) {
+    console.log("key pressed");
+    console.log(e.key);
+    console.log(imageInnerRef.current);
+    console.log(imageOpenInfo);
+    console.log(!imageOpenInfo?.animatingOut);
+    if (
+      e.key === "Escape" &&
+      imageInnerRef.current &&
+      imageOpenInfo &&
+      !imageOpenInfo.animatingOut
+    ) {
+      console.log("should animate out");
+      e.preventDefault();
+      e.stopPropagation();
+      const imageRect = imageInnerRef.current.getBoundingClientRect();
       setImageOpenInfo({
         animatingOut: true,
         startX: imageRect.left + imageRect.width / 2,
@@ -44,7 +59,36 @@ export default function BlockImage({
         startWidth: imageRect.width,
         startHeight: imageRect.height,
       });
-    else
+      // console.log(focusIndex);
+      // if (focusIndex) {
+      //   // console.log("received escape");
+      //   setFocusIndex(null);
+      // } else {
+      //   console.log("should set deleting");
+      //   setIsDeleting(!isDeleting);
+      // }
+    }
+  }
+
+  function handleClick() {
+    if (!imageInnerRef.current || imageOpenInfo?.animatingOut || isDeleting)
+      return;
+    const imageRect = imageInnerRef.current.getBoundingClientRect();
+    if (imageOpenInfo) {
+      // const newInfo = { ...imageOpenInfo };
+      // newInfo.animatingOut = true;
+      // setImageOpenInfo(newInfo);
+
+      // TODO: check if this info can be taken directly from imageOpenInfo
+      // the starting position is calculated again, in case the image was edited
+      setImageOpenInfo({
+        animatingOut: true,
+        startX: imageRect.left + imageRect.width / 2,
+        startY: imageRect.top + imageRect.height / 2,
+        startWidth: imageRect.width,
+        startHeight: imageRect.height,
+      });
+    } else
       setImageOpenInfo({
         animatingOut: false,
         startX: imageRect.left + imageRect.width / 2,
@@ -54,9 +98,9 @@ export default function BlockImage({
       });
   }
 
-  function handleDoubleClick() {
-    promptForFile();
-  }
+  // function handleDoubleClick() {
+  //   promptForFile();
+  // }
 
   function handleAnimationEnd() {
     if (!imageOpenInfo || !imageOpenInfo.animatingOut) return;
@@ -64,6 +108,15 @@ export default function BlockImage({
     // newInfo.animatingOut = false;
     // setImageOpenInfo(newInfo);
     setImageOpenInfo(null);
+  }
+
+  function handleEditImage() {
+    promptForFile();
+  }
+
+  function handleDeleteImage() {
+    setImageOpenInfo(null);
+    onImageUpdate(null);
   }
 
   function handleChange(e: FormEvent<HTMLInputElement>) {
@@ -80,7 +133,7 @@ export default function BlockImage({
           throw new Error(
             `Unexpected file reader result type: ${typeof fileReader.result}`
           );
-        console.log(fileReader.result);
+        // console.log(fileReader.result);
         // setImage(fileReader.result);
         onImageUpdate(fileReader.result);
       },
@@ -98,6 +151,11 @@ export default function BlockImage({
   }
 
   useEffect(() => {
+    document.body.addEventListener("keydown", handleKeyDown);
+    return () => document.body.removeEventListener("keydown", handleKeyDown);
+  }, [imageInnerRef, imageOpenInfo]);
+
+  useEffect(() => {
     if (attemptLoad) promptForFile();
   }, [attemptLoad]);
 
@@ -110,7 +168,7 @@ export default function BlockImage({
           src={imgUrl}
           alt="Uploaded image"
           onClick={handleClick}
-          onDoubleClick={handleDoubleClick}
+          // onDoubleClick={handleDoubleClick}
         />
       ) : (
         ""
@@ -141,7 +199,11 @@ export default function BlockImage({
             }}
           />
           {/* TODO: add functionality to controls */}
-          <div className="imageControls">
+          <BlockImageControls
+            onEditImage={handleEditImage}
+            onDeleteImage={handleDeleteImage}
+          />
+          {/* <div className="imageControls">
             <div className="editImage">
               <svg
                 width="66"
@@ -161,7 +223,7 @@ export default function BlockImage({
               </svg>
             </div>
             <div className="deleteImage">
-              {/* from https://flowbite.com/icons/ */}
+              from https://flowbite.com/icons/
               <svg
                 aria-hidden="true"
                 xmlns="http://www.w3.org/2000/svg"
@@ -177,7 +239,7 @@ export default function BlockImage({
                 />
               </svg>
             </div>
-          </div>
+          </div> */}
         </div>
       ) : (
         ""

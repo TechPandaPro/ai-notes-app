@@ -37,6 +37,8 @@ interface FullBlockIndex {
   blockIndex: number;
 }
 
+// TODO: add ts type for block type
+
 export default function NoteContent() {
   const [blockGroups, setBlockGroups] = useState<BlockGroupInfo[]>([
     {
@@ -97,6 +99,8 @@ export default function NoteContent() {
     if (typeId === "image")
       nextBlockGroup.blocks[blockIndex].attemptLoad = true;
     setBlockGroups(nextBlockGroups);
+    setFocusIndex({ blockGroupIndex, blockIndex });
+    console.log({ blockGroupIndex, blockIndex });
   }
 
   function handleTextUpdate(
@@ -261,7 +265,7 @@ export default function NoteContent() {
   }
 
   function handleKeyDown(e: KeyboardEvent) {
-    console.log("key pressed");
+    // console.log("key pressed");
     if (e.key === "Escape") {
       e.preventDefault();
       console.log(focusIndex);

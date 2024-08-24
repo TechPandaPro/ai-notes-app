@@ -15,6 +15,8 @@ export default function BlockTypeOption({
   isSelected,
   onSelectOption,
 }: BlockTypeOptionProps) {
+  // TODO: focus block when selecting block type option
+
   function handleMouseDown(e: MouseEvent) {
     e.preventDefault();
   }

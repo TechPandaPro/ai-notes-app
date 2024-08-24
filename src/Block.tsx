@@ -141,6 +141,7 @@ export default function Block({
 
   useEffect(() => {
     if (!blockEditableRef.current) return;
+    if (isFocused) blockEditableRef.current.focus();
     if (!isFocused) blockEditableRef.current.blur();
   }, [isFocused]);
 
@@ -160,6 +161,7 @@ export default function Block({
         <BlockImage
           imgUrl={imgUrl}
           attemptLoad={attemptLoad}
+          isDeleting={isDeleting}
           onImageUpdate={handleImageUpdate}
           onAttemptLoadUpdate={handleAttemptLoadUpdate}
         />

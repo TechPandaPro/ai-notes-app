@@ -764,6 +764,11 @@ body {
   background-color: rgb(0 0 0 / 0);
 }
 
+.blockImageOpenWrapper.animOut .imageControls {
+  pointer-events: none;
+  opacity: 0;
+}
+
 .blockImageOpenWrapper.animOut .blockImageOpen {
   animation: blockImageOpenToCenterClose forwards 0.2s;
 }
@@ -782,13 +787,16 @@ body {
   bottom: 10px;
   right: 10px;
   gap: 8px;
+  animation: imageControlsFadeIn 0.2s;
+  transition: opacity 0.2s;
 }
 
-.imageControls > div {
+.imageControl {
+  display: flex;
   cursor: pointer;
 }
 
-.imageControls > div > svg {
+.imageControl svg {
   height: 20px;
   width: auto;
 }
@@ -825,7 +833,7 @@ body {
   /* from {
     max-width: 9999%;
     max-height: 9999%;
-  } */
+    } */
 
   to {
     left: 50%;
@@ -833,6 +841,12 @@ body {
     max-width: 80%;
     max-height: 80%;
     /* transform: translate(-50%, -50%); */
+  }
+}
+
+@keyframes imageControlsFadeIn {
+  from {
+    opacity: 0;
   }
 }
 
