@@ -32,6 +32,11 @@ interface BlockGroupPropsBase {
     blockIndex: number,
     imgUrl: string | null
   ) => void;
+  onAttemptLoadUpdate: (
+    blockGroupIndex: number,
+    blockIndex: number,
+    attemptLoad: boolean
+  ) => void;
   onSetFocus: (
     blockGroupIndex: number,
     blockIndex: number,
@@ -72,6 +77,7 @@ export default function BlockGroup({
   onTypeUpdate,
   onTextUpdate,
   onImageUpdate,
+  onAttemptLoadUpdate,
   onSetFocus,
   onAddBlock,
   onDeleteBlock,
@@ -114,6 +120,10 @@ export default function BlockGroup({
 
   function handleImageUpdate(blockIndex: number, imgUrl: string | null) {
     onImageUpdate(blockGroupIndex, blockIndex, imgUrl);
+  }
+
+  function handleAttemptLoadUpdate(blockIndex: number, attemptLoad: boolean) {
+    onAttemptLoadUpdate(blockGroupIndex, blockIndex, attemptLoad);
   }
 
   function handleSetFocus(blockIndex: number, isFocused: boolean) {
@@ -231,6 +241,7 @@ export default function BlockGroup({
       typeId={block.type}
       text={block.text}
       imgUrl={block.imgUrl ?? null} // TODO: change when typings are improved
+      attemptLoad={block.attemptLoad ?? false}
       siblingCount={
         blocks.length -
         1 +
@@ -241,6 +252,7 @@ export default function BlockGroup({
       onTypeUpdate={handleTypeUpdate}
       onTextUpdate={handleTextUpdate}
       onImageUpdate={handleImageUpdate}
+      onAttemptLoadUpdate={handleAttemptLoadUpdate}
       onSetFocus={handleSetFocus}
       onAddBlock={handleAddBlock}
       onDeleteBlock={handleDeleteBlock}

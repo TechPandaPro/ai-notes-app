@@ -7,6 +7,7 @@ export interface BlockInfo {
   text: string;
   // TODO: improve these typings
   imgUrl?: string | null;
+  attemptLoad?: boolean;
   key: string;
 }
 
@@ -93,6 +94,8 @@ export default function NoteContent() {
     const nextBlockGroup = { ...nextBlockGroups[blockGroupIndex] };
     nextBlockGroups[blockGroupIndex] = nextBlockGroup;
     nextBlockGroup.blocks[blockIndex].type = typeId;
+    if (typeId === "image")
+      nextBlockGroup.blocks[blockIndex].attemptLoad = true;
     setBlockGroups(nextBlockGroups);
   }
 
@@ -117,6 +120,18 @@ export default function NoteContent() {
     const nextBlockGroup = { ...nextBlockGroups[blockGroupIndex] };
     nextBlockGroups[blockGroupIndex] = nextBlockGroup;
     nextBlockGroup.blocks[blockIndex].imgUrl = imgUrl;
+    setBlockGroups(nextBlockGroups);
+  }
+
+  function handleAttemptLoadUpdate(
+    blockGroupIndex: number,
+    blockIndex: number,
+    attemptLoad: boolean
+  ) {
+    const nextBlockGroups = blockGroups.slice();
+    const nextBlockGroup = { ...nextBlockGroups[blockGroupIndex] };
+    nextBlockGroups[blockGroupIndex] = nextBlockGroup;
+    nextBlockGroup.blocks[blockIndex].attemptLoad = attemptLoad;
     setBlockGroups(nextBlockGroups);
   }
 
@@ -325,6 +340,7 @@ export default function NoteContent() {
           onTypeUpdate={handleTypeUpdate}
           onTextUpdate={handleTextUpdate}
           onImageUpdate={handleImageUpdate}
+          onAttemptLoadUpdate={handleAttemptLoadUpdate}
           onSetFocus={handleSetFocus}
           onAddBlock={handleAddBlock}
           onDeleteBlock={handleDeleteBlock}

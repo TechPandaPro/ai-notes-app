@@ -725,8 +725,33 @@ body {
 }
 
 .blockImage {
+  min-height: 15px;
   padding: 15px 20px;
 }
+
+.blockImageInner {
+  /* max-width: 50px; */
+  max-width: min(100%, 350px);
+  height: auto;
+  -webkit-user-drag: none;
+}
+
+.blockImageInner.hide {
+  visibility: hidden;
+}
+
+.blockImageOpenWrapper {
+  position: fixed;
+  animation: blockImageOpenToCenter forwards 1s;
+}
+
+/* .blockImageOpen {
+  position: fixed;
+} */
+
+/* .blockImage::active {
+  transform: scale(10);
+} */
 
 .blockImageUpload {
   display: none;
@@ -751,5 +776,13 @@ body {
 
   to {
     left: 0;
+  }
+}
+
+@keyframes blockImageOpenToCenter {
+  to {
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
   }
 }

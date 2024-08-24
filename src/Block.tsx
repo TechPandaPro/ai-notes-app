@@ -11,6 +11,7 @@ interface BlockProps {
   typeId: string;
   text: string;
   imgUrl: string | null;
+  attemptLoad: boolean;
   siblingCount: number;
   // lastInGroup: boolean;
   isFocused: boolean;
@@ -18,6 +19,7 @@ interface BlockProps {
   onTypeUpdate: (blockIndex: number, typeId: string) => void;
   onTextUpdate: (blockIndex: number, newText: string) => void;
   onImageUpdate: (blockIndex: number, imgUrl: string | null) => void;
+  onAttemptLoadUpdate: (blockIndex: number, attemptLoad: boolean) => void;
   onSetFocus: (blockIndex: number, isFocused: boolean) => void;
   onAddBlock: (createAtIndex: number) => void;
   onDeleteBlock: (deleteIndex: number) => void;
@@ -29,6 +31,7 @@ export default function Block({
   typeId,
   text,
   imgUrl,
+  attemptLoad,
   siblingCount,
   // lastInGroup,
   isFocused,
@@ -36,6 +39,7 @@ export default function Block({
   onTypeUpdate,
   onTextUpdate,
   onImageUpdate,
+  onAttemptLoadUpdate,
   onSetFocus,
   onAddBlock,
   onDeleteBlock,
@@ -48,6 +52,10 @@ export default function Block({
 
   function handleImageUpdate(imgUrl: string | null) {
     onImageUpdate(blockIndex, imgUrl);
+  }
+
+  function handleAttemptLoadUpdate(attemptLoad: boolean) {
+    onAttemptLoadUpdate(blockIndex, attemptLoad);
   }
 
   // function handleInput(e: ChangeEvent<HTMLTextAreaElement>) {
@@ -149,7 +157,12 @@ export default function Block({
         ""
       )}
       {typeId === "image" ? (
-        <BlockImage imgUrl={imgUrl} onImageUpdate={handleImageUpdate} />
+        <BlockImage
+          imgUrl={imgUrl}
+          attemptLoad={attemptLoad}
+          onImageUpdate={handleImageUpdate}
+          onAttemptLoadUpdate={handleAttemptLoadUpdate}
+        />
       ) : (
         <textarea
           ref={blockEditableRef}
@@ -171,11 +184,16 @@ export default function Block({
           // defaultValue={previewIndex}
         />
       )}
-      {text.length === 0 ? (
-        <BlockTypePicker
-          selectedOption={typeId}
-          onTypeUpdate={handleSelectType}
-        />
+      {text.length === 0 && !imgUrl ? (
+        // FIXME: prevent this from showing in delete mode
+        isDeleting ? (
+          ""
+        ) : (
+          <BlockTypePicker
+            selectedOption={typeId}
+            onTypeUpdate={handleSelectType}
+          />
+        )
       ) : (
         ""
       )}
