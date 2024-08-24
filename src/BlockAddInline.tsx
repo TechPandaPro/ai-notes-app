@@ -20,7 +20,13 @@ export default function BlockAddInline({
   }
 
   function checkRegion(e: MouseEvent) {
-    if (!blockAddInlineRef.current) return;
+    // console.log(e.target);
+    if (
+      !blockAddInlineRef.current ||
+      (e.target &&
+        (e.target as HTMLElement).matches(".regionsIgnore, .regionsIgnore *"))
+    )
+      return;
     const mouseX = e.clientX;
     const mouseY = e.clientY;
     const blockAddInlineRect =
@@ -45,6 +51,13 @@ export default function BlockAddInline({
     window.addEventListener("mousemove", checkRegion);
     return () => window.removeEventListener("mousemove", checkRegion);
   }, []);
+
+  // useEffect(() => {
+  //   const addListenerTo = blockAddInlineRef.current?.parentElement;
+  //   if (!addListenerTo) return;
+  //   addListenerTo.addEventListener("mousemove", checkRegion);
+  //   return () => addListenerTo.removeEventListener("mousemove", checkRegion);
+  // }, [blockAddInlineRef]);
 
   return (
     <div
