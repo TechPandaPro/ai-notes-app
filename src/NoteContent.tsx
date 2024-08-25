@@ -12,19 +12,19 @@ interface BlockInfoBase {
   key: string;
   moving: boolean;
   position: Position;
-  previewIndex: number | null;
+  // previewIndex: number | null;
 }
 
 export interface BlockInfoStatic extends BlockInfoBase {
   moving: false;
   position: null;
-  previewIndex: null;
+  // previewIndex: null;
 }
 
 export interface BlockInfoMoving extends BlockInfoBase {
   moving: true;
   position: Exclude<Position, null>;
-  previewIndex: number;
+  // previewIndex: number;
 }
 
 export type BlockInfo = BlockInfoStatic | BlockInfoMoving;
@@ -67,7 +67,6 @@ export default function NoteContent() {
           key: `${Date.now()}_0`,
           moving: false,
           position: null,
-          previewIndex: null,
         },
         {
           type: BlockType.Text,
@@ -75,7 +74,6 @@ export default function NoteContent() {
           key: `${Date.now()}_1`,
           moving: false,
           position: null,
-          previewIndex: null,
         },
         {
           type: BlockType.Text,
@@ -83,7 +81,6 @@ export default function NoteContent() {
           key: `${Date.now()}_2`,
           moving: false,
           position: null,
-          previewIndex: null,
         },
       ],
       key: `${Date.now()}_0`,
@@ -99,7 +96,6 @@ export default function NoteContent() {
           key: `${Date.now()}_0`,
           moving: false,
           position: null,
-          previewIndex: null,
         },
         {
           type: BlockType.Text,
@@ -107,7 +103,6 @@ export default function NoteContent() {
           key: `${Date.now()}_1`,
           moving: false,
           position: null,
-          previewIndex: null,
         },
       ],
       key: `${Date.now()}_1`,
@@ -186,6 +181,18 @@ export default function NoteContent() {
       setFocusIndex(null);
   }
 
+  // function handleSetMoving(
+  //   blockGroupIndex: number,
+  //   blockIndex: number,
+  //   isMoving: boolean
+  // ) {
+  //   const nextBlockGroups = blockGroups.slice();
+  //   const nextBlockGroup = { ...nextBlockGroups[blockGroupIndex] };
+  //   nextBlockGroups[blockGroupIndex] = nextBlockGroup;
+  //   nextBlockGroup.blocks[blockIndex].moving = isMoving;
+  //   setBlockGroups(nextBlockGroups);
+  // }
+
   function handleAddBlock(blockGroupIndex: number, createAtIndex: number) {
     const nextBlockGroups = blockGroups.slice();
     const nextBlockGroup = { ...nextBlockGroups[blockGroupIndex] };
@@ -196,7 +203,6 @@ export default function NoteContent() {
       key: generateBlockKey(nextBlockGroup.blocks),
       moving: false,
       position: null,
-      previewIndex: null,
     });
     setBlockGroups(nextBlockGroups);
     setFocusIndex({ blockGroupIndex, blockIndex: createAtIndex });
@@ -223,7 +229,6 @@ export default function NoteContent() {
         key: generateBlockKey(newBlockGroup.blocks),
         moving: false,
         position: null,
-        previewIndex: null,
       });
       nextBlockGroups.push(newBlockGroup);
     }
@@ -246,7 +251,6 @@ export default function NoteContent() {
       key: generateBlockKey(newBlockGroup.blocks),
       moving: false,
       position: null,
-      previewIndex: null,
     });
 
     const nextBlockGroups = blockGroups.slice();
@@ -254,6 +258,31 @@ export default function NoteContent() {
 
     setBlockGroups(nextBlockGroups);
   }
+
+  // function handleBlockMove(
+  //   blockGroupIndex: number,
+  //   blockIndex: number,
+  //   position: Position
+  // ) {
+  //   const nextBlockGroups = blockGroups.slice();
+  //   const blockGroup = nextBlockGroups[blockGroupIndex];
+  //   const nextBlock = { ...blockGroup.blocks[blockIndex] };
+  //   blockGroup.blocks[blockIndex] = nextBlock;
+  //   if (position) {
+  //     nextBlock.moving = true;
+  //     nextBlock.position = position;
+  //   } else {
+  //     nextBlock.moving = false;
+  //     nextBlock.position = null;
+  //     if (
+  //       previewIndex !== null &&
+  //       nextBlockGroups[previewIndex.blockGroupIndex].blocks.length + 1 <= 5
+  //     ) {
+  //       // add block to group
+  //     }
+  //   }
+  //   setBlockGroups(nextBlockGroups);
+  // }
 
   function handleBlockMove(
     blockGroupIndex: number,
@@ -270,12 +299,6 @@ export default function NoteContent() {
     } else {
       nextBlock.moving = false;
       nextBlock.position = null;
-      if (
-        previewIndex !== null &&
-        nextBlockGroups[previewIndex.blockGroupIndex].blocks.length + 1 <= 5
-      ) {
-        // add block to group
-      }
     }
     setBlockGroups(nextBlockGroups);
   }
@@ -359,8 +382,8 @@ export default function NoteContent() {
       .find((blockGroup) => blockGroup.blocks.some((block) => block.moving))
       ?.blocks.find((block) => block.moving) ?? null;
 
-  console.log("curr moving:");
-  console.log(currMovingBlock);
+  // console.log("curr moving:");
+  // console.log(currMovingBlock);
 
   const currMovingBlockGroup =
     blockGroups.find((blockGroup) => blockGroup.moving) ?? null;
@@ -368,7 +391,8 @@ export default function NoteContent() {
   return (
     <div
       className={`noteContent ${
-        currMovingBlock || currMovingBlockGroup ? "moving" : ""
+        // currMovingBlock || currMovingBlockGroup ? "moving" : ""
+        currMovingBlockGroup ? "moving" : ""
       } ${isDeleting ? "deleting" : ""}`}
       // onKeyDown={handleKeyDown}
     >
@@ -390,12 +414,9 @@ export default function NoteContent() {
                 position: blockGroup.position as Exclude<Position, null>,
               }
             : { moving: false as const, position: null })}
+          currMovingBlock={currMovingBlock}
           currMovingBlockGroup={
-            currMovingBlock
-              ? currMovingBlock
-              : !blockGroup.moving
-              ? currMovingBlockGroup
-              : null
+            !blockGroup.moving ? currMovingBlockGroup : null
             // !blockGroup.moving
             //   ? currMovingBlockGroup &&
             //     blockGroup.blocks.length + currMovingBlockGroup.blocks.length <= 5
@@ -427,10 +448,12 @@ export default function NoteContent() {
           onImageUpdate={handleImageUpdate}
           onAttemptLoadUpdate={handleAttemptLoadUpdate}
           onSetFocus={handleSetFocus}
+          // onSetMoving={handleSetMoving}
           onAddBlock={handleAddBlock}
           onDeleteBlock={handleDeleteBlock}
-          onAddBlockGroup={handleAddBlockGroup}
           onBlockMove={handleBlockMove}
+          onAddBlockGroup={handleAddBlockGroup}
+          // onBlockMove={handleBlockMove}
           onBlockGroupMove={handleBlockGroupMove}
           onPreviewIndexUpdate={handlePreviewIndexUpdate}
         />

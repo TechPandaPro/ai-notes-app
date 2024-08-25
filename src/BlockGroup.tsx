@@ -20,7 +20,8 @@ interface BlockGroupPropsBase {
   focusBlockIndex: number | null;
   moving: boolean;
   position: Position;
-  currMovingBlockGroup: BlockInfoMoving | BlockGroupInfoMoving | null;
+  currMovingBlock: BlockInfoMoving | null;
+  currMovingBlockGroup: BlockGroupInfoMoving | null;
   invalidMove: boolean;
   previewIndex: number | null;
   isDeleting: boolean;
@@ -49,6 +50,11 @@ interface BlockGroupPropsBase {
     blockIndex: number,
     isFocused: boolean
   ) => void;
+  // onSetMoving: (
+  //   blockGroupIndex: number,
+  //   blockIndex: number,
+  //   isFocused: boolean
+  // ) => void;
   onAddBlock: (blockGroupIndex: number, createAtIndex: number) => void;
   onDeleteBlock: (blockGroupIndex: number, deleteIndex: number) => void;
   onAddBlockGroup: (createAtIndex: number) => void;
@@ -82,6 +88,7 @@ export default function BlockGroup({
   focusBlockIndex,
   position,
   moving,
+  currMovingBlock,
   currMovingBlockGroup,
   invalidMove,
   previewIndex,
@@ -91,6 +98,7 @@ export default function BlockGroup({
   onImageUpdate,
   onAttemptLoadUpdate,
   onSetFocus,
+  // onSetMoving,
   onAddBlock,
   onDeleteBlock,
   onAddBlockGroup,
@@ -143,6 +151,10 @@ export default function BlockGroup({
     onSetFocus(blockGroupIndex, blockIndex, isFocused);
   }
 
+  // function handleSetMoving(blockIndex: number, isMoving: boolean) {
+  //   onSetMoving(blockGroupIndex, blockIndex, isMoving);
+  // }
+
   function handleMove(blockIndex: number, position: Position) {
     onBlockMove(blockGroupIndex, blockIndex, position);
   }
@@ -162,6 +174,9 @@ export default function BlockGroup({
   function handleAddBlockGroupFromBlock() {
     onAddBlockGroup(blockGroupIndex + 1);
   }
+
+  // TODO: here, add a similar useEffect that checks currMovingBlock
+  // but instead of updating the preview index, it'll upload the block index
 
   useEffect(() => {
     // console.log(currMovingBlockGroup);
@@ -251,11 +266,12 @@ export default function BlockGroup({
    * are considered "failed" and are hidden by the CSS */
   const doAddPreview = previewIndex !== null && currMovingBlockGroup;
 
-  const blockComponents = (
-    currMovingBlockGroup && !("blocks" in currMovingBlockGroup)
-      ? blocks.filter((block) => currMovingBlockGroup !== block)
-      : blocks
-  ).map((block, blockIndex) => (
+  // const blockComponents = (
+  //   currMovingBlockGroup && !("blocks" in currMovingBlockGroup)
+  //     ? blocks.filter((block) => currMovingBlockGroup !== block)
+  //     : blocks
+  // ).map((block, blockIndex) => (
+  const blockComponents = blocks.map((block, blockIndex) => (
     <Block
       key={block.key}
       blockIndex={blockIndex}
@@ -266,20 +282,23 @@ export default function BlockGroup({
       siblingCount={
         blocks.length -
         1 +
-        (doAddPreview
-          ? "blocks" in currMovingBlockGroup
-            ? currMovingBlockGroup.blocks.length
-            : 1
-          : 0)
+        (doAddPreview ? currMovingBlockGroup.blocks.length : 0)
+        // (doAddPreview
+        //   ? "blocks" in currMovingBlockGroup
+        //     ? currMovingBlockGroup.blocks.length
+        //     : 1
+        //   : 0)
       }
       isFocused={focusBlockIndex === blockIndex}
+      isMoving={block.moving}
       isDeleting={isDeleting}
-      moving={block.moving}
+      // moving={block.moving}
       onTypeUpdate={handleTypeUpdate}
       onTextUpdate={handleTextUpdate}
       onImageUpdate={handleImageUpdate}
       onAttemptLoadUpdate={handleAttemptLoadUpdate}
       onSetFocus={handleSetFocus}
+      // onSetMoving={handleSetMoving}
       onMove={handleMove}
       onAddBlock={handleAddBlock}
       onDeleteBlock={handleDeleteBlock}
@@ -295,9 +314,10 @@ export default function BlockGroup({
       <BlockGroupPreview
         key={`${currMovingBlockGroup.key}_preview`}
         blocks={
-          "blocks" in currMovingBlockGroup
-            ? currMovingBlockGroup.blocks
-            : [currMovingBlockGroup]
+          // "blocks" in currMovingBlockGroup
+          //   ? currMovingBlockGroup.blocks
+          //   : [currMovingBlockGroup]
+          currMovingBlockGroup.blocks
         }
       />
     );

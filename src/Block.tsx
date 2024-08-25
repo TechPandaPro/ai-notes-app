@@ -5,6 +5,7 @@
 import {
   ChangeEvent,
   KeyboardEvent,
+  // MouseEvent,
   MouseEvent as ReactMouseEvent,
   useEffect,
   useRef,
@@ -26,13 +27,15 @@ interface BlockProps {
   siblingCount: number;
   // lastInGroup: boolean;
   isFocused: boolean;
+  isMoving: boolean;
   isDeleting: boolean;
-  moving: boolean;
+  // moving: boolean;
   onTypeUpdate: (blockIndex: number, type: BlockType) => void;
   onTextUpdate: (blockIndex: number, newText: string) => void;
   onImageUpdate: (blockIndex: number, imgUrl: string | null) => void;
   onAttemptLoadUpdate: (blockIndex: number, attemptLoad: boolean) => void;
   onSetFocus: (blockIndex: number, isFocused: boolean) => void;
+  // onSetMoving: (blockIndex: number, isMoving: boolean) => void;
   onMove: (blockIndex: number, position: Position) => void;
   onAddBlock: (createAtIndex: number) => void;
   onDeleteBlock: (deleteIndex: number) => void;
@@ -48,6 +51,7 @@ export default function Block({
   siblingCount,
   // lastInGroup,
   isFocused,
+  isMoving,
   isDeleting,
   // moving,
   onTypeUpdate,
@@ -55,6 +59,7 @@ export default function Block({
   onImageUpdate,
   onAttemptLoadUpdate,
   onSetFocus,
+  // onSetMoving,
   onMove,
   onAddBlock,
   onDeleteBlock,
@@ -70,26 +75,63 @@ export default function Block({
 
   const blockEditableRef = useRef<HTMLTextAreaElement>(null);
 
-  function handleMouseDown(
-    e: ReactMouseEvent<HTMLDivElement | HTMLTextAreaElement>
-  ) {
-    // if (!isDeleting || moving) return;
+  function handleMouseDown(e: ReactMouseEvent<HTMLDivElement>) {
     if (!isDeleting) return;
-    // if (moving) return;
-
     e.preventDefault();
-
-    const blockMarkerRect = e.currentTarget.getBoundingClientRect();
-
+    // onSetMoving(blockIndex, true);
     onMove(blockIndex, {
       x: e.clientX,
       y: e.clientY,
-      width: blockMarkerRect.width,
-      height: blockMarkerRect.height,
-      offsetX: blockMarkerRect.width / 2 - e.nativeEvent.offsetX,
-      offsetY: blockMarkerRect.height / 2 - e.nativeEvent.offsetY,
+      width: 0,
+      height: 0,
+      offsetX: 0,
+      offsetY: 0,
     });
   }
+
+  function handleMouseUp(e: ReactMouseEvent<HTMLDivElement>) {
+    if (!isDeleting) return;
+    e.preventDefault();
+    // onSetMoving(blockIndex, false);
+    onMove(blockIndex, null);
+  }
+
+  function handleMouseMove(e: MouseEvent) {
+    onMove(blockIndex, {
+      x: e.clientX,
+      y: e.clientY,
+      width: 0,
+      height: 0,
+      offsetX: 0,
+      offsetY: 0,
+    });
+  }
+
+  useEffect(() => {
+    if (isMoving) window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, [isMoving]);
+
+  // function handleMouseDown(
+  //   e: ReactMouseEvent<HTMLDivElement | HTMLTextAreaElement>
+  // ) {
+  //   // if (!isDeleting || moving) return;
+  //   if (!isDeleting) return;
+  //   // if (moving) return;
+
+  //   e.preventDefault();
+
+  //   const blockMarkerRect = e.currentTarget.getBoundingClientRect();
+
+  //   onMove(blockIndex, {
+  //     x: e.clientX,
+  //     y: e.clientY,
+  //     width: blockMarkerRect.width,
+  //     height: blockMarkerRect.height,
+  //     offsetX: blockMarkerRect.width / 2 - e.nativeEvent.offsetX,
+  //     offsetY: blockMarkerRect.height / 2 - e.nativeEvent.offsetY,
+  //   });
+  // }
 
   // function handleMouseUp(
   //   e: ReactMouseEvent<HTMLDivElement | HTMLTextAreaElement>
@@ -239,9 +281,11 @@ export default function Block({
   return (
     // TODO: allow individual blocks to be dragged when in delete mode
     <div
-      className="block"
+      className={`block ${isMoving ? "moving" : ""}`}
       data-type={type.toLowerCase()}
       onMouseDown={handleMouseDown}
+      onMouseUp={handleMouseUp}
+      // onMouseDown={handleMouseDown}
       // onMouseUp={handleMouseUp}
     >
       {!isDeleting && siblingCount + 1 < 5 && blockIndex === 0 ? (
