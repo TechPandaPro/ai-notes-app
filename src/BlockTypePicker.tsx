@@ -3,6 +3,8 @@
 
 import BlockTypeOption, { BlockType } from "./BlockTypeOption";
 
+// FIXME: fix broken picker (text/header does not work)
+
 interface BlockTypePickerProps {
   selectedOption: BlockType;
   onTypeUpdate: (type: BlockType) => void;

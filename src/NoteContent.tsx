@@ -52,7 +52,7 @@ export interface BlockGroupInfoMoving extends BlockGroupInfoBase {
 
 export type BlockGroupInfo = BlockGroupInfoStatic | BlockGroupInfoMoving;
 
-interface FullBlockIndex {
+export interface FullBlockIndex {
   blockGroupIndex: number;
   blockIndex: number;
 }
@@ -336,6 +336,69 @@ export default function NoteContent() {
     setBlockGroups(nextBlockGroups);
   }
 
+  function handleMovingBlockUpdate(
+    blockGroupIndex: number,
+    blockIndex: number,
+    movedToBlockGroupIndex: number,
+    movedToBlockIndex: number
+  ) {
+    const nextBlockGroups = blockGroups.slice();
+    const blockFromGroup = nextBlockGroups[blockGroupIndex];
+    // nextBlockGroups[blockGroupIndex] = blockFromGroup;
+    const blockToGroup = nextBlockGroups[movedToBlockGroupIndex];
+    // nextBlockGroups[movedToBlockGroupIndex] = blockToGroup;
+
+    blockToGroup.blocks.splice(
+      movedToBlockIndex,
+      0,
+      blockFromGroup.blocks.splice(blockIndex, 1)[0]
+    );
+    blockToGroup.blocks[movedToBlockIndex].key = generateBlockKey(
+      blockToGroup.blocks
+    );
+
+    // if (blockGroupIndex === movedToBlockGroupIndex) {
+    //   blockToGroup.blocks.splice(
+    //     movedToBlockIndex,
+    //     0,
+    //     blockFromGroup.blocks.splice(blockIndex, 1)[0]
+    //   );
+    //   blockToGroup.blocks[movedToBlockIndex].key = generateBlockKey(
+    //     blockToGroup.blocks
+    //   );
+    // } else {
+    //   blockToGroup.blocks.splice(
+    //     movedToBlockIndex,
+    //     0,
+    //     blockFromGroup.blocks[blockIndex]
+    //   );
+    //   blockToGroup.blocks[movedToBlockIndex].key = generateBlockKey(
+    //     blockToGroup.blocks
+    //   );
+
+    //   blockFromGroup.blocks.splice(blockIndex, 1);
+    // }
+
+    setBlockGroups(nextBlockGroups);
+
+    // nextBlockGroup.blocks.splice(createAtIndex, 0, {
+    //   type: BlockType.Text,
+    //   text: "",
+    //   key: generateBlockKey(nextBlockGroup.blocks),
+    //   moving: false,
+    //   position: null,
+    // });
+    // setBlockGroups(nextBlockGroups);
+    // setFocusIndex({ blockGroupIndex, blockIndex: createAtIndex });
+
+    console.table({
+      blockGroupIndex,
+      blockIndex,
+      movedToBlockGroupIndex,
+      movedToBlockIndex,
+    });
+  }
+
   function handlePreviewIndexUpdate(
     blockGroupIndex: number,
     blockIndex: number | null
@@ -377,10 +440,17 @@ export default function NoteContent() {
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [focusIndex, isDeleting]);
 
+  // const currMovingBlock =
+  //   blockGroups
+  //     .find((blockGroup) => blockGroup.blocks.some((block) => block.moving))
+  //     ?.blocks.find((block) => block.moving) ?? null;
+
+  const currMovingBlockParent = blockGroups.find((blockGroup) =>
+    blockGroup.blocks.some((block) => block.moving)
+  );
+
   const currMovingBlock =
-    blockGroups
-      .find((blockGroup) => blockGroup.blocks.some((block) => block.moving))
-      ?.blocks.find((block) => block.moving) ?? null;
+    currMovingBlockParent?.blocks.find((block) => block.moving) ?? null;
 
   // console.log("curr moving:");
   // console.log(currMovingBlock);
@@ -415,6 +485,15 @@ export default function NoteContent() {
               }
             : { moving: false as const, position: null })}
           currMovingBlock={currMovingBlock}
+          currMovingBlockIndex={
+            currMovingBlock && currMovingBlockParent
+              ? {
+                  blockGroupIndex: blockGroups.indexOf(currMovingBlockParent),
+                  blockIndex:
+                    currMovingBlockParent.blocks.indexOf(currMovingBlock),
+                }
+              : null
+          }
           currMovingBlockGroup={
             !blockGroup.moving ? currMovingBlockGroup : null
             // !blockGroup.moving
@@ -455,6 +534,7 @@ export default function NoteContent() {
           onAddBlockGroup={handleAddBlockGroup}
           // onBlockMove={handleBlockMove}
           onBlockGroupMove={handleBlockGroupMove}
+          onMovingBlockUpdate={handleMovingBlockUpdate}
           onPreviewIndexUpdate={handlePreviewIndexUpdate}
         />
       ))}

@@ -6,6 +6,7 @@ import {
   BlockGroupInfoMoving,
   BlockInfo,
   BlockInfoMoving,
+  FullBlockIndex,
 } from "./NoteContent";
 import Block from "./Block";
 import BlockGroupPreview from "./BlockGroupPreview";
@@ -21,6 +22,7 @@ interface BlockGroupPropsBase {
   moving: boolean;
   position: Position;
   currMovingBlock: BlockInfoMoving | null;
+  currMovingBlockIndex: FullBlockIndex | null;
   currMovingBlockGroup: BlockGroupInfoMoving | null;
   invalidMove: boolean;
   previewIndex: number | null;
@@ -64,6 +66,12 @@ interface BlockGroupPropsBase {
     position: Position
   ) => void;
   onBlockGroupMove: (blockGroupIndex: number, position: Position) => void;
+  onMovingBlockUpdate: (
+    blockGroupIndex: number,
+    blockIndex: number,
+    movedToBlockGroupIndex: number,
+    movedToBlockIndex: number
+  ) => void;
   onPreviewIndexUpdate: (
     blockGroupIndex: number,
     previewIndex: number | null
@@ -89,6 +97,7 @@ export default function BlockGroup({
   position,
   moving,
   currMovingBlock,
+  currMovingBlockIndex,
   currMovingBlockGroup,
   invalidMove,
   previewIndex,
@@ -104,6 +113,7 @@ export default function BlockGroup({
   onAddBlockGroup,
   onBlockMove,
   onBlockGroupMove,
+  onMovingBlockUpdate,
   onPreviewIndexUpdate,
 }: BlockGroupProps) {
   // decided to move this down to the jsx instead
@@ -177,6 +187,48 @@ export default function BlockGroup({
 
   // TODO: here, add a similar useEffect that checks currMovingBlock
   // but instead of updating the preview index, it'll upload the block index
+
+  useEffect(() => {
+    // TODO: add 5-per-group limit to individual block moving
+    if (currMovingBlock && currMovingBlockIndex && blockGroupRef.current) {
+      const { x, y } = currMovingBlock.position;
+      const blockGroupRect = blockGroupRef.current.getBoundingClientRect();
+      const isOverlapping =
+        x > blockGroupRect.left &&
+        x < blockGroupRect.right &&
+        y > blockGroupRect.top &&
+        y < blockGroupRect.bottom;
+      if (isOverlapping) {
+        const placementOptionsCount = blocks.length;
+        const movedToBlockIndex = Math.floor(
+          (x / blockGroupRect.width) * placementOptionsCount
+        );
+
+        // onMovingBlockUpdate: (
+        //   blockGroupIndex: number,
+        //   blockIndex: number,
+        //   movedToBlockGroupIndex: number,
+        //   movedToBlockIndex: number
+        // ) => void;
+
+        // onPreviewIndexUpdate(blockGroupIndex, nextPreviewIndex);
+        if (
+          currMovingBlockIndex.blockGroupIndex !== blockGroupIndex ||
+          currMovingBlockIndex.blockIndex !== movedToBlockIndex
+        )
+          onMovingBlockUpdate(
+            currMovingBlockIndex.blockGroupIndex,
+            currMovingBlockIndex.blockIndex,
+            blockGroupIndex,
+            movedToBlockIndex
+          );
+        // } else onPreviewIndexUpdate(blockGroupIndex, null);
+      }
+      // } else onMovingBlockUpdate(blockGroupIndex, null);
+      // } else onPreviewIndexUpdate(blockGroupIndex, null);
+    }
+    // } else onMovingBlockUpdate(blockGroupIndex, null);
+  }, [currMovingBlock]);
 
   useEffect(() => {
     // console.log(currMovingBlockGroup);
@@ -334,7 +386,7 @@ export default function BlockGroup({
   //   </div>
   // );
 
-  console.log(isDeleting);
+  // console.log(isDeleting);
 
   return (
     <>
