@@ -135,7 +135,7 @@ export default function BlockMarker({
       window.addEventListener("mousemove", updateMouseState);
       return () => window.removeEventListener("mousemove", updateMouseState);
     }
-  });
+  }, [position]);
 
   // useEffect(() => {
   //   window.addEventListener("mousemove", updateMouseState);

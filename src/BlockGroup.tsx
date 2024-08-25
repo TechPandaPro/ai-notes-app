@@ -1,11 +1,17 @@
 // import { useEffect, useRef, useState } from "react";
 import { useEffect, useRef } from "react";
 import BlockAdd from "./BlockAdd";
-import BlockMarker, { Position } from "./BlockMarker";
-import { BlockGroupInfoMoving, BlockInfo } from "./NoteContent";
+import BlockMarker, { Position } from "./BlockGroupMarker";
+import {
+  BlockGroupInfoMoving,
+  BlockInfo,
+  BlockInfoMoving,
+} from "./NoteContent";
 import Block from "./Block";
 import BlockGroupPreview from "./BlockGroupPreview";
 import { BlockType } from "./BlockTypeOption";
+
+// TODO: allow esc to cancel block group move
 
 interface BlockGroupPropsBase {
   // interface BlockGroupProps {
@@ -14,7 +20,7 @@ interface BlockGroupPropsBase {
   focusBlockIndex: number | null;
   moving: boolean;
   position: Position;
-  currMovingBlockGroup: BlockGroupInfoMoving | null;
+  currMovingBlockGroup: BlockInfoMoving | BlockGroupInfoMoving | null;
   invalidMove: boolean;
   previewIndex: number | null;
   isDeleting: boolean;
@@ -245,7 +251,11 @@ export default function BlockGroup({
    * are considered "failed" and are hidden by the CSS */
   const doAddPreview = previewIndex !== null && currMovingBlockGroup;
 
-  const blockComponents = blocks.map((block, blockIndex) => (
+  const blockComponents = (
+    currMovingBlockGroup && !("blocks" in currMovingBlockGroup)
+      ? blocks.filter((block) => currMovingBlockGroup !== block)
+      : blocks
+  ).map((block, blockIndex) => (
     <Block
       key={block.key}
       blockIndex={blockIndex}
@@ -256,10 +266,15 @@ export default function BlockGroup({
       siblingCount={
         blocks.length -
         1 +
-        (doAddPreview ? currMovingBlockGroup.blocks.length : 0)
+        (doAddPreview
+          ? "blocks" in currMovingBlockGroup
+            ? currMovingBlockGroup.blocks.length
+            : 1
+          : 0)
       }
       isFocused={focusBlockIndex === blockIndex}
       isDeleting={isDeleting}
+      moving={block.moving}
       onTypeUpdate={handleTypeUpdate}
       onTextUpdate={handleTextUpdate}
       onImageUpdate={handleImageUpdate}
@@ -279,7 +294,11 @@ export default function BlockGroup({
       0,
       <BlockGroupPreview
         key={`${currMovingBlockGroup.key}_preview`}
-        blocks={currMovingBlockGroup.blocks}
+        blocks={
+          "blocks" in currMovingBlockGroup
+            ? currMovingBlockGroup.blocks
+            : [currMovingBlockGroup]
+        }
       />
     );
   // blocks.splice(

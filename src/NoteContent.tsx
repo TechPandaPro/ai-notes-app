@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Position } from "./BlockMarker";
+import { Position } from "./BlockGroupMarker";
 import BlockGroup from "./BlockGroup";
 import { BlockType } from "./BlockTypeOption";
 
@@ -265,7 +265,6 @@ export default function NoteContent() {
     const nextBlock = { ...blockGroup.blocks[blockIndex] };
     blockGroup.blocks[blockIndex] = nextBlock;
     if (position) {
-      console.log("start moving");
       nextBlock.moving = true;
       nextBlock.position = position;
     } else {
@@ -278,6 +277,7 @@ export default function NoteContent() {
         // add block to group
       }
     }
+    setBlockGroups(nextBlockGroups);
   }
 
   function handleBlockGroupMove(blockGroupIndex: number, position: Position) {
@@ -354,14 +354,22 @@ export default function NoteContent() {
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [focusIndex, isDeleting]);
 
+  const currMovingBlock =
+    blockGroups
+      .find((blockGroup) => blockGroup.blocks.some((block) => block.moving))
+      ?.blocks.find((block) => block.moving) ?? null;
+
+  console.log("curr moving:");
+  console.log(currMovingBlock);
+
   const currMovingBlockGroup =
     blockGroups.find((blockGroup) => blockGroup.moving) ?? null;
 
   return (
     <div
-      className={`noteContent ${currMovingBlockGroup ? "moving" : ""} ${
-        isDeleting ? "deleting" : ""
-      }`}
+      className={`noteContent ${
+        currMovingBlock || currMovingBlockGroup ? "moving" : ""
+      } ${isDeleting ? "deleting" : ""}`}
       // onKeyDown={handleKeyDown}
     >
       {blockGroups.map((blockGroup, blockGroupIndex) => (
@@ -383,7 +391,11 @@ export default function NoteContent() {
               }
             : { moving: false as const, position: null })}
           currMovingBlockGroup={
-            !blockGroup.moving ? currMovingBlockGroup : null
+            currMovingBlock
+              ? currMovingBlock
+              : !blockGroup.moving
+              ? currMovingBlockGroup
+              : null
             // !blockGroup.moving
             //   ? currMovingBlockGroup &&
             //     blockGroup.blocks.length + currMovingBlockGroup.blocks.length <= 5
