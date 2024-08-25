@@ -1,11 +1,21 @@
 // TODO: AI! keybind can maybe be shift+enter to send to GPT
 
-import { ChangeEvent, KeyboardEvent, useEffect, useRef, useState } from "react";
+// TODO: add keybind to delete block (cmd+backspace?)
+
+import {
+  ChangeEvent,
+  KeyboardEvent,
+  MouseEvent,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import BlockAddInline from "./BlockAddInline";
 import DeleteBlock from "./DeleteBlock";
 import BlockTypePicker from "./BlockTypePicker";
 import BlockImage from "./BlockImage";
 import { BlockType } from "./BlockTypeOption";
+import { Position } from "./BlockMarker";
 
 interface BlockProps {
   blockIndex: number;
@@ -22,6 +32,7 @@ interface BlockProps {
   onImageUpdate: (blockIndex: number, imgUrl: string | null) => void;
   onAttemptLoadUpdate: (blockIndex: number, attemptLoad: boolean) => void;
   onSetFocus: (blockIndex: number, isFocused: boolean) => void;
+  onMove: (blockIndex: number, position: Position) => void;
   onAddBlock: (createAtIndex: number) => void;
   onDeleteBlock: (deleteIndex: number) => void;
   onAddBlockGroup: () => void;
@@ -42,6 +53,7 @@ export default function Block({
   onImageUpdate,
   onAttemptLoadUpdate,
   onSetFocus,
+  onMove,
   onAddBlock,
   onDeleteBlock,
   onAddBlockGroup,
@@ -55,6 +67,35 @@ export default function Block({
   // const [prevIsFocused, setPrevIsFocused] = useState(isFocused);
 
   const blockEditableRef = useRef<HTMLTextAreaElement>(null);
+
+  function handleMouseDown(
+    e: MouseEvent<HTMLDivElement | HTMLTextAreaElement>
+  ) {
+    if (!isDeleting) return;
+    // if (moving) return;
+
+    e.preventDefault();
+
+    const blockMarkerRect = e.currentTarget.getBoundingClientRect();
+
+    onMove(blockIndex, {
+      x: e.clientX,
+      y: e.clientY,
+      width: blockMarkerRect.width,
+      height: blockMarkerRect.height,
+      offsetX: blockMarkerRect.width / 2 - e.nativeEvent.offsetX,
+      offsetY: blockMarkerRect.height / 2 - e.nativeEvent.offsetY,
+    });
+  }
+
+  function handleMouseUp(e: MouseEvent<HTMLDivElement | HTMLTextAreaElement>) {
+    if (!isDeleting) return;
+    // if (!moving) return;
+
+    e.preventDefault();
+
+    onMove(blockIndex, null);
+  }
 
   function handleImageUpdate(imgUrl: string | null) {
     onImageUpdate(blockIndex, imgUrl);
@@ -153,7 +194,12 @@ export default function Block({
 
   return (
     // TODO: allow individual blocks to be dragged when in delete mode
-    <div className="block" data-type={type.toLowerCase()}>
+    <div
+      className="block"
+      data-type={type.toLowerCase()}
+      onMouseDown={handleMouseDown}
+      onMouseUp={handleMouseUp}
+    >
       {!isDeleting && siblingCount + 1 < 5 && blockIndex === 0 ? (
         <BlockAddInline
           createAtIndex={blockIndex}
@@ -184,7 +230,7 @@ export default function Block({
           className="blockEditable"
           defaultValue={text}
           autoFocus={isFocused}
-          disabled={isDeleting}
+          readOnly={isDeleting}
           onInput={handleInput}
           onKeyDown={handleKeyDown}
           onFocus={handleFocus}

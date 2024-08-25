@@ -290,6 +290,7 @@ body {
 }
 
 .blockEditable {
+  user-select: none;
   /* pointer-events: auto; */
   font-family: inherit;
   color: inherit;
@@ -629,7 +630,16 @@ body {
   transform: translate(-50%, -50%) rotate(-45deg);
 }
 
-.block:has(.deleteBlock:hover) {
+.noteContent.deleting .block:has(.deleteBlock:hover) {
+  background-color: rgb(255 0 0 / 0.2);
+}
+
+.noteContent.deleting .block,
+.noteContent.deleting .blockEditable {
+  cursor: move;
+}
+
+.noteContent.deleting .block:hover {
   background-color: rgb(211 211 211 / 0.1);
 }
 

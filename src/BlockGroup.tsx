@@ -2,7 +2,7 @@
 import { useEffect, useRef } from "react";
 import BlockAdd from "./BlockAdd";
 import BlockMarker, { Position } from "./BlockMarker";
-import { BlockGroupMoving, BlockInfo } from "./NoteContent";
+import { BlockGroupInfoMoving, BlockInfo } from "./NoteContent";
 import Block from "./Block";
 import BlockGroupPreview from "./BlockGroupPreview";
 import { BlockType } from "./BlockTypeOption";
@@ -14,7 +14,7 @@ interface BlockGroupPropsBase {
   focusBlockIndex: number | null;
   moving: boolean;
   position: Position;
-  currMovingBlockGroup: BlockGroupMoving | null;
+  currMovingBlockGroup: BlockGroupInfoMoving | null;
   invalidMove: boolean;
   previewIndex: number | null;
   isDeleting: boolean;
@@ -46,7 +46,12 @@ interface BlockGroupPropsBase {
   onAddBlock: (blockGroupIndex: number, createAtIndex: number) => void;
   onDeleteBlock: (blockGroupIndex: number, deleteIndex: number) => void;
   onAddBlockGroup: (createAtIndex: number) => void;
-  onMove: (blockGroupIndex: number, position: Position) => void;
+  onBlockMove: (
+    blockGroupIndex: number,
+    blockIndex: number,
+    position: Position
+  ) => void;
+  onBlockGroupMove: (blockGroupIndex: number, position: Position) => void;
   onPreviewIndexUpdate: (
     blockGroupIndex: number,
     previewIndex: number | null
@@ -83,7 +88,8 @@ export default function BlockGroup({
   onAddBlock,
   onDeleteBlock,
   onAddBlockGroup,
-  onMove,
+  onBlockMove,
+  onBlockGroupMove,
   onPreviewIndexUpdate,
 }: BlockGroupProps) {
   // decided to move this down to the jsx instead
@@ -129,6 +135,10 @@ export default function BlockGroup({
 
   function handleSetFocus(blockIndex: number, isFocused: boolean) {
     onSetFocus(blockGroupIndex, blockIndex, isFocused);
+  }
+
+  function handleMove(blockIndex: number, position: Position) {
+    onBlockMove(blockGroupIndex, blockIndex, position);
   }
 
   function handleAddBlock(createAtIndex: number) {
@@ -255,6 +265,7 @@ export default function BlockGroup({
       onImageUpdate={handleImageUpdate}
       onAttemptLoadUpdate={handleAttemptLoadUpdate}
       onSetFocus={handleSetFocus}
+      onMove={handleMove}
       onAddBlock={handleAddBlock}
       onDeleteBlock={handleDeleteBlock}
       onAddBlockGroup={handleAddBlockGroupFromBlock}
@@ -304,7 +315,7 @@ export default function BlockGroup({
       >
         <BlockMarker
           blockGroupIndex={blockGroupIndex}
-          onMove={onMove}
+          onMove={onBlockGroupMove}
           // moving={moving}
           // position={position}
           // {...{ moving, position }}

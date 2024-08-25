@@ -3,16 +3,33 @@ import { Position } from "./BlockMarker";
 import BlockGroup from "./BlockGroup";
 import { BlockType } from "./BlockTypeOption";
 
-export interface BlockInfo {
+interface BlockInfoBase {
   type: BlockType;
   text: string;
   // TODO: improve these typings
   imgUrl?: string | null;
   attemptLoad?: boolean;
   key: string;
+  moving: boolean;
+  position: Position;
+  previewIndex: number | null;
 }
 
-interface BlockGroupBase {
+export interface BlockInfoStatic extends BlockInfoBase {
+  moving: false;
+  position: null;
+  previewIndex: null;
+}
+
+export interface BlockInfoMoving extends BlockInfoBase {
+  moving: true;
+  position: Exclude<Position, null>;
+  previewIndex: number;
+}
+
+export type BlockInfo = BlockInfoStatic | BlockInfoMoving;
+
+interface BlockGroupInfoBase {
   // export interface BlockGroupInfo {
   blocks: BlockInfo[];
   key: string;
@@ -21,24 +38,24 @@ interface BlockGroupBase {
   previewIndex: number | null;
 }
 
-export interface BlockGroupStatic extends BlockGroupBase {
+export interface BlockGroupInfoStatic extends BlockGroupInfoBase {
   moving: false;
   position: null;
+  previewIndex: null;
 }
 
-export interface BlockGroupMoving extends BlockGroupBase {
+export interface BlockGroupInfoMoving extends BlockGroupInfoBase {
   moving: true;
   position: Exclude<Position, null>;
+  previewIndex: number;
 }
 
-export type BlockGroupInfo = BlockGroupStatic | BlockGroupMoving;
+export type BlockGroupInfo = BlockGroupInfoStatic | BlockGroupInfoMoving;
 
 interface FullBlockIndex {
   blockGroupIndex: number;
   blockIndex: number;
 }
-
-// TODO: add ts type for block type
 
 export default function NoteContent() {
   const [blockGroups, setBlockGroups] = useState<BlockGroupInfo[]>([
@@ -48,21 +65,30 @@ export default function NoteContent() {
           type: BlockType.Text,
           text: "hello, world",
           key: `${Date.now()}_0`,
+          moving: false,
+          position: null,
+          previewIndex: null,
         },
         {
           type: BlockType.Text,
           text: "lorem ipsum",
           key: `${Date.now()}_1`,
+          moving: false,
+          position: null,
+          previewIndex: null,
         },
         {
           type: BlockType.Text,
           text: "dolor sit amet",
           key: `${Date.now()}_2`,
+          moving: false,
+          position: null,
+          previewIndex: null,
         },
       ],
       key: `${Date.now()}_0`,
-      position: null,
       moving: false,
+      position: null,
       previewIndex: null,
     },
     {
@@ -71,16 +97,22 @@ export default function NoteContent() {
           type: BlockType.Text,
           text: "hello, world",
           key: `${Date.now()}_0`,
+          moving: false,
+          position: null,
+          previewIndex: null,
         },
         {
           type: BlockType.Text,
           text: "lorem ipsum",
           key: `${Date.now()}_1`,
+          moving: false,
+          position: null,
+          previewIndex: null,
         },
       ],
       key: `${Date.now()}_1`,
-      position: null,
       moving: false,
+      position: null,
       previewIndex: null,
     },
   ]);
@@ -162,6 +194,9 @@ export default function NoteContent() {
       type: BlockType.Text,
       text: "",
       key: generateBlockKey(nextBlockGroup.blocks),
+      moving: false,
+      position: null,
+      previewIndex: null,
     });
     setBlockGroups(nextBlockGroups);
     setFocusIndex({ blockGroupIndex, blockIndex: createAtIndex });
@@ -178,14 +213,17 @@ export default function NoteContent() {
       const newBlockGroup: BlockGroupInfo = {
         blocks: [],
         key: generateBlockKey(blockGroups),
-        position: null,
         moving: false,
+        position: null,
         previewIndex: null,
       };
       newBlockGroup.blocks.push({
         type: BlockType.Text,
         text: "",
         key: generateBlockKey(newBlockGroup.blocks),
+        moving: false,
+        position: null,
+        previewIndex: null,
       });
       nextBlockGroups.push(newBlockGroup);
     }
@@ -198,14 +236,17 @@ export default function NoteContent() {
     const newBlockGroup: BlockGroupInfo = {
       blocks: [],
       key: generateBlockKey(blockGroups),
-      position: null,
       moving: false,
+      position: null,
       previewIndex: null,
     };
     newBlockGroup.blocks.push({
       type: BlockType.Text,
       text: "",
       key: generateBlockKey(newBlockGroup.blocks),
+      moving: false,
+      position: null,
+      previewIndex: null,
     });
 
     const nextBlockGroups = blockGroups.slice();
@@ -214,16 +255,41 @@ export default function NoteContent() {
     setBlockGroups(nextBlockGroups);
   }
 
-  function handleMove(blockGroupIndex: number, position: Position) {
+  function handleBlockMove(
+    blockGroupIndex: number,
+    blockIndex: number,
+    position: Position
+  ) {
+    const nextBlockGroups = blockGroups.slice();
+    const blockGroup = nextBlockGroups[blockGroupIndex];
+    const nextBlock = { ...blockGroup.blocks[blockIndex] };
+    blockGroup.blocks[blockIndex] = nextBlock;
+    if (position) {
+      console.log("start moving");
+      nextBlock.moving = true;
+      nextBlock.position = position;
+    } else {
+      nextBlock.moving = false;
+      nextBlock.position = null;
+      if (
+        previewIndex !== null &&
+        nextBlockGroups[previewIndex.blockGroupIndex].blocks.length + 1 <= 5
+      ) {
+        // add block to group
+      }
+    }
+  }
+
+  function handleBlockGroupMove(blockGroupIndex: number, position: Position) {
     const nextBlockGroups = blockGroups.slice();
     const nextBlockGroup = { ...nextBlockGroups[blockGroupIndex] };
     nextBlockGroups[blockGroupIndex] = nextBlockGroup;
     if (position) {
-      nextBlockGroup.position = position;
       nextBlockGroup.moving = true;
+      nextBlockGroup.position = position;
     } else {
-      nextBlockGroup.position = null;
       nextBlockGroup.moving = false;
+      nextBlockGroup.position = null;
       if (
         previewIndex !== null &&
         nextBlockGroups[previewIndex.blockGroupIndex].blocks.length +
@@ -293,7 +359,9 @@ export default function NoteContent() {
 
   return (
     <div
-      className={`noteContent ${currMovingBlockGroup ? "moving" : ""}`}
+      className={`noteContent ${currMovingBlockGroup ? "moving" : ""} ${
+        isDeleting ? "deleting" : ""
+      }`}
       // onKeyDown={handleKeyDown}
     >
       {blockGroups.map((blockGroup, blockGroupIndex) => (
@@ -350,7 +418,8 @@ export default function NoteContent() {
           onAddBlock={handleAddBlock}
           onDeleteBlock={handleDeleteBlock}
           onAddBlockGroup={handleAddBlockGroup}
-          onMove={handleMove}
+          onBlockMove={handleBlockMove}
+          onBlockGroupMove={handleBlockGroupMove}
           onPreviewIndexUpdate={handlePreviewIndexUpdate}
         />
       ))}
