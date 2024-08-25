@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { Position } from "./BlockMarker";
 import BlockGroup from "./BlockGroup";
+import { BlockType } from "./BlockTypeOption";
 
 export interface BlockInfo {
-  type: string;
+  type: BlockType;
   text: string;
   // TODO: improve these typings
   imgUrl?: string | null;
@@ -44,17 +45,17 @@ export default function NoteContent() {
     {
       blocks: [
         {
-          type: "text",
+          type: BlockType.Text,
           text: "hello, world",
           key: `${Date.now()}_0`,
         },
         {
-          type: "text",
+          type: BlockType.Text,
           text: "lorem ipsum",
           key: `${Date.now()}_1`,
         },
         {
-          type: "text",
+          type: BlockType.Text,
           text: "dolor sit amet",
           key: `${Date.now()}_2`,
         },
@@ -67,12 +68,12 @@ export default function NoteContent() {
     {
       blocks: [
         {
-          type: "text",
+          type: BlockType.Text,
           text: "hello, world",
           key: `${Date.now()}_0`,
         },
         {
-          type: "text",
+          type: BlockType.Text,
           text: "lorem ipsum",
           key: `${Date.now()}_1`,
         },
@@ -90,13 +91,13 @@ export default function NoteContent() {
   function handleTypeUpdate(
     blockGroupIndex: number,
     blockIndex: number,
-    typeId: string
+    type: BlockType
   ) {
     const nextBlockGroups = blockGroups.slice();
     const nextBlockGroup = { ...nextBlockGroups[blockGroupIndex] };
     nextBlockGroups[blockGroupIndex] = nextBlockGroup;
-    nextBlockGroup.blocks[blockIndex].type = typeId;
-    if (typeId === "image")
+    nextBlockGroup.blocks[blockIndex].type = type;
+    if (type === BlockType.Image)
       nextBlockGroup.blocks[blockIndex].attemptLoad = true;
     setBlockGroups(nextBlockGroups);
     setFocusIndex({ blockGroupIndex, blockIndex });
@@ -158,7 +159,7 @@ export default function NoteContent() {
     const nextBlockGroup = { ...nextBlockGroups[blockGroupIndex] };
     nextBlockGroups[blockGroupIndex] = nextBlockGroup;
     nextBlockGroup.blocks.splice(createAtIndex, 0, {
-      type: "text",
+      type: BlockType.Text,
       text: "",
       key: generateBlockKey(nextBlockGroup.blocks),
     });
@@ -182,7 +183,7 @@ export default function NoteContent() {
         previewIndex: null,
       };
       newBlockGroup.blocks.push({
-        type: "text",
+        type: BlockType.Text,
         text: "",
         key: generateBlockKey(newBlockGroup.blocks),
       });
@@ -202,7 +203,7 @@ export default function NoteContent() {
       previewIndex: null,
     };
     newBlockGroup.blocks.push({
-      type: "text",
+      type: BlockType.Text,
       text: "",
       key: generateBlockKey(newBlockGroup.blocks),
     });

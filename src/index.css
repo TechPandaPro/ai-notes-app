@@ -11,9 +11,7 @@ body {
   /* margin: auto;
   max-width: 38rem;
   padding: 2rem; */
-  background-color: rgb(
-    10 10 10 / 0.5
-  ); /* TODO: consider setting this within the window's backgroundColor */
+  background-color: rgb(10 10 10 / 0.5);
   color: rgb(230 230 230);
 }
 
@@ -258,7 +256,6 @@ body {
   transition: background-color 0.1s;
 }
 
-/* TODO: maybe consider adding a similar divider between block groups */
 .block + .block::after,
 .block + .blockGroupPreview::after,
 .blockGroupPreview + .block::after {
@@ -340,8 +337,6 @@ body {
   content: "\00a0";
 } */
 
-/* TODO: make this "soft" on the left and right sides too. consider using box-shadow instead of gradient */
-/* ^ could also consider adding a focus class to focused blocks, and then using ::before on that */
 /* .blockEditable:focus::before {
   content: "";
   position: absolute;

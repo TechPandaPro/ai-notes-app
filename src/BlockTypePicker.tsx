@@ -1,19 +1,17 @@
 // first two text/header svgs made in figma
 // third image svg from https://flowbite.com/icons/
 
-import BlockTypeOption from "./BlockTypeOption";
+import BlockTypeOption, { BlockType } from "./BlockTypeOption";
 
 interface BlockTypePickerProps {
-  selectedOption: string;
-  onTypeUpdate: (typeId: string) => void;
+  selectedOption: BlockType;
+  onTypeUpdate: (type: BlockType) => void;
 }
 
 export default function BlockTypePicker({
   selectedOption,
   onTypeUpdate,
 }: BlockTypePickerProps) {
-  // TODO: create TS type for typeId
-
   // function handleSelectOption(typeId: string) {
   //   if (typeId === "image") {
 
@@ -25,7 +23,7 @@ export default function BlockTypePicker({
     <div className="blockTypePickerWrapper">
       <div className="blockTypePicker">
         <BlockTypeOption
-          id="text"
+          type={BlockType.Text}
           isTextOption={true}
           svg={
             <svg
@@ -41,11 +39,11 @@ export default function BlockTypePicker({
               />
             </svg>
           }
-          isSelected={selectedOption === "text"}
+          isSelected={selectedOption === BlockType.Text}
           onSelectOption={onTypeUpdate}
         />
         <BlockTypeOption
-          id="header"
+          type={BlockType.Header}
           isTextOption={true}
           svg={
             <svg
@@ -61,11 +59,11 @@ export default function BlockTypePicker({
               />
             </svg>
           }
-          isSelected={selectedOption === "header"}
+          isSelected={selectedOption === BlockType.Text}
           onSelectOption={onTypeUpdate}
         />
         <BlockTypeOption
-          id="image"
+          type={BlockType.Image}
           isTextOption={false}
           svg={
             <svg
@@ -89,7 +87,7 @@ export default function BlockTypePicker({
               />
             </svg>
           }
-          isSelected={selectedOption === "image"}
+          isSelected={selectedOption === BlockType.Image}
           onSelectOption={onTypeUpdate}
         />
       </div>

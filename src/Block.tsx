@@ -5,10 +5,11 @@ import BlockAddInline from "./BlockAddInline";
 import DeleteBlock from "./DeleteBlock";
 import BlockTypePicker from "./BlockTypePicker";
 import BlockImage from "./BlockImage";
+import { BlockType } from "./BlockTypeOption";
 
 interface BlockProps {
   blockIndex: number;
-  typeId: string;
+  type: BlockType;
   text: string;
   imgUrl: string | null;
   attemptLoad: boolean;
@@ -16,7 +17,7 @@ interface BlockProps {
   // lastInGroup: boolean;
   isFocused: boolean;
   isDeleting: boolean;
-  onTypeUpdate: (blockIndex: number, typeId: string) => void;
+  onTypeUpdate: (blockIndex: number, type: BlockType) => void;
   onTextUpdate: (blockIndex: number, newText: string) => void;
   onImageUpdate: (blockIndex: number, imgUrl: string | null) => void;
   onAttemptLoadUpdate: (blockIndex: number, attemptLoad: boolean) => void;
@@ -28,7 +29,7 @@ interface BlockProps {
 
 export default function Block({
   blockIndex,
-  typeId,
+  type,
   text,
   imgUrl,
   attemptLoad,
@@ -47,6 +48,11 @@ export default function Block({
 }: BlockProps) {
   const [blockHeight, setBlockHeight] = useState<number | null>(null);
   // const [selectedOption, setSelectedOption] = useState<string>("text");
+
+  // const [prevTypeId, setPrevTypeId] = useState(typeId);
+  // const [prevSiblingCount, setPrevSiblingCount] = useState(siblingCount);
+
+  // const [prevIsFocused, setPrevIsFocused] = useState(isFocused);
 
   const blockEditableRef = useRef<HTMLTextAreaElement>(null);
 
@@ -76,8 +82,6 @@ export default function Block({
     onSetFocus(blockIndex, false);
   }
 
-  // TODO: allow user to press esc to unfocus, and maybe press it again to enter "edit mode"
-  // doesn't necessarily need to be within block component though
   function handleKeyDown(e: KeyboardEvent<HTMLTextAreaElement>) {
     if (e.key === "Enter") {
       e.preventDefault();
@@ -85,31 +89,20 @@ export default function Block({
     }
   }
 
-  // TODO: make sure that size gets updated when another block's size is updated within the same group
-  // (i.e. the backgrounds shouldn't be inconsistent)
   function setSize() {
     const block = blockEditableRef.current;
     if (!block) return;
-    // TODO: consider using invisible div to measure this. that way the dom that react manages won't be manipulated
-    // const oldHeight = block.style.height;
-    // block.style.height = "0";
-    // block.offsetHeight;
-    // setBlockHeight(block.scrollHeight);
-    // if (oldHeight) block.style.setProperty("height", oldHeight);
-    // else block.style.removeProperty("height");
 
     const measureElem = document.createElement("div");
-    // TODO: make sure this has same padding/etc as blockEditable, and it needs to be absolute and have visibility: hidden
     measureElem.classList.add("measureElem");
-    measureElem.dataset.type = typeId;
+    measureElem.dataset.type = type.toLowerCase();
     measureElem.innerText =
       block.value.trim().length >= 1 ? block.value : "\\00a0";
     measureElem.style.width = `${block.offsetWidth}px`;
     document.body.append(measureElem);
-    // do stuff with the height accordingly
-    // console.log(measureElem.offsetHeight);
+
     setBlockHeight(measureElem.offsetHeight);
-    // console.log(measureElem.offsetHeight);
+
     measureElem.remove();
   }
 
@@ -121,8 +114,8 @@ export default function Block({
   //   setSelectedOption(id);
   // }
 
-  function handleSelectType(typeId: string) {
-    onTypeUpdate(blockIndex, typeId);
+  function handleSelectType(type: BlockType) {
+    onTypeUpdate(blockIndex, type);
   }
 
   function handleDeleteBlock(deleteIndex: number) {
@@ -132,12 +125,25 @@ export default function Block({
   useEffect(() => {
     window.addEventListener("resize", setSize);
     return () => window.removeEventListener("resize", setSize);
-  }, [typeId]);
+  }, [type]);
+
+  // if (typeId !== prevTypeId || siblingCount !== prevSiblingCount) {
+  //   setPrevTypeId(typeId);
+  //   setPrevSiblingCount(siblingCount);
+  //   setSize();
+  // }
 
   useEffect(() => {
     // console.log("resize");
     setSize();
-  }, [typeId, siblingCount]);
+  }, [type, siblingCount]);
+
+  // if (isFocused !== prevIsFocused) {
+  //   setPrevIsFocused(isFocused);
+  //   if (!blockEditableRef.current) return;
+  //   if (isFocused) blockEditableRef.current.focus();
+  //   if (!isFocused) blockEditableRef.current.blur();
+  // }
 
   useEffect(() => {
     if (!blockEditableRef.current) return;
@@ -147,7 +153,7 @@ export default function Block({
 
   return (
     // TODO: allow individual blocks to be dragged when in delete mode
-    <div className="block" data-type={typeId}>
+    <div className="block" data-type={type.toLowerCase()}>
       {!isDeleting && siblingCount + 1 < 5 && blockIndex === 0 ? (
         <BlockAddInline
           createAtIndex={blockIndex}
@@ -157,7 +163,7 @@ export default function Block({
       ) : (
         ""
       )}
-      {typeId === "image" ? (
+      {type === BlockType.Image ? (
         <BlockImage
           imgUrl={imgUrl}
           attemptLoad={attemptLoad}
@@ -187,14 +193,13 @@ export default function Block({
         />
       )}
       {text.length === 0 && !imgUrl ? (
-        // FIXME: prevent this from showing in delete mode
-        isDeleting ? (
-          ""
-        ) : (
+        !isDeleting ? (
           <BlockTypePicker
-            selectedOption={typeId}
+            selectedOption={type}
             onTypeUpdate={handleSelectType}
           />
+        ) : (
+          ""
         )
       ) : (
         ""

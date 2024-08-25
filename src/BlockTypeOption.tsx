@@ -1,28 +1,34 @@
 import { MouseEvent, ReactNode } from "react";
 
+export enum BlockType {
+  Text = "TEXT",
+  Header = "HEADER",
+  Image = "IMAGE",
+}
+
+// export type BlockTypeId = "text" | "header" | "image";
+
 interface BlockTypeOptionProps {
-  id: string;
+  type: BlockType;
   isTextOption: boolean;
   svg: ReactNode;
   isSelected: boolean;
-  onSelectOption: (typeId: string) => void;
+  onSelectOption: (type: BlockType) => void;
 }
 
 export default function BlockTypeOption({
-  id,
+  type,
   isTextOption,
   svg,
   isSelected,
   onSelectOption,
 }: BlockTypeOptionProps) {
-  // TODO: focus block when selecting block type option
-
   function handleMouseDown(e: MouseEvent) {
     e.preventDefault();
   }
 
   function handleClick() {
-    onSelectOption(id);
+    onSelectOption(type);
   }
 
   return (

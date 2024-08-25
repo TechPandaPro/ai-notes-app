@@ -5,6 +5,7 @@ import BlockMarker, { Position } from "./BlockMarker";
 import { BlockGroupMoving, BlockInfo } from "./NoteContent";
 import Block from "./Block";
 import BlockGroupPreview from "./BlockGroupPreview";
+import { BlockType } from "./BlockTypeOption";
 
 interface BlockGroupPropsBase {
   // interface BlockGroupProps {
@@ -20,7 +21,7 @@ interface BlockGroupPropsBase {
   onTypeUpdate: (
     blockGroupIndex: number,
     blockIndex: number,
-    typeId: string
+    type: BlockType
   ) => void;
   onTextUpdate: (
     blockGroupIndex: number,
@@ -110,8 +111,8 @@ export default function BlockGroup({
   //   onSetFocus(blockIndex, false);
   // }
 
-  function handleTypeUpdate(blockIndex: number, typeId: string) {
-    onTypeUpdate(blockGroupIndex, blockIndex, typeId);
+  function handleTypeUpdate(blockIndex: number, type: BlockType) {
+    onTypeUpdate(blockGroupIndex, blockIndex, type);
   }
 
   function handleTextUpdate(blockIndex: number, newText: string) {
@@ -238,7 +239,7 @@ export default function BlockGroup({
     <Block
       key={block.key}
       blockIndex={blockIndex}
-      typeId={block.type}
+      type={block.type}
       text={block.text}
       imgUrl={block.imgUrl ?? null} // TODO: change when typings are improved
       attemptLoad={block.attemptLoad ?? false}
