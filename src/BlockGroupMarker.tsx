@@ -130,10 +130,23 @@ export default function BlockMarker({
     });
   }
 
+  function handleKeyDown(e: KeyboardEvent) {
+    console.log(e.key);
+    if (e.key === "Backspace" && e.shiftKey) {
+      console.log("reset move");
+      // TODO: instead of moving block group to this position, it should move the block group back to its original position
+      onMove(blockGroupIndex, null);
+    }
+  }
+
   useEffect(() => {
     if (moving) {
       window.addEventListener("mousemove", updateMouseState);
-      return () => window.removeEventListener("mousemove", updateMouseState);
+      window.addEventListener("keydown", handleKeyDown);
+      return () => {
+        window.removeEventListener("mousemove", updateMouseState);
+        window.removeEventListener("keydown", handleKeyDown);
+      };
     }
   }, [position]);
 

@@ -13,6 +13,7 @@ import BlockGroupPreview from "./BlockGroupPreview";
 import { BlockType } from "./BlockTypeOption";
 
 // TODO: allow esc to cancel block group move
+// TODO: content should auto-scroll when dragging for block group move
 
 interface BlockGroupPropsBase {
   // interface BlockGroupProps {
@@ -185,12 +186,15 @@ export default function BlockGroup({
     onAddBlockGroup(blockGroupIndex + 1);
   }
 
-  // TODO: here, add a similar useEffect that checks currMovingBlock
-  // but instead of updating the preview index, it'll upload the block index
-
   useEffect(() => {
-    // TODO: add 5-per-group limit to individual block moving
-    if (currMovingBlock && currMovingBlockIndex && blockGroupRef.current) {
+    if (
+      currMovingBlock &&
+      currMovingBlockIndex &&
+      blockGroupRef.current &&
+      (!currMovingBlock ||
+        blocks.includes(currMovingBlock) ||
+        blocks.length < 5)
+    ) {
       const { x, y } = currMovingBlock.position;
       const blockGroupRect = blockGroupRef.current.getBoundingClientRect();
       const isOverlapping =
@@ -329,7 +333,7 @@ export default function BlockGroup({
       blockIndex={blockIndex}
       type={block.type}
       text={block.text}
-      imgUrl={block.imgUrl ?? null} // TODO: change when typings are improved
+      imgUrl={block.imgUrl}
       attemptLoad={block.attemptLoad ?? false}
       siblingCount={
         blocks.length -

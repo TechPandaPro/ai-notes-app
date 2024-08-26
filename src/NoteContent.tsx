@@ -6,9 +6,8 @@ import { BlockType } from "./BlockTypeOption";
 interface BlockInfoBase {
   type: BlockType;
   text: string;
-  // TODO: improve these typings
-  imgUrl?: string | null;
-  attemptLoad?: boolean;
+  imgUrl: string | null;
+  attemptLoad: boolean;
   key: string;
   moving: boolean;
   position: Position;
@@ -64,6 +63,8 @@ export default function NoteContent() {
         {
           type: BlockType.Text,
           text: "hello, world",
+          imgUrl: null,
+          attemptLoad: false,
           key: `${Date.now()}_0`,
           moving: false,
           position: null,
@@ -71,6 +72,8 @@ export default function NoteContent() {
         {
           type: BlockType.Text,
           text: "lorem ipsum",
+          imgUrl: null,
+          attemptLoad: false,
           key: `${Date.now()}_1`,
           moving: false,
           position: null,
@@ -78,6 +81,8 @@ export default function NoteContent() {
         {
           type: BlockType.Text,
           text: "dolor sit amet",
+          imgUrl: null,
+          attemptLoad: false,
           key: `${Date.now()}_2`,
           moving: false,
           position: null,
@@ -93,6 +98,8 @@ export default function NoteContent() {
         {
           type: BlockType.Text,
           text: "hello, world",
+          imgUrl: null,
+          attemptLoad: false,
           key: `${Date.now()}_0`,
           moving: false,
           position: null,
@@ -100,6 +107,8 @@ export default function NoteContent() {
         {
           type: BlockType.Text,
           text: "lorem ipsum",
+          imgUrl: null,
+          attemptLoad: false,
           key: `${Date.now()}_1`,
           moving: false,
           position: null,
@@ -200,6 +209,8 @@ export default function NoteContent() {
     nextBlockGroup.blocks.splice(createAtIndex, 0, {
       type: BlockType.Text,
       text: "",
+      imgUrl: null,
+      attemptLoad: false,
       key: generateBlockKey(nextBlockGroup.blocks),
       moving: false,
       position: null,
@@ -226,6 +237,8 @@ export default function NoteContent() {
       newBlockGroup.blocks.push({
         type: BlockType.Text,
         text: "",
+        imgUrl: null,
+        attemptLoad: false,
         key: generateBlockKey(newBlockGroup.blocks),
         moving: false,
         position: null,
@@ -248,6 +261,8 @@ export default function NoteContent() {
     newBlockGroup.blocks.push({
       type: BlockType.Text,
       text: "",
+      imgUrl: null,
+      attemptLoad: false,
       key: generateBlockKey(newBlockGroup.blocks),
       moving: false,
       position: null,
@@ -357,6 +372,9 @@ export default function NoteContent() {
       blockToGroup.blocks
     );
 
+    if (blockFromGroup.blocks.length === 0)
+      nextBlockGroups.splice(blockGroupIndex, 1);
+
     // if (blockGroupIndex === movedToBlockGroupIndex) {
     //   blockToGroup.blocks.splice(
     //     movedToBlockIndex,
@@ -462,7 +480,7 @@ export default function NoteContent() {
     <div
       className={`noteContent ${
         // currMovingBlock || currMovingBlockGroup ? "moving" : ""
-        currMovingBlockGroup ? "moving" : ""
+        currMovingBlockGroup || currMovingBlock ? "moving" : ""
       } ${isDeleting ? "deleting" : ""}`}
       // onKeyDown={handleKeyDown}
     >
@@ -505,9 +523,13 @@ export default function NoteContent() {
           }
           invalidMove={
             !!(
-              !blockGroup.moving &&
-              currMovingBlockGroup &&
-              blockGroup.blocks.length + currMovingBlockGroup.blocks.length > 5
+              (currMovingBlock &&
+                currMovingBlockParent !== blockGroup &&
+                blockGroup.blocks.length + 1 > 5) ||
+              (!blockGroup.moving &&
+                currMovingBlockGroup &&
+                blockGroup.blocks.length + currMovingBlockGroup.blocks.length >
+                  5)
             )
             // currMovingBlockGroup &&
             // previewIndex &&

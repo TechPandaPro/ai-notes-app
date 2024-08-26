@@ -647,6 +647,10 @@ body {
   background-color: rgb(211 211 211 / 0.12);
 }
 
+.noteContent.moving .deleteBlock {
+  display: none;
+}
+
 .blockTypePickerWrapper {
   display: flex;
   align-items: center;

@@ -13,6 +13,7 @@ if (require("electron-squirrel-startup")) {
 const createWindow = (): void => {
   // TODO: make a way to have multiple notes
   // TODO: save notes (probably with electron-store)
+  // TODO: ensure the app works on windows
 
   // Create the browser window.
   const mainWindow = new BrowserWindow({

@@ -10,9 +10,6 @@ interface BlockImageProps {
 }
 
 interface ImageOpenInfo {
-  // isOpen: boolean;
-  // startX: number | null;
-  // startY: number | null;
   animatingOut: boolean;
   startX: number;
   startY: number;
@@ -27,8 +24,6 @@ export default function BlockImage({
   onImageUpdate,
   onAttemptLoadUpdate,
 }: BlockImageProps) {
-  // const [attemptedLoad, setAttemptedLoad] = useState<boolean>(false);
-  // const [image, setImage] = useState<string | null>(null);
   const [imageOpenInfo, setImageOpenInfo] = useState<ImageOpenInfo | null>(
     null
   );
@@ -93,15 +88,8 @@ export default function BlockImage({
       });
   }
 
-  // function handleDoubleClick() {
-  //   promptForFile();
-  // }
-
   function handleAnimationEnd() {
     if (!imageOpenInfo || !imageOpenInfo.animatingOut) return;
-    // const newInfo = { ...imageOpenInfo };
-    // newInfo.animatingOut = false;
-    // setImageOpenInfo(newInfo);
     setImageOpenInfo(null);
   }
 
@@ -122,14 +110,10 @@ export default function BlockImage({
     fileReader.addEventListener(
       "load",
       () => {
-        // FIXME: macos colorspace of screenshots messes this up. fix so that screenshots don't show up desaturated.
-        // ^ perhaps use html canvas to get the base 64 url?
         if (typeof fileReader.result !== "string")
           throw new Error(
             `Unexpected file reader result type: ${typeof fileReader.result}`
           );
-        // console.log(fileReader.result);
-        // setImage(fileReader.result);
         onImageUpdate(fileReader.result);
       },
       { once: true }
@@ -138,8 +122,6 @@ export default function BlockImage({
   }
 
   function promptForFile() {
-    // onImageUpdate(null);
-    // setAttemptedLoad(true);
     onAttemptLoadUpdate(false);
     if (!fileInputRef.current) return;
     fileInputRef.current.click();
@@ -164,7 +146,6 @@ export default function BlockImage({
           src={imgUrl}
           alt="Uploaded image"
           onClick={handleClick}
-          // onDoubleClick={handleDoubleClick}
         />
       ) : (
         ""
@@ -175,17 +156,11 @@ export default function BlockImage({
             imageOpenInfo.animatingOut ? "animOut" : ""
           }`}
           onClick={handleClick}
-          // style={{
-          //   left: imageOpenInfo.startX,
-          //   top: imageOpenInfo.startY,
-          // }}
         >
           <img
             className="blockImageOpen"
             src={imgUrl}
             alt="Uploaded image"
-            // onClick={handleClick}
-            // onClick={handleClick}
             onAnimationEnd={handleAnimationEnd}
             style={{
               left: imageOpenInfo.startX,

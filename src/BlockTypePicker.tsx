@@ -1,9 +1,9 @@
 // first two text/header svgs made in figma
 // third image svg from https://flowbite.com/icons/
 
-import BlockTypeOption, { BlockType } from "./BlockTypeOption";
+// TODO: prevent block type picker from overflowing when block is first added and animating
 
-// FIXME: fix broken picker (text/header does not work)
+import BlockTypeOption, { BlockType } from "./BlockTypeOption";
 
 interface BlockTypePickerProps {
   selectedOption: BlockType;
@@ -14,13 +14,6 @@ export default function BlockTypePicker({
   selectedOption,
   onTypeUpdate,
 }: BlockTypePickerProps) {
-  // function handleSelectOption(typeId: string) {
-  //   if (typeId === "image") {
-
-  //   }
-  //   onTypeUpdate(typeId);
-  // }
-
   return (
     <div className="blockTypePickerWrapper">
       <div className="blockTypePicker">
@@ -61,7 +54,7 @@ export default function BlockTypePicker({
               />
             </svg>
           }
-          isSelected={selectedOption === BlockType.Text}
+          isSelected={selectedOption === BlockType.Header}
           onSelectOption={onTypeUpdate}
         />
         <BlockTypeOption

@@ -76,7 +76,11 @@ export default function Block({
   const blockEditableRef = useRef<HTMLTextAreaElement>(null);
 
   function handleMouseDown(e: ReactMouseEvent<HTMLDivElement>) {
-    if (!isDeleting) return;
+    if (
+      !isDeleting ||
+      (e.target as HTMLElement).classList.contains("deleteBlock")
+    )
+      return;
     e.preventDefault();
     // onSetMoving(blockIndex, true);
     onMove(blockIndex, {
@@ -90,6 +94,7 @@ export default function Block({
   }
 
   function handleMouseUp(e: ReactMouseEvent<HTMLDivElement>) {
+    // console.log("mouse up");
     if (!isDeleting) return;
     e.preventDefault();
     // onSetMoving(blockIndex, false);
@@ -143,8 +148,6 @@ export default function Block({
 
   //   onMove(blockIndex, null);
   // }
-
-  // // TODO: check if moving even needs to be sent as a prop.
 
   // function updateMouseState(e: MouseEvent) {
   //   if (!moving) return;
@@ -278,10 +281,15 @@ export default function Block({
     if (!isFocused) blockEditableRef.current.blur();
   }, [isFocused]);
 
+  // useEffect(() => {
+  //   document.addEventListener("mouseup", handleMouseUp);
+  //   return () => document.removeEventListener("mouseup", handleMouseUp);
+  // }, []);
+
   return (
-    // TODO: allow individual blocks to be dragged when in delete mode
     <div
       className={`block ${isMoving ? "moving" : ""}`}
+      // FIXME: figure out why err is sometimes thrown for .toLowerCase() on undefined - type should never be undefined!
       data-type={type.toLowerCase()}
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}
