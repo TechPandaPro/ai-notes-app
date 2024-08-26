@@ -351,6 +351,37 @@ export default function NoteContent() {
     setBlockGroups(nextBlockGroups);
   }
 
+  function handleBlockGroupCancelMove(blockGroupIndex: number) {
+    const nextBlockGroups = blockGroups.slice();
+    const nextBlockGroup = { ...nextBlockGroups[blockGroupIndex] };
+    nextBlockGroups[blockGroupIndex] = nextBlockGroup;
+
+    nextBlockGroup.moving = false;
+    nextBlockGroup.position = null;
+    // if (
+    //   previewIndex !== null &&
+    //   nextBlockGroups[previewIndex.blockGroupIndex].blocks.length +
+    //     nextBlockGroup.blocks.length <=
+    //     5
+    // ) {
+    //   const nextPreviewedBlock = {
+    //     ...nextBlockGroups[previewIndex.blockGroupIndex],
+    //   };
+    //   nextPreviewedBlock.blocks.splice(
+    //     previewIndex.blockIndex,
+    //     0,
+    //     ...nextBlockGroup.blocks
+    //   );
+    //   nextBlockGroups.splice(blockGroupIndex, 1);
+    //   for (const text of nextBlockGroup.blocks)
+    //     text.key = generateBlockKey(nextPreviewedBlock.blocks);
+    //   setPreviewIndex(null);
+    // }
+    setPreviewIndex(null);
+
+    setBlockGroups(nextBlockGroups);
+  }
+
   function handleMovingBlockUpdate(
     blockGroupIndex: number,
     blockIndex: number,
@@ -437,8 +468,12 @@ export default function NoteContent() {
 
   function handleKeyDown(e: KeyboardEvent) {
     // console.log("key pressed");
-    if (e.key === "Escape") {
+    if (
+      e.key === "Escape" &&
+      !blockGroups.some((blockGroup) => blockGroup.moving)
+    ) {
       e.preventDefault();
+      e.stopPropagation();
       console.log(focusIndex);
       if (focusIndex) {
         // console.log("received escape");
@@ -456,7 +491,7 @@ export default function NoteContent() {
     console.log("add listener!");
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [focusIndex, isDeleting]);
+  }, [blockGroups, focusIndex, isDeleting]);
 
   // const currMovingBlock =
   //   blockGroups
@@ -556,6 +591,7 @@ export default function NoteContent() {
           onAddBlockGroup={handleAddBlockGroup}
           // onBlockMove={handleBlockMove}
           onBlockGroupMove={handleBlockGroupMove}
+          onBlockGroupCancelMove={handleBlockGroupCancelMove}
           onMovingBlockUpdate={handleMovingBlockUpdate}
           onPreviewIndexUpdate={handlePreviewIndexUpdate}
         />

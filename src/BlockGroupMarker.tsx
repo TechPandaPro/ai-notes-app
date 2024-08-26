@@ -23,6 +23,7 @@ interface BlockMarkerPropsBase {
   moving: boolean;
   position: Position;
   onMove: (blockGroupIndex: number, position: Position) => void;
+  onCancelMove: (blockGroupIndex: number) => void;
 }
 
 interface BlockMarkerPropsStatic extends BlockMarkerPropsBase {
@@ -42,6 +43,7 @@ export default function BlockMarker({
   position,
   moving,
   onMove,
+  onCancelMove,
 }: BlockMarkerProps) {
   // const [position, setPosition] = useState<PositionInterface | null>(null);
   // const [moving, setMoving] = useState<boolean>(false);
@@ -130,12 +132,16 @@ export default function BlockMarker({
     });
   }
 
+  // TODO: this should not be on the whole window
   function handleKeyDown(e: KeyboardEvent) {
     console.log(e.key);
-    if (e.key === "Backspace" && e.shiftKey) {
+    // if (e.key === "Backspace" && e.shiftKey) {
+    if (e.key === "Escape") {
+      e.preventDefault();
+      e.stopPropagation();
       console.log("reset move");
       // TODO: instead of moving block group to this position, it should move the block group back to its original position
-      onMove(blockGroupIndex, null);
+      onCancelMove(blockGroupIndex);
     }
   }
 

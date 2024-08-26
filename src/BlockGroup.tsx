@@ -12,7 +12,6 @@ import Block from "./Block";
 import BlockGroupPreview from "./BlockGroupPreview";
 import { BlockType } from "./BlockTypeOption";
 
-// TODO: allow esc to cancel block group move
 // TODO: content should auto-scroll when dragging for block group move
 
 interface BlockGroupPropsBase {
@@ -67,6 +66,7 @@ interface BlockGroupPropsBase {
     position: Position
   ) => void;
   onBlockGroupMove: (blockGroupIndex: number, position: Position) => void;
+  onBlockGroupCancelMove: (blockGroupIndex: number) => void;
   onMovingBlockUpdate: (
     blockGroupIndex: number,
     blockIndex: number,
@@ -114,6 +114,7 @@ export default function BlockGroup({
   onAddBlockGroup,
   onBlockMove,
   onBlockGroupMove,
+  onBlockGroupCancelMove,
   onMovingBlockUpdate,
   onPreviewIndexUpdate,
 }: BlockGroupProps) {
@@ -411,6 +412,7 @@ export default function BlockGroup({
         <BlockMarker
           blockGroupIndex={blockGroupIndex}
           onMove={onBlockGroupMove}
+          onCancelMove={onBlockGroupCancelMove}
           // moving={moving}
           // position={position}
           // {...{ moving, position }}
