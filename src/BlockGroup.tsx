@@ -77,6 +77,7 @@ interface BlockGroupPropsBase {
     blockGroupIndex: number,
     previewIndex: number | null
   ) => void;
+  onQueryAi: (blockGroupIndex: number) => void;
 }
 
 interface BlockGroupPropsStatic extends BlockGroupPropsBase {
@@ -117,6 +118,7 @@ export default function BlockGroup({
   onBlockGroupCancelMove,
   onMovingBlockUpdate,
   onPreviewIndexUpdate,
+  onQueryAi,
 }: BlockGroupProps) {
   // decided to move this down to the jsx instead
   // const movingInfo = moving
@@ -185,6 +187,11 @@ export default function BlockGroup({
 
   function handleAddBlockGroupFromBlock() {
     onAddBlockGroup(blockGroupIndex + 1);
+  }
+
+  // function handleQueryAi(blockIndex: number) {
+  function handleQueryAi() {
+    onQueryAi(blockGroupIndex);
   }
 
   useEffect(() => {
@@ -360,6 +367,7 @@ export default function BlockGroup({
       onAddBlock={handleAddBlock}
       onDeleteBlock={handleDeleteBlock}
       onAddBlockGroup={handleAddBlockGroupFromBlock}
+      onQueryAi={handleQueryAi}
     />
   ));
 

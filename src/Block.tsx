@@ -40,6 +40,8 @@ interface BlockProps {
   onAddBlock: (createAtIndex: number) => void;
   onDeleteBlock: (deleteIndex: number) => void;
   onAddBlockGroup: () => void;
+  // onQueryAi: (blockIndex: number) => void;
+  onQueryAi: () => void;
 }
 
 export default function Block({
@@ -64,6 +66,7 @@ export default function Block({
   onAddBlock,
   onDeleteBlock,
   onAddBlockGroup,
+  onQueryAi,
 }: BlockProps) {
   const [blockHeight, setBlockHeight] = useState<number | null>(null);
   // const [selectedOption, setSelectedOption] = useState<string>("text");
@@ -213,7 +216,12 @@ export default function Block({
   }
 
   function handleKeyDown(e: KeyboardEvent<HTMLTextAreaElement>) {
-    if (e.key === "Enter") {
+    if (e.key === "Enter" && e.shiftKey) {
+      e.preventDefault();
+      // TODO: decide between query or inquire
+      // onQueryAi(blockIndex);
+      onQueryAi();
+    } else if (e.key === "Enter") {
       e.preventDefault();
       onAddBlockGroup();
     }

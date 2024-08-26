@@ -132,7 +132,6 @@ export default function BlockMarker({
     });
   }
 
-  // TODO: this should not be on the whole window
   function handleKeyDown(e: KeyboardEvent) {
     console.log(e.key);
     // if (e.key === "Backspace" && e.shiftKey) {
@@ -140,7 +139,6 @@ export default function BlockMarker({
       e.preventDefault();
       e.stopPropagation();
       console.log("reset move");
-      // TODO: instead of moving block group to this position, it should move the block group back to its original position
       onCancelMove(blockGroupIndex);
     }
   }

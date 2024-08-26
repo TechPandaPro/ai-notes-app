@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { Position } from "./BlockGroupMarker";
 import BlockGroup from "./BlockGroup";
 import { BlockType } from "./BlockTypeOption";
+import OpenAI from "openai";
+import { ChatCompletionMessageParam } from "openai/resources";
 
 interface BlockInfoBase {
   type: BlockType;
@@ -458,6 +460,54 @@ export default function NoteContent() {
       setPreviewIndex(null);
   }
 
+  async function handleQueryAi(blockGroupIndex: number) {
+    const { blocks } = blockGroups[blockGroupIndex];
+
+    // TODO: ADD API KEY TO ELECTRON STORE
+    const apiKey = "";
+
+    // const data = {
+    //   model: "gpt-4o-mini",
+    //   messages: [],
+    // };
+
+    // fetch("https://api.openai.com/v1/chat/completions", {
+    //   method: "POST",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //     Authorization: `Bearer ${apiKey}`,
+    //   },
+    // })
+    //   .then((res) => res.json())
+    //   .then((res) => console.log(res));
+
+    console.log(blocks);
+
+    // TODO: move this to top-level
+    const openai = new OpenAI({ apiKey, dangerouslyAllowBrowser: true });
+
+    // TODO: add support for images
+    const messages: ChatCompletionMessageParam[] = blocks.map((block) => ({
+      role: "user",
+      content: block.text,
+    }));
+
+    console.log(messages);
+
+    // TODO: consider streaming reply
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages,
+      // messages: [{ role: "user", content: "hello!" }],
+    });
+
+    console.log(completion);
+
+    const content = completion.choices[0].message.content;
+
+    console.log(content);
+  }
+
   function generateBlockKey(siblingBlocks: (BlockGroupInfo | BlockInfo)[]) {
     const stamp = Date.now();
     const foundCount = siblingBlocks.filter(
@@ -466,11 +516,31 @@ export default function NoteContent() {
     return `${stamp}_${foundCount}`;
   }
 
+  // const currMovingBlock =
+  //   blockGroups
+  //     .find((blockGroup) => blockGroup.blocks.some((block) => block.moving))
+  //     ?.blocks.find((block) => block.moving) ?? null;
+
+  const currMovingBlockParent = blockGroups.find((blockGroup) =>
+    blockGroup.blocks.some((block) => block.moving)
+  );
+
+  const currMovingBlock =
+    currMovingBlockParent?.blocks.find((block) => block.moving) ?? null;
+
+  // console.log("curr moving:");
+  // console.log(currMovingBlock);
+
+  const currMovingBlockGroup =
+    blockGroups.find((blockGroup) => blockGroup.moving) ?? null;
+
   function handleKeyDown(e: KeyboardEvent) {
     // console.log("key pressed");
     if (
       e.key === "Escape" &&
-      !blockGroups.some((blockGroup) => blockGroup.moving)
+      // !blockGroups.some((blockGroup) => blockGroup.moving)
+      !currMovingBlock &&
+      !currMovingBlockGroup
     ) {
       e.preventDefault();
       e.stopPropagation();
@@ -492,24 +562,6 @@ export default function NoteContent() {
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [blockGroups, focusIndex, isDeleting]);
-
-  // const currMovingBlock =
-  //   blockGroups
-  //     .find((blockGroup) => blockGroup.blocks.some((block) => block.moving))
-  //     ?.blocks.find((block) => block.moving) ?? null;
-
-  const currMovingBlockParent = blockGroups.find((blockGroup) =>
-    blockGroup.blocks.some((block) => block.moving)
-  );
-
-  const currMovingBlock =
-    currMovingBlockParent?.blocks.find((block) => block.moving) ?? null;
-
-  // console.log("curr moving:");
-  // console.log(currMovingBlock);
-
-  const currMovingBlockGroup =
-    blockGroups.find((blockGroup) => blockGroup.moving) ?? null;
 
   return (
     <div
@@ -594,6 +646,7 @@ export default function NoteContent() {
           onBlockGroupCancelMove={handleBlockGroupCancelMove}
           onMovingBlockUpdate={handleMovingBlockUpdate}
           onPreviewIndexUpdate={handlePreviewIndexUpdate}
+          onQueryAi={handleQueryAi}
         />
       ))}
     </div>

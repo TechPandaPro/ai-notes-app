@@ -3,6 +3,8 @@
 
 // TODO: prevent block type picker from overflowing when block is first added and animating
 
+// TODO: add keybinds for block picker
+
 import BlockTypeOption, { BlockType } from "./BlockTypeOption";
 
 interface BlockTypePickerProps {
