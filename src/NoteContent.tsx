@@ -58,6 +58,14 @@ export interface FullBlockIndex {
   blockIndex: number;
 }
 
+// TODO: consider using immer for blocks state
+// https://github.com/immerjs/use-immer
+
+// TODO: ADD API KEY TO ELECTRON STORE
+const apiKey = "";
+
+const openai = new OpenAI({ apiKey, dangerouslyAllowBrowser: true });
+
 export default function NoteContent() {
   const [blockGroups, setBlockGroups] = useState<BlockGroupInfo[]>([
     {
@@ -81,7 +89,7 @@ export default function NoteContent() {
           position: null,
         },
         {
-          type: BlockType.Text,
+          type: BlockType.AI,
           text: "dolor sit amet",
           imgUrl: null,
           attemptLoad: false,
@@ -463,9 +471,6 @@ export default function NoteContent() {
   async function handleQueryAi(blockGroupIndex: number) {
     const { blocks } = blockGroups[blockGroupIndex];
 
-    // TODO: ADD API KEY TO ELECTRON STORE
-    const apiKey = "";
-
     // const data = {
     //   model: "gpt-4o-mini",
     //   messages: [],
@@ -481,10 +486,24 @@ export default function NoteContent() {
     //   .then((res) => res.json())
     //   .then((res) => console.log(res));
 
-    console.log(blocks);
+    // const nextBlockGroups = blockGroups.slice();
+    // const nextBlockGroup = { ...nextBlockGroups[blockGroupIndex] };
+    // nextBlockGroups[blockGroupIndex] = nextBlockGroup;
+    // const createAtIndex = nextBlockGroup.blocks.length;
+    // nextBlockGroup.blocks.splice(createAtIndex, 0, {
+    //   type: BlockType.AI,
+    //   text: "",
+    //   imgUrl: null,
+    //   attemptLoad: false,
+    //   key: generateBlockKey(nextBlockGroup.blocks),
+    //   moving: false,
+    //   position: null,
+    // });
+    // setBlockGroups(nextBlockGroups);
 
-    // TODO: move this to top-level
-    const openai = new OpenAI({ apiKey, dangerouslyAllowBrowser: true });
+    setAiBlockText(blockGroupIndex, "");
+
+    console.log(blocks);
 
     // TODO: add support for images
     const messages: ChatCompletionMessageParam[] = blocks.map((block) => ({
@@ -493,6 +512,8 @@ export default function NoteContent() {
     }));
 
     console.log(messages);
+
+    console.log(apiKey);
 
     // TODO: consider streaming reply
     const completion = await openai.chat.completions.create({
@@ -506,6 +527,56 @@ export default function NoteContent() {
     const content = completion.choices[0].message.content;
 
     console.log(content);
+
+    // const nextBlockGroups = blockGroups.slice();
+    // const nextBlockGroup = { ...nextBlockGroups[blockGroupIndex] };
+    // nextBlockGroups[blockGroupIndex] = nextBlockGroup;
+    // const createAtIndex = nextBlockGroup.blocks.length;
+    // nextBlockGroup.blocks.splice(createAtIndex, 0, {
+    //   type: BlockType.AI,
+    //   text: content ?? "",
+    //   imgUrl: null,
+    //   attemptLoad: false,
+    //   key: generateBlockKey(nextBlockGroup.blocks),
+    //   moving: false,
+    //   position: null,
+    // });
+    // setBlockGroups(nextBlockGroups);
+
+    // FIXME: not working - fix this
+    setAiBlockText(blockGroupIndex, content);
+
+    // setFocusIndex({ blockGroupIndex, blockIndex: createAtIndex });
+  }
+
+  function setAiBlockText(blockGroupIndex: number, text?: string | null) {
+    const nextBlockGroups = blockGroups.slice();
+    const nextBlockGroup = { ...nextBlockGroups[blockGroupIndex] };
+    nextBlockGroups[blockGroupIndex] = nextBlockGroup;
+
+    const block = nextBlockGroup.blocks.find((b) => b.type === BlockType.AI);
+
+    let nextBlock: BlockInfo;
+
+    if (block) {
+      nextBlock = { ...block };
+    } else {
+      const createAtIndex = nextBlockGroup.blocks.length;
+      nextBlock = {
+        type: BlockType.AI,
+        text: "",
+        imgUrl: null,
+        attemptLoad: false,
+        key: generateBlockKey(nextBlockGroup.blocks),
+        moving: false,
+        position: null,
+      };
+      nextBlockGroup.blocks.splice(createAtIndex, 0, nextBlock);
+    }
+
+    nextBlock.text = text ?? "";
+
+    setBlockGroups(nextBlockGroups);
   }
 
   function generateBlockKey(siblingBlocks: (BlockGroupInfo | BlockInfo)[]) {

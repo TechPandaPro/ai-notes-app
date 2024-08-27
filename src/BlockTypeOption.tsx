@@ -4,6 +4,7 @@ export enum BlockType {
   Text = "TEXT",
   Header = "HEADER",
   Image = "IMAGE",
+  AI = "AI",
 }
 
 // export type BlockTypeId = "text" | "header" | "image";

@@ -228,15 +228,15 @@ export default function Block({
   }
 
   function setSize() {
-    const block = blockEditableRef.current;
-    if (!block) return;
+    const blockEditable = blockEditableRef.current;
+    if (!blockEditable) return;
 
     const measureElem = document.createElement("div");
     measureElem.classList.add("measureElem");
     measureElem.dataset.type = type.toLowerCase();
     measureElem.innerText =
-      block.value.trim().length >= 1 ? block.value : "\\00a0";
-    measureElem.style.width = `${block.offsetWidth}px`;
+      blockEditable.value.trim().length >= 1 ? blockEditable.value : "\\00a0";
+    measureElem.style.width = `${blockEditable.offsetWidth}px`;
     document.body.append(measureElem);
 
     setBlockHeight(measureElem.offsetHeight);
@@ -261,7 +261,8 @@ export default function Block({
   }
 
   useEffect(() => {
-    window.addEventListener("resize", setSize);
+    if (type === BlockType.Text || type === BlockType.Header)
+      window.addEventListener("resize", setSize);
     return () => window.removeEventListener("resize", setSize);
   }, [type]);
 
@@ -273,7 +274,7 @@ export default function Block({
 
   useEffect(() => {
     // console.log("resize");
-    setSize();
+    if (type === BlockType.Text || type === BlockType.Header) setSize();
   }, [type, siblingCount]);
 
   // if (isFocused !== prevIsFocused) {
@@ -321,6 +322,30 @@ export default function Block({
           onImageUpdate={handleImageUpdate}
           onAttemptLoadUpdate={handleAttemptLoadUpdate}
         />
+      ) : type === BlockType.AI ? (
+        <div className="aiBlockInnerContainer">
+          <div className="aiBlockInnerIcon">
+            <svg
+              width="426"
+              height="426"
+              viewBox="0 0 426 426"
+              // fill="none"
+              fill="currentColor"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M106.771 208.615C115.797 206.393 122.844 199.345 125.067 190.319L146.677 102.57C152.923 77.2075 188.981 77.2074 195.227 102.57L216.836 190.319C219.059 199.345 226.107 206.393 235.133 208.615L322.882 230.225C348.244 236.471 348.244 272.529 322.882 278.775L235.133 300.384C226.107 302.607 219.059 309.655 216.836 318.681L195.227 406.43C188.981 431.792 152.923 431.792 146.677 406.43L125.067 318.681C122.844 309.655 115.797 302.607 106.771 300.384L19.0219 278.775C-6.34062 272.529 -6.34065 236.471 19.0219 230.225L106.771 208.615Z"
+                // fill="black"
+              />
+              <path
+                d="M295.474 69.1356C300.463 67.9068 304.359 64.0111 305.588 59.0215L317.533 10.5151C320.986 -3.50501 340.918 -3.50503 344.371 10.5151L356.317 59.0215C357.545 64.0111 361.441 67.9068 366.431 69.1356L414.937 81.0812C428.957 84.5339 428.957 104.466 414.937 107.919L366.431 119.864C361.441 121.093 357.545 124.989 356.317 129.979L344.371 178.485C340.918 192.505 320.986 192.505 317.533 178.485L305.588 129.979C304.359 124.989 300.463 121.093 295.474 119.864L246.967 107.919C232.947 104.466 232.947 84.5339 246.967 81.0812L295.474 69.1356Z"
+                // fill="black"
+              />
+            </svg>
+            <div>Thinking...</div>
+          </div>
+          <div className="aiBlockInnerText">{text}</div>
+        </div>
       ) : (
         <textarea
           ref={blockEditableRef}
