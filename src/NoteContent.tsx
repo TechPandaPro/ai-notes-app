@@ -8,6 +8,7 @@ import { ChatCompletionMessageParam } from "openai/resources";
 interface BlockInfoBase {
   type: BlockType;
   text: string;
+  addingText?: { char: string; key: string }[];
   imgUrl: string | null;
   attemptLoad: boolean;
   key: string;
@@ -221,7 +222,7 @@ export default function NoteContent() {
       text: "",
       imgUrl: null,
       attemptLoad: false,
-      key: generateBlockKey(nextBlockGroup.blocks),
+      key: generateKey(nextBlockGroup.blocks),
       moving: false,
       position: null,
     });
@@ -239,7 +240,7 @@ export default function NoteContent() {
     if (nextBlockGroups.length === 0) {
       const newBlockGroup: BlockGroupInfo = {
         blocks: [],
-        key: generateBlockKey(blockGroups),
+        key: generateKey(blockGroups),
         moving: false,
         position: null,
         previewIndex: null,
@@ -249,7 +250,7 @@ export default function NoteContent() {
         text: "",
         imgUrl: null,
         attemptLoad: false,
-        key: generateBlockKey(newBlockGroup.blocks),
+        key: generateKey(newBlockGroup.blocks),
         moving: false,
         position: null,
       });
@@ -263,7 +264,7 @@ export default function NoteContent() {
 
     const newBlockGroup: BlockGroupInfo = {
       blocks: [],
-      key: generateBlockKey(blockGroups),
+      key: generateKey(blockGroups),
       moving: false,
       position: null,
       previewIndex: null,
@@ -273,7 +274,7 @@ export default function NoteContent() {
       text: "",
       imgUrl: null,
       attemptLoad: false,
-      key: generateBlockKey(newBlockGroup.blocks),
+      key: generateKey(newBlockGroup.blocks),
       moving: false,
       position: null,
     });
@@ -354,7 +355,7 @@ export default function NoteContent() {
         );
         nextBlockGroups.splice(blockGroupIndex, 1);
         for (const text of nextBlockGroup.blocks)
-          text.key = generateBlockKey(nextPreviewedBlock.blocks);
+          text.key = generateKey(nextPreviewedBlock.blocks);
         setPreviewIndex(null);
       }
     }
@@ -409,7 +410,7 @@ export default function NoteContent() {
       0,
       blockFromGroup.blocks.splice(blockIndex, 1)[0]
     );
-    blockToGroup.blocks[movedToBlockIndex].key = generateBlockKey(
+    blockToGroup.blocks[movedToBlockIndex].key = generateKey(
       blockToGroup.blocks
     );
 
@@ -516,17 +517,32 @@ export default function NoteContent() {
     console.log(apiKey);
 
     // TODO: consider streaming reply
-    const completion = await openai.chat.completions.create({
+    const stream = await openai.chat.completions.create({
       model: "gpt-4o",
       messages,
+      stream: true,
       // messages: [{ role: "user", content: "hello!" }],
     });
 
-    console.log(completion);
+    // console.log(completion);
 
-    const content = completion.choices[0].message.content;
+    // let currContent = "";
 
-    console.log(content);
+    for await (const chunk of stream) {
+      console.log(chunk);
+      const content = chunk.choices[0]?.delta?.content ?? "";
+      // currContent += content;
+      console.log(content);
+      // setAiBlockText(blockGroupIndex, currContent);
+      if (content) addAiBlockChar(blockGroupIndex, content);
+      // console.log(chunk);
+    }
+
+    // const content = completion.choices[0].message.content;
+
+    // const content = "hello world";
+
+    // console.log(content);
 
     // const nextBlockGroups = blockGroups.slice();
     // const nextBlockGroup = { ...nextBlockGroups[blockGroupIndex] };
@@ -544,7 +560,7 @@ export default function NoteContent() {
     // setBlockGroups(nextBlockGroups);
 
     // FIXME: not working - fix this
-    setAiBlockText(blockGroupIndex, content);
+    // setAiBlockText(blockGroupIndex, content);
 
     // setFocusIndex({ blockGroupIndex, blockIndex: createAtIndex });
   }
@@ -554,35 +570,158 @@ export default function NoteContent() {
     const nextBlockGroup = { ...nextBlockGroups[blockGroupIndex] };
     nextBlockGroups[blockGroupIndex] = nextBlockGroup;
 
-    const block = nextBlockGroup.blocks.find((b) => b.type === BlockType.AI);
+    const blockIndex = nextBlockGroup.blocks.findIndex(
+      (b) => b.type === BlockType.AI
+    );
 
     let nextBlock: BlockInfo;
 
-    if (block) {
-      nextBlock = { ...block };
+    if (blockIndex !== -1) {
+      // console.log("exists!");
+      nextBlock = { ...nextBlockGroup.blocks[blockIndex] };
+      nextBlockGroup.blocks[blockIndex] = nextBlock;
     } else {
+      // console.log("does not exist!");
       const createAtIndex = nextBlockGroup.blocks.length;
       nextBlock = {
         type: BlockType.AI,
         text: "",
+        addingText: [],
         imgUrl: null,
         attemptLoad: false,
-        key: generateBlockKey(nextBlockGroup.blocks),
+        key: generateKey(nextBlockGroup.blocks),
         moving: false,
         position: null,
       };
       nextBlockGroup.blocks.splice(createAtIndex, 0, nextBlock);
     }
 
+    if (!nextBlock.addingText) nextBlock.addingText = [];
     nextBlock.text = text ?? "";
+
+    setBlockGroups(nextBlockGroups);
+
+    // console.log("blocks:");
+    // console.log(nextBlockGroup);
+    // console.log(nextBlockGroup.blocks.length);
+  }
+
+  function addAiBlockChar(blockGroupIndex: number, char: string) {
+    const nextBlockGroups = blockGroups.slice();
+    const nextBlockGroup = { ...nextBlockGroups[blockGroupIndex] };
+    nextBlockGroups[blockGroupIndex] = nextBlockGroup;
+
+    const blockIndex = nextBlockGroup.blocks.findIndex(
+      (b) => b.type === BlockType.AI
+    );
+
+    let nextBlock: BlockInfo;
+
+    if (blockIndex !== -1) {
+      // console.log("exists!");
+      nextBlock = { ...nextBlockGroup.blocks[blockIndex] };
+      nextBlockGroup.blocks[blockIndex] = nextBlock;
+    } else {
+      throw new Error("Block does not exist");
+      // console.log("does not exist!");
+      const createAtIndex = nextBlockGroup.blocks.length;
+      nextBlock = {
+        type: BlockType.AI,
+        text: "",
+        addingText: [],
+        imgUrl: null,
+        attemptLoad: false,
+        key: generateKey(nextBlockGroup.blocks),
+        moving: false,
+        position: null,
+      };
+      nextBlockGroup.blocks.splice(createAtIndex, 0, nextBlock);
+    }
+
+    // nextBlock.addingText = text ?? "";
+
+    // if (!nextBlock.addingText) nextBlock.addingText = [];
+    if (!nextBlock.addingText) throw new Error("Block is not generating");
+
+    // if (nextBlock.addingText)
+    nextBlock.addingText.push({
+      char,
+      key: generateKey(nextBlock.addingText),
+    });
+
+    setBlockGroups(nextBlockGroups);
+
+    console.log(nextBlock);
+
+    // console.log("blocks:");
+    // console.log(nextBlockGroup);
+    // console.log(nextBlockGroup.blocks.length);
+  }
+
+  function handleMergeChar(blockGroupIndex: number, key: string) {
+    const nextBlockGroups = blockGroups.slice();
+    const nextBlockGroup = { ...nextBlockGroups[blockGroupIndex] };
+    nextBlockGroups[blockGroupIndex] = nextBlockGroup;
+
+    const blockIndex = nextBlockGroup.blocks.findIndex(
+      (b) => b.type === BlockType.AI
+    );
+
+    let nextBlock: BlockInfo;
+
+    if (blockIndex !== -1) {
+      nextBlock = { ...nextBlockGroup.blocks[blockIndex] };
+      nextBlockGroup.blocks[blockIndex] = nextBlock;
+    } else {
+      throw new Error("Block does not exist");
+      const createAtIndex = nextBlockGroup.blocks.length;
+      nextBlock = {
+        type: BlockType.AI,
+        text: "",
+        addingText: [],
+        imgUrl: null,
+        attemptLoad: false,
+        key: generateKey(nextBlockGroup.blocks),
+        moving: false,
+        position: null,
+      };
+      nextBlockGroup.blocks.splice(createAtIndex, 0, nextBlock);
+    }
+
+    // nextBlock.addingText = text ?? "";
+
+    // if (!nextBlock.addingText) nextBlock.addingText = [];
+
+    if (!nextBlock.addingText) throw new Error("Block is not generating");
+
+    // if (nextBlock.addingText)
+    // nextBlock.addingText.push({
+    //   char,
+    //   key: generateKey(nextBlock.addingText),
+    // });
+
+    const charIndex = nextBlock.addingText.findIndex(
+      (char) => char.key === key
+    );
+
+    if (charIndex !== -1) {
+      const char = nextBlock.addingText[charIndex];
+      nextBlock.text += char.char;
+
+      const nextAddingText = nextBlock.addingText.slice();
+      nextBlock.addingText = nextAddingText;
+      nextAddingText.splice(charIndex, 1);
+
+      if (nextAddingText.length === 0) delete nextBlock.addingText;
+    }
 
     setBlockGroups(nextBlockGroups);
   }
 
-  function generateBlockKey(siblingBlocks: (BlockGroupInfo | BlockInfo)[]) {
+  function generateKey(siblings: { key: string }[]) {
     const stamp = Date.now();
-    const foundCount = siblingBlocks.filter(
-      (block) => block.key && block.key.startsWith(`${stamp}_`)
+    const foundCount = siblings.filter(
+      (sibling) => sibling.key && sibling.key.startsWith(`${stamp}_`)
     ).length;
     return `${stamp}_${foundCount}`;
   }
@@ -718,6 +857,7 @@ export default function NoteContent() {
           onMovingBlockUpdate={handleMovingBlockUpdate}
           onPreviewIndexUpdate={handlePreviewIndexUpdate}
           onQueryAi={handleQueryAi}
+          onMergeChar={handleMergeChar}
         />
       ))}
     </div>

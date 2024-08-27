@@ -78,6 +78,7 @@ interface BlockGroupPropsBase {
     previewIndex: number | null
   ) => void;
   onQueryAi: (blockGroupIndex: number) => void;
+  onMergeChar: (blockGroupIndex: number, key: string) => void;
 }
 
 interface BlockGroupPropsStatic extends BlockGroupPropsBase {
@@ -119,6 +120,7 @@ export default function BlockGroup({
   onMovingBlockUpdate,
   onPreviewIndexUpdate,
   onQueryAi,
+  onMergeChar,
 }: BlockGroupProps) {
   // decided to move this down to the jsx instead
   // const movingInfo = moving
@@ -192,6 +194,10 @@ export default function BlockGroup({
   // function handleQueryAi(blockIndex: number) {
   function handleQueryAi() {
     onQueryAi(blockGroupIndex);
+  }
+
+  function handleMergeChar(key: string) {
+    onMergeChar(blockGroupIndex, key);
   }
 
   useEffect(() => {
@@ -341,6 +347,7 @@ export default function BlockGroup({
       blockIndex={blockIndex}
       type={block.type}
       text={block.text}
+      addingText={block.addingText}
       imgUrl={block.imgUrl}
       attemptLoad={block.attemptLoad ?? false}
       siblingCount={
@@ -368,6 +375,7 @@ export default function BlockGroup({
       onDeleteBlock={handleDeleteBlock}
       onAddBlockGroup={handleAddBlockGroupFromBlock}
       onQueryAi={handleQueryAi}
+      onMergeChar={handleMergeChar}
     />
   ));
 

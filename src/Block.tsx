@@ -22,6 +22,7 @@ interface BlockProps {
   blockIndex: number;
   type: BlockType;
   text: string;
+  addingText?: { char: string; key: string }[];
   imgUrl: string | null;
   attemptLoad: boolean;
   siblingCount: number;
@@ -42,12 +43,14 @@ interface BlockProps {
   onAddBlockGroup: () => void;
   // onQueryAi: (blockIndex: number) => void;
   onQueryAi: () => void;
+  onMergeChar: (key: string) => void;
 }
 
 export default function Block({
   blockIndex,
   type,
   text,
+  addingText,
   imgUrl,
   attemptLoad,
   siblingCount,
@@ -67,6 +70,7 @@ export default function Block({
   onDeleteBlock,
   onAddBlockGroup,
   onQueryAi,
+  onMergeChar,
 }: BlockProps) {
   const [blockHeight, setBlockHeight] = useState<number | null>(null);
   // const [selectedOption, setSelectedOption] = useState<string>("text");
@@ -344,7 +348,20 @@ export default function Block({
             </svg>
             <div>Thinking...</div>
           </div>
-          <div className="aiBlockInnerText">{text}</div>
+          <div className="aiBlockInnerText">
+            {text}
+            {addingText
+              ? addingText.map((char) => (
+                  <span
+                    key={char.key}
+                    className="char"
+                    onAnimationEnd={() => onMergeChar(char.key)}
+                  >
+                    {char.char}
+                  </span>
+                ))
+              : ""}
+          </div>
         </div>
       ) : (
         <textarea
@@ -367,7 +384,7 @@ export default function Block({
           // defaultValue={previewIndex}
         />
       )}
-      {text.length === 0 && !imgUrl ? (
+      {type !== BlockType.AI && text.length === 0 && !imgUrl ? (
         !isDeleting ? (
           <BlockTypePicker
             selectedOption={type}
