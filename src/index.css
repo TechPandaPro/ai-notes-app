@@ -342,26 +342,50 @@ body {
   /* display: inline; */
 }
 
-.aiBlockInnerIcon {
+.aiBlockInnerHeader {
   /* display: inline; */
   display: flex;
   align-items: center;
   gap: 5px;
+  height: 18px;
   /* color: rgb(100 100 100); */
   animation: aiThinking 1.5s ease-in-out infinite alternate;
   /* margin-left: 3px; */
 }
 
-.aiBlockInnerIcon svg {
+svg.aiBlockInnerHeaderIcon {
   height: 15px;
   width: auto;
   display: inline-block;
 }
 
-.aiBlockInnerIcon div {
+div.aiBlockInnerHeaderText {
   display: inline-block;
   font-weight: bold;
   font-style: italic;
+}
+
+.aiBlockInnerContainer.generated .aiBlockInnerText {
+  /* background-image: linear-gradient(red, blue); */
+  background-image: linear-gradient(
+    -45deg,
+    black 30%,
+    rgb(168 168 168) 50%,
+    black 70%
+  );
+
+  background-color: black;
+  background-repeat: no-repeat;
+
+  background-size: 200% 200%;
+  /* background-position-x: -50%; */
+
+  color: transparent;
+  background-clip: text;
+
+  /* transition: background-position-x 0.25s linear; */
+
+  animation: aiFinished 0.25s linear forwards;
 }
 
 .aiBlockInnerText .char {
@@ -894,6 +918,16 @@ body {
 
   to {
     color: rgb(130 130 130);
+  }
+}
+
+@keyframes aiFinished {
+  from {
+    background-position-x: -50%;
+  }
+
+  to {
+    background-position-x: 200%;
   }
 }
 

@@ -91,7 +91,7 @@ export default function NoteContent() {
         },
         {
           type: BlockType.AI,
-          text: "dolor sit amet",
+          text: "dolor sit amet dolor sit amet dolor sit amet dolor sit amet dolor sit amet dolor sit amet dolor sit amet dolor sit amet dolor sit amet dolor sit amet dolor sit amet",
           imgUrl: null,
           attemptLoad: false,
           key: `${Date.now()}_2`,
@@ -502,7 +502,11 @@ export default function NoteContent() {
     // });
     // setBlockGroups(nextBlockGroups);
 
-    setAiBlockText(blockGroupIndex, "");
+    const added = addAiBlock(blockGroupIndex);
+
+    if (!added) return;
+
+    // setAiBlockText(blockGroupIndex, "");
 
     console.log(blocks);
 
@@ -565,7 +569,38 @@ export default function NoteContent() {
     // setFocusIndex({ blockGroupIndex, blockIndex: createAtIndex });
   }
 
-  function setAiBlockText(blockGroupIndex: number, text?: string | null) {
+  // function addAiBlock(blockGroupIndex: number): boolean {
+  //   const nextBlockGroups = blockGroups.slice();
+  //   const nextBlockGroup = { ...nextBlockGroups[blockGroupIndex] };
+  //   nextBlockGroups[blockGroupIndex] = nextBlockGroup;
+
+  //   // const blockIndex = nextBlockGroup.blocks.findIndex(
+  //   //   (b) => b.type === BlockType.AI
+  //   // );
+
+  //   // if (blockIndex !== -1) return false;
+
+  //   if (nextBlockGroup.blocks.some((b) => b.type === BlockType.AI))
+  //     return false;
+
+  //   const createAtIndex = nextBlockGroup.blocks.length;
+  //   nextBlockGroup.blocks.splice(createAtIndex, 0, {
+  //     type: BlockType.AI,
+  //     text: "",
+  //     addingText: [],
+  //     imgUrl: null,
+  //     attemptLoad: false,
+  //     key: generateKey(nextBlockGroup.blocks),
+  //     moving: false,
+  //     position: null,
+  //   });
+
+  //   setBlockGroups(nextBlockGroups);
+
+  //   return true;
+  // }
+
+  function addAiBlock(blockGroupIndex: number): boolean {
     const nextBlockGroups = blockGroups.slice();
     const nextBlockGroup = { ...nextBlockGroups[blockGroupIndex] };
     nextBlockGroups[blockGroupIndex] = nextBlockGroup;
@@ -577,11 +612,10 @@ export default function NoteContent() {
     let nextBlock: BlockInfo;
 
     if (blockIndex !== -1) {
-      // console.log("exists!");
+      if (nextBlockGroup.blocks[blockIndex].addingText) return false;
       nextBlock = { ...nextBlockGroup.blocks[blockIndex] };
       nextBlockGroup.blocks[blockIndex] = nextBlock;
     } else {
-      // console.log("does not exist!");
       const createAtIndex = nextBlockGroup.blocks.length;
       nextBlock = {
         type: BlockType.AI,
@@ -596,14 +630,12 @@ export default function NoteContent() {
       nextBlockGroup.blocks.splice(createAtIndex, 0, nextBlock);
     }
 
-    if (!nextBlock.addingText) nextBlock.addingText = [];
-    nextBlock.text = text ?? "";
+    nextBlock.addingText = [];
+    nextBlock.text = "";
 
     setBlockGroups(nextBlockGroups);
 
-    // console.log("blocks:");
-    // console.log(nextBlockGroup);
-    // console.log(nextBlockGroup.blocks.length);
+    return true;
   }
 
   function addAiBlockChar(blockGroupIndex: number, char: string) {

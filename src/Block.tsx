@@ -327,9 +327,12 @@ export default function Block({
           onAttemptLoadUpdate={handleAttemptLoadUpdate}
         />
       ) : type === BlockType.AI ? (
-        <div className="aiBlockInnerContainer">
-          <div className="aiBlockInnerIcon">
+        <div
+          className={`aiBlockInnerContainer ${addingText ? "" : "generated"}`}
+        >
+          <div className="aiBlockInnerHeader">
             <svg
+              className="aiBlockInnerHeaderIcon"
               width="426"
               height="426"
               viewBox="0 0 426 426"
@@ -346,7 +349,12 @@ export default function Block({
                 // fill="black"
               />
             </svg>
-            <div>Thinking...</div>
+            {/* TODO: prevent height of ai header container from changing */}
+            {addingText ? (
+              <div className="aiBlockInnerHeaderText">Thinking...</div>
+            ) : (
+              ""
+            )}
           </div>
           <div className="aiBlockInnerText">
             {text}

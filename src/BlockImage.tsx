@@ -17,6 +17,8 @@ interface ImageOpenInfo {
   startHeight: number;
 }
 
+// TODO: allow pasting images
+
 export default function BlockImage({
   imgUrl,
   attemptLoad,
