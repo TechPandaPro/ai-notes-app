@@ -347,6 +347,7 @@ export default function BlockGroup({
       blockIndex={blockIndex}
       type={block.type}
       text={block.text}
+      generating={block.generating}
       addingText={block.addingText}
       imgUrl={block.imgUrl}
       attemptLoad={block.attemptLoad ?? false}

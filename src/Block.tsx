@@ -4,6 +4,7 @@
 
 import {
   ChangeEvent,
+  ClipboardEvent,
   KeyboardEvent,
   // MouseEvent,
   MouseEvent as ReactMouseEvent,
@@ -22,6 +23,7 @@ interface BlockProps {
   blockIndex: number;
   type: BlockType;
   text: string;
+  generating?: boolean;
   addingText?: { char: string; key: string }[];
   imgUrl: string | null;
   attemptLoad: boolean;
@@ -50,6 +52,7 @@ export default function Block({
   blockIndex,
   type,
   text,
+  generating,
   addingText,
   imgUrl,
   attemptLoad,
@@ -106,6 +109,37 @@ export default function Block({
     e.preventDefault();
     // onSetMoving(blockIndex, false);
     onMove(blockIndex, null);
+  }
+
+  function handlePaste(e: ClipboardEvent) {
+    console.log(e.clipboardData);
+    console.log(e.clipboardData.files[0]);
+
+    const file = e.clipboardData.files[0];
+
+    if (file) {
+      e.preventDefault();
+
+      const fileReader = new FileReader();
+      fileReader.addEventListener(
+        "load",
+        () => {
+          if (typeof fileReader.result !== "string")
+            throw new Error(
+              `Unexpected file reader result type: ${typeof fileReader.result}`
+            );
+          onImageUpdate(blockIndex, fileReader.result);
+        },
+        { once: true }
+      );
+      fileReader.readAsDataURL(file);
+    } else if (type === BlockType.Image) {
+      const text = e.clipboardData.getData("text");
+      if (text) {
+        e.preventDefault();
+        onTextUpdate(blockIndex, text);
+      }
+    }
   }
 
   function handleMouseMove(e: MouseEvent) {
@@ -299,6 +333,9 @@ export default function Block({
   //   return () => document.removeEventListener("mouseup", handleMouseUp);
   // }, []);
 
+  const visuallyGenerating =
+    !generating && (!addingText || addingText.length === 0);
+
   return (
     <div
       className={`block ${isMoving ? "moving" : ""}`}
@@ -306,6 +343,7 @@ export default function Block({
       data-type={type.toLowerCase()}
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}
+      onPaste={handlePaste}
       // onMouseDown={handleMouseDown}
       // onMouseUp={handleMouseUp}
     >
@@ -328,7 +366,9 @@ export default function Block({
         />
       ) : type === BlockType.AI ? (
         <div
-          className={`aiBlockInnerContainer ${addingText ? "" : "generated"}`}
+          className={`aiBlockInnerContainer ${
+            visuallyGenerating ? "generated" : ""
+          }`}
         >
           <div className="aiBlockInnerHeader">
             <svg
@@ -350,11 +390,11 @@ export default function Block({
               />
             </svg>
             {/* TODO: prevent height of ai header container from changing */}
-            {addingText ? (
-              <div className="aiBlockInnerHeaderText">Thinking...</div>
-            ) : (
-              ""
-            )}
+            {/* {!visuallyGenerating ? ( */}
+            <div className="aiBlockInnerHeaderText">Thinking...</div>
+            {/* ) : ( */}
+            {/* "" */}
+            {/* )} */}
           </div>
           <div className="aiBlockInnerText">
             {text}
@@ -412,7 +452,9 @@ export default function Block({
       ) : (
         ""
       )}
-      {!isDeleting && siblingCount + 1 < 5 ? (
+      {!isDeleting &&
+      siblingCount + 1 < 5 &&
+      (blockIndex !== siblingCount || type !== BlockType.AI) ? (
         <BlockAddInline
           createAtIndex={blockIndex + 1}
           position={blockIndex === siblingCount ? 0 : 1}

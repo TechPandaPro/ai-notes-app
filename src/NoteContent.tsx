@@ -8,6 +8,7 @@ import { ChatCompletionMessageParam } from "openai/resources";
 interface BlockInfoBase {
   type: BlockType;
   text: string;
+  generating?: boolean;
   addingText?: { char: string; key: string }[];
   imgUrl: string | null;
   attemptLoad: boolean;
@@ -159,7 +160,13 @@ export default function NoteContent() {
     const nextBlockGroups = blockGroups.slice();
     const nextBlockGroup = { ...nextBlockGroups[blockGroupIndex] };
     nextBlockGroups[blockGroupIndex] = nextBlockGroup;
-    nextBlockGroup.blocks[blockIndex].text = newText;
+    const nextBlock = { ...nextBlockGroup.blocks[blockIndex] };
+    nextBlockGroup.blocks[blockIndex] = nextBlock;
+    if (nextBlock.type === BlockType.Image) {
+      nextBlock.type = BlockType.Text;
+      nextBlock.imgUrl = null;
+    }
+    nextBlock.text = newText;
     setBlockGroups(nextBlockGroups);
   }
 
@@ -168,10 +175,15 @@ export default function NoteContent() {
     blockIndex: number,
     imgUrl: string | null
   ) {
+    if (blockGroups[blockGroupIndex].blocks[blockIndex].text.length >= 1)
+      return;
     const nextBlockGroups = blockGroups.slice();
     const nextBlockGroup = { ...nextBlockGroups[blockGroupIndex] };
     nextBlockGroups[blockGroupIndex] = nextBlockGroup;
-    nextBlockGroup.blocks[blockIndex].imgUrl = imgUrl;
+    const nextBlock = { ...nextBlockGroup.blocks[blockIndex] };
+    nextBlockGroup.blocks[blockIndex] = nextBlock;
+    nextBlock.type = BlockType.Image;
+    nextBlock.imgUrl = imgUrl;
     setBlockGroups(nextBlockGroups);
   }
 
@@ -511,16 +523,24 @@ export default function NoteContent() {
     console.log(blocks);
 
     // TODO: add support for images
-    const messages: ChatCompletionMessageParam[] = blocks.map((block) => ({
-      role: "user",
-      content: block.text,
-    }));
+    const messages: ChatCompletionMessageParam[] = blocks.map((block) =>
+      // block.type === BlockType.Image
+      // ? { role: "user", content: block.imgUrl }
+      // : {
+      ({
+        role: "user",
+        content: [
+          block.type === BlockType.Image && block.imgUrl
+            ? { type: "image_url", image_url: { url: block.imgUrl } }
+            : { type: "text", text: block.text },
+        ],
+      })
+    );
 
     console.log(messages);
 
     console.log(apiKey);
 
-    // TODO: consider streaming reply
     const stream = await openai.chat.completions.create({
       model: "gpt-4o",
       messages,
@@ -533,6 +553,13 @@ export default function NoteContent() {
     // let currContent = "";
 
     for await (const chunk of stream) {
+      if (chunk.choices[0].finish_reason) {
+        console.log("oopsies it's over!!");
+        const blockGroup = blockGroups[blockGroupIndex];
+        const aiBlockIndex = getAiBlockIndex(blockGroupIndex);
+        blockGroup.blocks[aiBlockIndex].generating = false;
+        break;
+      }
       console.log(chunk);
       const content = chunk.choices[0]?.delta?.content ?? "";
       // currContent += content;
@@ -605,14 +632,16 @@ export default function NoteContent() {
     const nextBlockGroup = { ...nextBlockGroups[blockGroupIndex] };
     nextBlockGroups[blockGroupIndex] = nextBlockGroup;
 
-    const blockIndex = nextBlockGroup.blocks.findIndex(
-      (b) => b.type === BlockType.AI
-    );
+    // const blockIndex = nextBlockGroup.blocks.findIndex(
+    //   (b) => b.type === BlockType.AI
+    // );
+
+    const blockIndex = getAiBlockIndex(blockGroupIndex);
 
     let nextBlock: BlockInfo;
 
     if (blockIndex !== -1) {
-      if (nextBlockGroup.blocks[blockIndex].addingText) return false;
+      if (nextBlockGroup.blocks[blockIndex].generating) return false;
       nextBlock = { ...nextBlockGroup.blocks[blockIndex] };
       nextBlockGroup.blocks[blockIndex] = nextBlock;
     } else {
@@ -620,6 +649,7 @@ export default function NoteContent() {
       nextBlock = {
         type: BlockType.AI,
         text: "",
+        generating: true,
         addingText: [],
         imgUrl: null,
         attemptLoad: false,
@@ -630,6 +660,7 @@ export default function NoteContent() {
       nextBlockGroup.blocks.splice(createAtIndex, 0, nextBlock);
     }
 
+    nextBlock.generating = true;
     nextBlock.addingText = [];
     nextBlock.text = "";
 
@@ -643,9 +674,11 @@ export default function NoteContent() {
     const nextBlockGroup = { ...nextBlockGroups[blockGroupIndex] };
     nextBlockGroups[blockGroupIndex] = nextBlockGroup;
 
-    const blockIndex = nextBlockGroup.blocks.findIndex(
-      (b) => b.type === BlockType.AI
-    );
+    // const blockIndex = nextBlockGroup.blocks.findIndex(
+    //   (b) => b.type === BlockType.AI
+    // );
+
+    const blockIndex = getAiBlockIndex(blockGroupIndex);
 
     let nextBlock: BlockInfo;
 
@@ -656,24 +689,25 @@ export default function NoteContent() {
     } else {
       throw new Error("Block does not exist");
       // console.log("does not exist!");
-      const createAtIndex = nextBlockGroup.blocks.length;
-      nextBlock = {
-        type: BlockType.AI,
-        text: "",
-        addingText: [],
-        imgUrl: null,
-        attemptLoad: false,
-        key: generateKey(nextBlockGroup.blocks),
-        moving: false,
-        position: null,
-      };
-      nextBlockGroup.blocks.splice(createAtIndex, 0, nextBlock);
+      // const createAtIndex = nextBlockGroup.blocks.length;
+      // nextBlock = {
+      //   type: BlockType.AI,
+      //   text: "",
+      //   addingText: [],
+      //   imgUrl: null,
+      //   attemptLoad: false,
+      //   key: generateKey(nextBlockGroup.blocks),
+      //   moving: false,
+      //   position: null,
+      // };
+      // nextBlockGroup.blocks.splice(createAtIndex, 0, nextBlock);
     }
 
     // nextBlock.addingText = text ?? "";
 
-    // if (!nextBlock.addingText) nextBlock.addingText = [];
-    if (!nextBlock.addingText) throw new Error("Block is not generating");
+    if (!nextBlock.generating) throw new Error("Block is not generating");
+
+    if (!nextBlock.addingText) throw new Error("addingText not found");
 
     // if (nextBlock.addingText)
     nextBlock.addingText.push({
@@ -688,6 +722,14 @@ export default function NoteContent() {
     // console.log("blocks:");
     // console.log(nextBlockGroup);
     // console.log(nextBlockGroup.blocks.length);
+  }
+
+  function getAiBlockIndex(blockGroupIndex: number) {
+    const blockGroup = blockGroups[blockGroupIndex];
+    const blockIndex = blockGroup.blocks.findIndex(
+      (b) => b.type === BlockType.AI
+    );
+    return blockIndex;
   }
 
   function handleMergeChar(blockGroupIndex: number, key: string) {
@@ -706,25 +748,27 @@ export default function NoteContent() {
       nextBlockGroup.blocks[blockIndex] = nextBlock;
     } else {
       throw new Error("Block does not exist");
-      const createAtIndex = nextBlockGroup.blocks.length;
-      nextBlock = {
-        type: BlockType.AI,
-        text: "",
-        addingText: [],
-        imgUrl: null,
-        attemptLoad: false,
-        key: generateKey(nextBlockGroup.blocks),
-        moving: false,
-        position: null,
-      };
-      nextBlockGroup.blocks.splice(createAtIndex, 0, nextBlock);
+      // const createAtIndex = nextBlockGroup.blocks.length;
+      // nextBlock = {
+      //   type: BlockType.AI,
+      //   text: "",
+      //   addingText: [],
+      //   imgUrl: null,
+      //   attemptLoad: false,
+      //   key: generateKey(nextBlockGroup.blocks),
+      //   moving: false,
+      //   position: null,
+      // };
+      // nextBlockGroup.blocks.splice(createAtIndex, 0, nextBlock);
     }
 
     // nextBlock.addingText = text ?? "";
 
     // if (!nextBlock.addingText) nextBlock.addingText = [];
 
-    if (!nextBlock.addingText) throw new Error("Block is not generating");
+    // if (!nextBlock.generating) throw new Error("Block is not generating");
+
+    if (!nextBlock.addingText) throw new Error("addingText not found");
 
     // if (nextBlock.addingText)
     // nextBlock.addingText.push({
@@ -744,10 +788,10 @@ export default function NoteContent() {
       nextBlock.addingText = nextAddingText;
       nextAddingText.splice(charIndex, 1);
 
-      if (nextAddingText.length === 0) delete nextBlock.addingText;
-    }
+      // if (nextAddingText.length === 0) delete nextBlock.addingText;
 
-    setBlockGroups(nextBlockGroups);
+      setBlockGroups(nextBlockGroups);
+    }
   }
 
   function generateKey(siblings: { key: string }[]) {

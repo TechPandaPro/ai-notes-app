@@ -363,6 +363,12 @@ div.aiBlockInnerHeaderText {
   display: inline-block;
   font-weight: bold;
   font-style: italic;
+  user-select: none;
+  transition: opacity 0.1s;
+}
+
+.aiBlockInnerContainer.generated div.aiBlockInnerHeaderText {
+  opacity: 0;
 }
 
 .aiBlockInnerContainer.generated .aiBlockInnerText {
@@ -386,6 +392,11 @@ div.aiBlockInnerHeaderText {
   /* transition: background-position-x 0.25s linear; */
 
   animation: aiFinished 0.25s linear forwards;
+}
+
+.aiBlockInnerContainer.generated .aiBlockInnerText::selection {
+  color: black;
+  background-color: #accef7;
 }
 
 .aiBlockInnerText .char {
@@ -923,11 +934,11 @@ div.aiBlockInnerHeaderText {
 
 @keyframes aiFinished {
   from {
-    background-position-x: -50%;
+    background-position-x: 200%;
   }
 
   to {
-    background-position-x: 200%;
+    background-position-x: -50%;
   }
 }
 
