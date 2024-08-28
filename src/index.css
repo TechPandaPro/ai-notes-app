@@ -108,6 +108,10 @@ body {
   background-color: rgb(255 0 0 / 0.5);
 }
 
+/* .noteContent.moving .blockMarker {
+  pointer-events: none;
+} */
+
 .blockMarker {
   position: absolute;
   width: 24px;
@@ -346,7 +350,7 @@ body {
   /* display: inline; */
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
   height: 18px;
   color: rgb(80 80 80);
   /* color: rgb(100 100 100); */
@@ -402,7 +406,7 @@ div.aiBlockInnerHeaderButtons {
 div.aiBlockInnerHeaderButtons {
   height: 15px;
   display: flex;
-  gap: 8px;
+  gap: 6px;
 }
 
 div.aiBlockInnerHeaderButton {
@@ -811,6 +815,8 @@ div.aiBlockInnerHeaderButtons svg {
   max-width: calc(100% - 15px);
   flex-wrap: wrap;
   justify-content: center;
+  /* TODO: determine if this is needed */
+  animation: blockTypePickerFadeIn 0.1s;
 }
 
 .blockTypeOption {
@@ -966,6 +972,14 @@ div.aiBlockInnerHeaderButtons svg {
   }
 }
 
+/* TODO: consider combining fadeIn animations */
+
+@keyframes blockTypePickerFadeIn {
+  from {
+    opacity: 0;
+  }
+}
+
 @keyframes aiThinking {
   from {
     color: rgb(90 90 90);
@@ -982,7 +996,7 @@ div.aiBlockInnerHeaderButtons svg {
   }
 
   to {
-    background-position-x: -50%;
+    background-position-x: -200%;
   }
 }
 

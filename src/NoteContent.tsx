@@ -522,7 +522,6 @@ export default function NoteContent() {
 
     console.log(blocks);
 
-    // TODO: add support for images
     const messages: ChatCompletionMessageParam[] = blocks.map((block) =>
       // block.type === BlockType.Image
       // ? { role: "user", content: block.imgUrl }
