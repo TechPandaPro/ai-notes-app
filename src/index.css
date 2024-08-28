@@ -348,10 +348,15 @@ body {
   align-items: center;
   gap: 5px;
   height: 18px;
+  color: rgb(80 80 80);
   /* color: rgb(100 100 100); */
-  animation: aiThinking 1.5s ease-in-out infinite alternate;
+  /* animation: aiThinking 1.5s ease-in-out infinite alternate; */
   /* margin-left: 3px; */
 }
+
+/* .aiBlockInnerContainer:not(.generated) .aiBlockInnerHeader {
+  animation: aiThinking 1.5s ease-in-out infinite alternate;
+} */
 
 svg.aiBlockInnerHeaderIcon {
   height: 15px;
@@ -359,16 +364,55 @@ svg.aiBlockInnerHeaderIcon {
   display: inline-block;
 }
 
-div.aiBlockInnerHeaderText {
-  display: inline-block;
-  font-weight: bold;
-  font-style: italic;
-  user-select: none;
+div.aiBlockInnerHeaderContent {
+  position: relative;
+  flex-grow: 1;
+}
+
+div.aiBlockInnerHeaderContent > div {
+  position: absolute;
+  top: 0;
+  transform: translateY(-50%);
+  opacity: 0;
   transition: opacity 0.1s;
 }
 
-.aiBlockInnerContainer.generated div.aiBlockInnerHeaderText {
-  opacity: 0;
+div.aiBlockInnerHeaderText {
+  /* display: inline-block; */
+  font-weight: bold;
+  font-style: italic;
+  user-select: none;
+  left: 0;
+  animation: aiThinking 1.5s ease-in-out infinite alternate;
+  /* transition: opacity 1s; */
+}
+
+div.aiBlockInnerHeaderButtons {
+  right: 0;
+}
+
+.aiBlockInnerContainer:not(.generated) div.aiBlockInnerHeaderText {
+  opacity: 1;
+}
+
+.aiBlockInnerContainer.generated div.aiBlockInnerHeaderButtons {
+  opacity: 1;
+}
+
+div.aiBlockInnerHeaderButtons {
+  height: 15px;
+  display: flex;
+  gap: 8px;
+}
+
+div.aiBlockInnerHeaderButton {
+  height: 100%;
+  cursor: pointer;
+}
+
+div.aiBlockInnerHeaderButtons svg {
+  height: 100%;
+  width: auto;
 }
 
 .aiBlockInnerContainer.generated .aiBlockInnerText {
