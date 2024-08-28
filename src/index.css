@@ -371,11 +371,13 @@ svg.aiBlockInnerHeaderIcon {
 div.aiBlockInnerHeaderContent {
   position: relative;
   flex-grow: 1;
+  height: 100%;
 }
 
 div.aiBlockInnerHeaderContent > div {
   position: absolute;
-  top: 0;
+  width: 100%;
+  top: 50%;
   transform: translateY(-50%);
   opacity: 0;
   transition: opacity 0.1s;
@@ -393,6 +395,16 @@ div.aiBlockInnerHeaderText {
 
 div.aiBlockInnerHeaderButtons {
   right: 0;
+}
+
+input.aiBlockInnerHeaderInput {
+  min-width: 0;
+  flex-grow: 1;
+  background-color: transparent;
+  border: none;
+  outline: none;
+  font-size: 0.95em;
+  color: rgb(40 40 40);
 }
 
 .aiBlockInnerContainer:not(.generated) div.aiBlockInnerHeaderText {
