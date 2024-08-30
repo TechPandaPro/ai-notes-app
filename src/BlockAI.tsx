@@ -49,6 +49,7 @@ export default function BlockAI({
           <div className="aiBlockInnerHeaderText">Thinking...</div>
           {/* <div className="aiBlockInnerHeaderButtons"> */}
           <BlockAIButtons
+            generating={generating}
             regenPrompt={regenPrompt}
             onPromptUpdate={onPromptUpdate}
             onRegenerate={onRegenerate}

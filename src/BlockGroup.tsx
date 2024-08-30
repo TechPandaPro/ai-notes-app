@@ -77,6 +77,11 @@ interface BlockGroupPropsBase {
     blockGroupIndex: number,
     previewIndex: number | null
   ) => void;
+  onPromptUpdate: (
+    blockGroupIndex: number,
+    blockIndex: number,
+    newPRompt: string
+  ) => void;
   onQueryAi: (
     blockGroupIndex: number,
     regenOptions: { lastResponse: string; prompt: string }
@@ -122,6 +127,7 @@ export default function BlockGroup({
   onBlockGroupCancelMove,
   onMovingBlockUpdate,
   onPreviewIndexUpdate,
+  onPromptUpdate,
   onQueryAi,
   onMergeChar,
 }: BlockGroupProps) {
@@ -192,6 +198,10 @@ export default function BlockGroup({
 
   function handleAddBlockGroupFromBlock() {
     onAddBlockGroup(blockGroupIndex + 1);
+  }
+
+  function handlePromptUpdate(blockIndex: number, newPrompt: string) {
+    onPromptUpdate(blockGroupIndex, blockIndex, newPrompt);
   }
 
   // function handleQueryAi(blockIndex: number) {
@@ -355,6 +365,7 @@ export default function BlockGroup({
       text={block.text}
       generating={block.generating}
       addingText={block.addingText}
+      regenPrompt={block.regenPrompt}
       imgUrl={block.imgUrl}
       attemptLoad={block.attemptLoad ?? false}
       siblingCount={
@@ -381,6 +392,7 @@ export default function BlockGroup({
       onAddBlock={handleAddBlock}
       onDeleteBlock={handleDeleteBlock}
       onAddBlockGroup={handleAddBlockGroupFromBlock}
+      onPromptUpdate={handlePromptUpdate}
       onQueryAi={handleQueryAi}
       onMergeChar={handleMergeChar}
     />

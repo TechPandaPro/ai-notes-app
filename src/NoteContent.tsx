@@ -14,6 +14,7 @@ interface BlockInfoBase {
   text: string;
   generating?: boolean;
   addingText?: { char: string; key: string }[];
+  regenPrompt?: string;
   imgUrl: string | null;
   attemptLoad: boolean;
   key: string;
@@ -77,29 +78,11 @@ export default function NoteContent() {
     {
       blocks: [
         {
-          type: BlockType.Text,
-          text: "hello, world",
+          type: BlockType.Header,
+          text: "Welcome to the AI Notes app!",
           imgUrl: null,
           attemptLoad: false,
           key: `${Date.now()}_0`,
-          moving: false,
-          position: null,
-        },
-        {
-          type: BlockType.Text,
-          text: "lorem ipsum",
-          imgUrl: null,
-          attemptLoad: false,
-          key: `${Date.now()}_1`,
-          moving: false,
-          position: null,
-        },
-        {
-          type: BlockType.AI,
-          text: "dolor sit amet dolor sit amet dolor sit amet dolor sit amet dolor sit amet dolor sit amet dolor sit amet dolor sit amet dolor sit amet dolor sit amet dolor sit amet",
-          imgUrl: null,
-          attemptLoad: false,
-          key: `${Date.now()}_2`,
           moving: false,
           position: null,
         },
@@ -113,7 +96,33 @@ export default function NoteContent() {
       blocks: [
         {
           type: BlockType.Text,
-          text: "hello, world",
+          text: "you can type in each of these blocks!",
+          imgUrl: null,
+          attemptLoad: false,
+          key: `${Date.now()}_1`,
+          moving: false,
+          position: null,
+        },
+        {
+          type: BlockType.Text,
+          text: "each row has its own set of blocks!",
+          imgUrl: null,
+          attemptLoad: false,
+          key: `${Date.now()}_2`,
+          moving: false,
+          position: null,
+        },
+      ],
+      key: `${Date.now()}_1`,
+      moving: false,
+      position: null,
+      previewIndex: null,
+    },
+    {
+      blocks: [
+        {
+          type: BlockType.Text,
+          text: "you can add images to blocks, too!",
           imgUrl: null,
           attemptLoad: false,
           key: `${Date.now()}_0`,
@@ -121,8 +130,8 @@ export default function NoteContent() {
           position: null,
         },
         {
-          type: BlockType.Text,
-          text: "lorem ipsum",
+          type: BlockType.AI,
+          text: "[add an image here]",
           imgUrl: null,
           attemptLoad: false,
           key: `${Date.now()}_1`,
@@ -130,7 +139,7 @@ export default function NoteContent() {
           position: null,
         },
       ],
-      key: `${Date.now()}_1`,
+      key: `${Date.now()}_2`,
       moving: false,
       position: null,
       previewIndex: null,
@@ -246,13 +255,31 @@ export default function NoteContent() {
     setFocusIndex({ blockGroupIndex, blockIndex: createAtIndex });
   }
 
+  // TODO: blur block group if block is currently focused
   function handleDeleteBlock(blockGroupIndex: number, deleteIndex: number) {
     const nextBlockGroups = blockGroups.slice();
+
     const nextBlockGroup = { ...nextBlockGroups[blockGroupIndex] };
     nextBlockGroups[blockGroupIndex] = nextBlockGroup;
-    nextBlockGroup.blocks.splice(deleteIndex, 1);
+
+    const nextBlocks = nextBlockGroup.blocks.slice();
+    nextBlockGroup.blocks = nextBlocks;
+
+    // if (
+    //   focusIndex &&
+    //   focusIndex.blockGroupIndex === blockGroupIndex &&
+    //   focusIndex.blockIndex === nextBlocks.length - 1
+    // )
+    //   setFocusIndex({
+    //     blockGroupIndex: focusIndex.blockGroupIndex,
+    //     blockIndex: focusIndex.blockIndex - 1,
+    //   });
+
+    nextBlocks.splice(deleteIndex, 1);
+
     if (nextBlockGroup.blocks.length === 0)
       nextBlockGroups.splice(blockGroupIndex, 1);
+
     if (nextBlockGroups.length === 0) {
       const newBlockGroup: BlockGroupInfo = {
         blocks: [],
@@ -272,7 +299,15 @@ export default function NoteContent() {
       });
       nextBlockGroups.push(newBlockGroup);
     }
+
     setBlockGroups(nextBlockGroups);
+
+    if (
+      focusIndex &&
+      focusIndex.blockGroupIndex === blockGroupIndex &&
+      focusIndex.blockIndex === deleteIndex
+    )
+      setFocusIndex(null);
   }
 
   function handleAddBlockGroup(createAtIndex: number) {
@@ -485,6 +520,27 @@ export default function NoteContent() {
       setPreviewIndex(null);
   }
 
+  function handlePromptUpdate(
+    blockGroupIndex: number,
+    blockIndex: number,
+    newPrompt: string
+  ) {
+    const nextBlockGroups = blockGroups.slice();
+
+    const nextBlockGroup = { ...nextBlockGroups[blockGroupIndex] };
+    nextBlockGroups[blockGroupIndex] = nextBlockGroup;
+
+    const nextBlocks = nextBlockGroup.blocks.slice();
+    nextBlockGroup.blocks = nextBlocks;
+
+    const nextBlock = { ...nextBlocks[blockIndex] };
+    nextBlocks[blockIndex] = nextBlock;
+
+    nextBlock.regenPrompt = newPrompt;
+
+    setBlockGroups(nextBlockGroups);
+  }
+
   async function handleQueryAi(
     blockGroupIndex: number,
     regenOptions?: { lastResponse: string; prompt: string }
@@ -623,6 +679,7 @@ Prompt: """${regenOptions.prompt}"""`
 
     nextBlock.generating = true;
     nextBlock.addingText = [];
+    nextBlock.regenPrompt = "";
     nextBlock.text = "";
 
     setBlockGroups(nextBlockGroups);
@@ -893,6 +950,7 @@ Prompt: """${regenOptions.prompt}"""`
           onBlockGroupCancelMove={handleBlockGroupCancelMove}
           onMovingBlockUpdate={handleMovingBlockUpdate}
           onPreviewIndexUpdate={handlePreviewIndexUpdate}
+          onPromptUpdate={handlePromptUpdate}
           onQueryAi={handleQueryAi}
           onMergeChar={handleMergeChar}
         />

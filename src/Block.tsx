@@ -26,6 +26,7 @@ interface BlockProps {
   text: string;
   generating?: boolean;
   addingText?: { char: string; key: string }[];
+  regenPrompt?: string;
   imgUrl: string | null;
   attemptLoad: boolean;
   siblingCount: number;
@@ -44,6 +45,7 @@ interface BlockProps {
   onAddBlock: (createAtIndex: number) => void;
   onDeleteBlock: (deleteIndex: number) => void;
   onAddBlockGroup: () => void;
+  onPromptUpdate: (blockIndex: number, newPrompt: string) => void;
   // onQueryAi: (blockIndex: number) => void;
   onQueryAi: (regenOptions?: { lastResponse: string; prompt: string }) => void;
   onMergeChar: (key: string) => void;
@@ -55,6 +57,7 @@ export default function Block({
   text,
   generating,
   addingText,
+  regenPrompt,
   imgUrl,
   attemptLoad,
   siblingCount,
@@ -73,11 +76,12 @@ export default function Block({
   onAddBlock,
   onDeleteBlock,
   onAddBlockGroup,
+  onPromptUpdate,
   onQueryAi,
   onMergeChar,
 }: BlockProps) {
   const [blockHeight, setBlockHeight] = useState<number | null>(null);
-  const [regenPrompt, setRegenPrompt] = useState<string | null>(null);
+  // const [regenPrompt, setRegenPrompt] = useState<string | null>(null);
   // const [selectedOption, setSelectedOption] = useState<string>("text");
 
   // const [prevTypeId, setPrevTypeId] = useState(typeId);
@@ -238,12 +242,13 @@ export default function Block({
   }
 
   function handlePromptUpdate(newPrompt: string) {
-    setRegenPrompt(newPrompt);
+    // setRegenPrompt(newPrompt);
+    onPromptUpdate(blockIndex, newPrompt);
   }
 
   function handleRegenerate() {
     onQueryAi({ lastResponse: text, prompt: regenPrompt ?? "" });
-    setRegenPrompt(null);
+    // setRegenPrompt(null);
     console.log("regenerate");
   }
 
@@ -269,6 +274,8 @@ export default function Block({
   function handleBlur() {
     if (!isDeleting) onSetFocus(blockIndex, false);
   }
+
+  // TODO: prevent newlines via pasting or AI
 
   function handleKeyDown(e: KeyboardEvent<HTMLDivElement>) {
     // console.log(e);
@@ -302,6 +309,8 @@ export default function Block({
         e.preventDefault();
         onTypeUpdate(blockIndex, setType);
       }
+    } else if (e.key === "ArrowUp" && e.shiftKey) {
+      handleInsert();
     }
   }
 

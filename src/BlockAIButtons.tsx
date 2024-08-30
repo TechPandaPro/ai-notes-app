@@ -3,6 +3,7 @@ import BlockAIButton from "./BlockAIButton";
 import BlockAIPrompt from "./BlockAIPrompt";
 
 interface BlockAIButtonsProps {
+  generating?: boolean;
   regenPrompt: string;
   onPromptUpdate: (newPrompt: string) => void;
   onRegenerate: () => void;
@@ -10,6 +11,7 @@ interface BlockAIButtonsProps {
 }
 
 export default function BlockAIButtons({
+  generating,
   regenPrompt,
   onPromptUpdate,
   onRegenerate,
@@ -44,6 +46,7 @@ export default function BlockAIButtons({
         onKeyDown={handleKeyDown}
       /> */}
       <BlockAIPrompt
+        generating={generating}
         regenPrompt={regenPrompt}
         onPromptUpdate={onPromptUpdate}
         onRegenerate={onRegenerate}

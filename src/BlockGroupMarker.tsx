@@ -3,6 +3,7 @@
 import {
   MouseEvent as ReactMouseEvent,
   useEffect,
+  useState,
   // useRef,
   // useState,
 } from "react";
@@ -45,6 +46,9 @@ export default function BlockMarker({
   onMove,
   onCancelMove,
 }: BlockMarkerProps) {
+  const [mouseDown, setMouseDown] = useState<boolean>(false);
+  const [colorPickerIsOpen, setColorPickerIsOpen] = useState<boolean>(false);
+
   // const [position, setPosition] = useState<PositionInterface | null>(null);
   // const [moving, setMoving] = useState<boolean>(false);
 
@@ -55,16 +59,11 @@ export default function BlockMarker({
 
     e.preventDefault();
 
-    const blockMarkerRect = (
-      e.target as HTMLDivElement
-    ).getBoundingClientRect();
+    // const blockMarkerRect = (
+    //   e.target as HTMLDivElement
+    // ).getBoundingClientRect();
 
-    // const parentRect =
-    //   blockMarkerRef.current.parentElement.getBoundingClientRect();
-
-    // setPosition({
-    //   // x: e.clientX - parentRect.left,
-    //   // y: e.clientY - parentRect.top,
+    // onMove(blockGroupIndex, {
     //   x: e.clientX,
     //   y: e.clientY,
     //   width: blockMarkerRect.width,
@@ -73,22 +72,11 @@ export default function BlockMarker({
     //   offsetY: blockMarkerRect.height / 2 - e.nativeEvent.offsetY,
     // });
 
-    onMove(blockGroupIndex, {
-      x: e.clientX,
-      y: e.clientY,
-      width: blockMarkerRect.width,
-      height: blockMarkerRect.height,
-      offsetX: blockMarkerRect.width / 2 - e.nativeEvent.offsetX,
-      offsetY: blockMarkerRect.height / 2 - e.nativeEvent.offsetY,
-    });
-
-    // window.addEventListener("mousemove", updateMouseState);
-
-    // setMoving(true);
+    setMouseDown(true);
   }
 
   function handleMouseUp(e: ReactMouseEvent) {
-    if (!moving) return;
+    if (!mouseDown && !moving) return;
 
     // window.removeEventListener("mousemove", updateMouseState);
 
@@ -97,13 +85,21 @@ export default function BlockMarker({
     // setPosition(null);
     // setOffset(null);
 
-    onMove(blockGroupIndex, null);
+    if (moving) onMove(blockGroupIndex, null);
+    else {
+      // TODO: open color picker
+      // in color picker: default of ~8 colors, colors should have lower opacity before hover, fully opaque when hovering, right click color for custom hex input (probably an input[type="color"])
+      console.log("open color picker");
+      setColorPickerIsOpen(true);
+    }
+
+    setMouseDown(false);
 
     // setMoving(false);
   }
 
   function updateMouseState(e: MouseEvent) {
-    if (!moving) return;
+    if (!mouseDown && !moving) return;
 
     // const blockMarker = (e.target as HTMLDivElement).parentElement;
     // const parentRect =
@@ -122,14 +118,31 @@ export default function BlockMarker({
     //   offsetY: position.offsetY,
     // });
 
-    onMove(blockGroupIndex, {
-      x: e.clientX,
-      y: e.clientY,
-      width: position.width,
-      height: position.height,
-      offsetX: position.offsetX,
-      offsetY: position.offsetY,
-    });
+    if (moving)
+      onMove(blockGroupIndex, {
+        x: e.clientX,
+        y: e.clientY,
+        width: position.width,
+        height: position.height,
+        offsetX: position.offsetX,
+        offsetY: position.offsetY,
+      });
+    else {
+      console.log("start move");
+
+      const blockMarkerRect = (
+        e.target as HTMLDivElement
+      ).getBoundingClientRect();
+
+      onMove(blockGroupIndex, {
+        x: e.clientX,
+        y: e.clientY,
+        width: blockMarkerRect.width,
+        height: blockMarkerRect.height,
+        offsetX: blockMarkerRect.width / 2 - e.offsetX,
+        offsetY: blockMarkerRect.height / 2 - e.offsetY,
+      });
+    }
   }
 
   function handleKeyDown(e: KeyboardEvent) {
@@ -144,7 +157,7 @@ export default function BlockMarker({
   }
 
   useEffect(() => {
-    if (moving) {
+    if (mouseDown || moving) {
       window.addEventListener("mousemove", updateMouseState);
       window.addEventListener("keydown", handleKeyDown);
       return () => {
@@ -152,7 +165,7 @@ export default function BlockMarker({
         window.removeEventListener("keydown", handleKeyDown);
       };
     }
-  }, [position]);
+  }, [mouseDown, position]);
 
   // useEffect(() => {
   //   window.addEventListener("mousemove", updateMouseState);

@@ -2,12 +2,14 @@ import { FormEvent, KeyboardEvent, useRef, useState } from "react";
 
 interface BlockAIPromptProps {
   regenPrompt: string;
+  generating?: boolean;
   onPromptUpdate: (newPrompt: string) => void;
   onRegenerate: () => void;
 }
 
 export default function BlockAIPrompt({
   regenPrompt,
+  generating,
   onPromptUpdate,
   onRegenerate,
 }: BlockAIPromptProps) {
@@ -52,6 +54,7 @@ export default function BlockAIPrompt({
       onKeyDown={handleKeyDown}
       // placeholder={placeholders[getRandomInt(0, placeholders.length)]}
       placeholder="Custom instructions"
+      disabled={!!generating}
       value={regenPrompt}
     />
   );
