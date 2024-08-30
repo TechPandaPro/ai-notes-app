@@ -3,11 +3,15 @@ import BlockAIButton from "./BlockAIButton";
 import BlockAIPrompt from "./BlockAIPrompt";
 
 interface BlockAIButtonsProps {
+  regenPrompt: string;
+  onPromptUpdate: (newPrompt: string) => void;
   onRegenerate: () => void;
   onInsert: () => void;
 }
 
 export default function BlockAIButtons({
+  regenPrompt,
+  onPromptUpdate,
   onRegenerate,
   onInsert,
 }: BlockAIButtonsProps) {
@@ -39,7 +43,11 @@ export default function BlockAIButtons({
         className="aiBlockInnerHeaderInput"
         onKeyDown={handleKeyDown}
       /> */}
-      <BlockAIPrompt onRegenerate={onRegenerate} />
+      <BlockAIPrompt
+        regenPrompt={regenPrompt}
+        onPromptUpdate={onPromptUpdate}
+        onRegenerate={onRegenerate}
+      />
       <BlockAIButton
         id="regenerate"
         title="Regenerate response"

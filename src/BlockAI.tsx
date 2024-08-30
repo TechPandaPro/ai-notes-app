@@ -5,6 +5,8 @@ interface BlockAIProps {
   text: string;
   generating?: boolean;
   addingText?: { char: string; key: string }[];
+  regenPrompt: string;
+  onPromptUpdate: (newPrompt: string) => void;
   onRegenerate: () => void;
   onInsert: () => void;
   onMergeChar: (key: string) => void;
@@ -14,6 +16,8 @@ export default function BlockAI({
   text,
   generating,
   addingText,
+  regenPrompt,
+  onPromptUpdate,
   onRegenerate,
   onInsert,
   onMergeChar,
@@ -44,7 +48,12 @@ export default function BlockAI({
         <div className="aiBlockInnerHeaderContent">
           <div className="aiBlockInnerHeaderText">Thinking...</div>
           {/* <div className="aiBlockInnerHeaderButtons"> */}
-          <BlockAIButtons onRegenerate={onRegenerate} onInsert={onInsert} />
+          <BlockAIButtons
+            regenPrompt={regenPrompt}
+            onPromptUpdate={onPromptUpdate}
+            onRegenerate={onRegenerate}
+            onInsert={onInsert}
+          />
           {/* <div className="aiBlockInnerHeaderButton">
               <svg
                 width="1063"

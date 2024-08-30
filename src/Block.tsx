@@ -45,7 +45,7 @@ interface BlockProps {
   onDeleteBlock: (deleteIndex: number) => void;
   onAddBlockGroup: () => void;
   // onQueryAi: (blockIndex: number) => void;
-  onQueryAi: () => void;
+  onQueryAi: (regenOptions?: { lastResponse: string; prompt: string }) => void;
   onMergeChar: (key: string) => void;
 }
 
@@ -77,6 +77,7 @@ export default function Block({
   onMergeChar,
 }: BlockProps) {
   const [blockHeight, setBlockHeight] = useState<number | null>(null);
+  const [regenPrompt, setRegenPrompt] = useState<string | null>(null);
   // const [selectedOption, setSelectedOption] = useState<string>("text");
 
   // const [prevTypeId, setPrevTypeId] = useState(typeId);
@@ -236,7 +237,13 @@ export default function Block({
     onAttemptLoadUpdate(blockIndex, attemptLoad);
   }
 
+  function handlePromptUpdate(newPrompt: string) {
+    setRegenPrompt(newPrompt);
+  }
+
   function handleRegenerate() {
+    onQueryAi({ lastResponse: text, prompt: regenPrompt ?? "" });
+    setRegenPrompt(null);
     console.log("regenerate");
   }
 
@@ -264,7 +271,7 @@ export default function Block({
   }
 
   function handleKeyDown(e: KeyboardEvent<HTMLDivElement>) {
-    console.log(e);
+    // console.log(e);
     // TODO: improve conditions (combine all shiftKey combos)
     if (e.key === "Enter" && e.shiftKey) {
       e.preventDefault();
@@ -278,7 +285,14 @@ export default function Block({
       e.preventDefault();
       onDeleteBlock(blockIndex);
       // } else if (!isNaN(Number(e.key)) && e.shiftKey) {
-    } else if (e.code.startsWith("Digit") && e.shiftKey) {
+    } else if (
+      type !== BlockType.AI &&
+      text.length === 0 &&
+      !imgUrl &&
+      !isDeleting &&
+      e.code.startsWith("Digit") &&
+      e.shiftKey
+    ) {
       // const num = Number(e.key);
       const num = Number(e.code.substring("Digit".length));
       const setType = [BlockType.Text, BlockType.Header, BlockType.Image][
@@ -401,6 +415,8 @@ export default function Block({
           text={text}
           generating={generating}
           addingText={addingText}
+          regenPrompt={regenPrompt ?? ""}
+          onPromptUpdate={handlePromptUpdate}
           onRegenerate={handleRegenerate}
           onInsert={handleInsert}
           onMergeChar={onMergeChar}
@@ -426,15 +442,11 @@ export default function Block({
           // defaultValue={previewIndex}
         />
       )}
-      {type !== BlockType.AI && text.length === 0 && !imgUrl ? (
-        !isDeleting ? (
-          <BlockTypePicker
-            selectedOption={type}
-            onTypeUpdate={handleSelectType}
-          />
-        ) : (
-          ""
-        )
+      {type !== BlockType.AI && text.length === 0 && !imgUrl && !isDeleting ? (
+        <BlockTypePicker
+          selectedOption={type}
+          onTypeUpdate={handleSelectType}
+        />
       ) : (
         ""
       )}

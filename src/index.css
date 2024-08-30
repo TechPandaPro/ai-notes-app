@@ -405,6 +405,7 @@ input.aiBlockInnerHeaderInput {
   outline: none;
   font-size: 0.95em;
   color: rgb(40 40 40);
+  text-overflow: ellipsis;
 }
 
 .aiBlockInnerContainer:not(.generated) div.aiBlockInnerHeaderText {

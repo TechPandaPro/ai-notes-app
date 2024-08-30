@@ -77,7 +77,10 @@ interface BlockGroupPropsBase {
     blockGroupIndex: number,
     previewIndex: number | null
   ) => void;
-  onQueryAi: (blockGroupIndex: number) => void;
+  onQueryAi: (
+    blockGroupIndex: number,
+    regenOptions: { lastResponse: string; prompt: string }
+  ) => void;
   onMergeChar: (blockGroupIndex: number, key: string) => void;
 }
 
@@ -192,8 +195,11 @@ export default function BlockGroup({
   }
 
   // function handleQueryAi(blockIndex: number) {
-  function handleQueryAi() {
-    onQueryAi(blockGroupIndex);
+  function handleQueryAi(regenOptions: {
+    lastResponse: string;
+    prompt: string;
+  }) {
+    onQueryAi(blockGroupIndex, regenOptions);
   }
 
   function handleMergeChar(key: string) {

@@ -3,7 +3,11 @@ import { Position } from "./BlockGroupMarker";
 import BlockGroup from "./BlockGroup";
 import { BlockType } from "./BlockTypeOption";
 import OpenAI from "openai";
-import { ChatCompletionMessageParam } from "openai/resources";
+import {
+  ChatCompletionMessageParam,
+  ChatCompletionSystemMessageParam,
+  ChatCompletionUserMessageParam,
+} from "openai/resources";
 
 interface BlockInfoBase {
   type: BlockType;
@@ -481,52 +485,39 @@ export default function NoteContent() {
       setPreviewIndex(null);
   }
 
-  async function handleQueryAi(blockGroupIndex: number) {
+  async function handleQueryAi(
+    blockGroupIndex: number,
+    regenOptions?: { lastResponse: string; prompt: string }
+  ) {
     const { blocks } = blockGroups[blockGroupIndex];
-
-    // const data = {
-    //   model: "gpt-4o-mini",
-    //   messages: [],
-    // };
-
-    // fetch("https://api.openai.com/v1/chat/completions", {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //     Authorization: `Bearer ${apiKey}`,
-    //   },
-    // })
-    //   .then((res) => res.json())
-    //   .then((res) => console.log(res));
-
-    // const nextBlockGroups = blockGroups.slice();
-    // const nextBlockGroup = { ...nextBlockGroups[blockGroupIndex] };
-    // nextBlockGroups[blockGroupIndex] = nextBlockGroup;
-    // const createAtIndex = nextBlockGroup.blocks.length;
-    // nextBlockGroup.blocks.splice(createAtIndex, 0, {
-    //   type: BlockType.AI,
-    //   text: "",
-    //   imgUrl: null,
-    //   attemptLoad: false,
-    //   key: generateBlockKey(nextBlockGroup.blocks),
-    //   moving: false,
-    //   position: null,
-    // });
-    // setBlockGroups(nextBlockGroups);
 
     const added = addAiBlock(blockGroupIndex);
 
     if (!added) return;
 
-    // setAiBlockText(blockGroupIndex, "");
-
     console.log(blocks);
 
-    const messages: ChatCompletionMessageParam[] = blocks.map((block) =>
-      // block.type === BlockType.Image
-      // ? { role: "user", content: block.imgUrl }
-      // : {
-      ({
+    const systemMessage: ChatCompletionSystemMessageParam = {
+      role: "system",
+      content: `You will be provided multiple sections of "thoughts" from the user's notes. You should provide your opinion and insight on what the user has written.
+
+Refrain from including greetings, as this is not a conversation with the user. This is an exchange of thought, with no social aspect.
+
+Though you are encouraged to share thoughts, you should be concise. Verbose responses are unnecessary and discouraged.
+
+${
+  regenOptions
+    ? `The user has requested that you regenerate your response. Your previous response is provided below. Your new response should be different than your prior response.
+
+Previous response: """${regenOptions.lastResponse}"""
+
+Prompt: """${regenOptions.prompt}"""`
+    : ""
+}`,
+    };
+
+    const userMessages: ChatCompletionUserMessageParam[] = blocks.map(
+      (block) => ({
         role: "user",
         content: [
           block.type === BlockType.Image && block.imgUrl
@@ -536,63 +527,34 @@ export default function NoteContent() {
       })
     );
 
-    console.log(messages);
+    const messages: ChatCompletionMessageParam[] = [
+      systemMessage,
+      ...userMessages,
+    ];
 
-    console.log(apiKey);
+    console.log(JSON.stringify(messages, null, 2));
+
+    // console.log(messages);
+
+    // console.log(apiKey);
 
     const stream = await openai.chat.completions.create({
       model: "gpt-4o",
       messages,
       stream: true,
-      // messages: [{ role: "user", content: "hello!" }],
     });
-
-    // console.log(completion);
-
-    // let currContent = "";
 
     for await (const chunk of stream) {
       if (chunk.choices[0].finish_reason) {
-        console.log("oopsies it's over!!");
         const blockGroup = blockGroups[blockGroupIndex];
         const aiBlockIndex = getAiBlockIndex(blockGroupIndex);
         blockGroup.blocks[aiBlockIndex].generating = false;
         break;
+      } else {
+        const content = chunk.choices[0]?.delta?.content ?? "";
+        if (content) addAiBlockChar(blockGroupIndex, content);
       }
-      console.log(chunk);
-      const content = chunk.choices[0]?.delta?.content ?? "";
-      // currContent += content;
-      console.log(content);
-      // setAiBlockText(blockGroupIndex, currContent);
-      if (content) addAiBlockChar(blockGroupIndex, content);
-      // console.log(chunk);
     }
-
-    // const content = completion.choices[0].message.content;
-
-    // const content = "hello world";
-
-    // console.log(content);
-
-    // const nextBlockGroups = blockGroups.slice();
-    // const nextBlockGroup = { ...nextBlockGroups[blockGroupIndex] };
-    // nextBlockGroups[blockGroupIndex] = nextBlockGroup;
-    // const createAtIndex = nextBlockGroup.blocks.length;
-    // nextBlockGroup.blocks.splice(createAtIndex, 0, {
-    //   type: BlockType.AI,
-    //   text: content ?? "",
-    //   imgUrl: null,
-    //   attemptLoad: false,
-    //   key: generateBlockKey(nextBlockGroup.blocks),
-    //   moving: false,
-    //   position: null,
-    // });
-    // setBlockGroups(nextBlockGroups);
-
-    // FIXME: not working - fix this
-    // setAiBlockText(blockGroupIndex, content);
-
-    // setFocusIndex({ blockGroupIndex, blockIndex: createAtIndex });
   }
 
   // function addAiBlock(blockGroupIndex: number): boolean {
@@ -716,7 +678,7 @@ export default function NoteContent() {
 
     setBlockGroups(nextBlockGroups);
 
-    console.log(nextBlock);
+    // console.log(nextBlock);
 
     // console.log("blocks:");
     // console.log(nextBlockGroup);
@@ -843,7 +805,7 @@ export default function NoteContent() {
   useEffect(() => {
     // console.log("key pressed down");
     // console.log(e.key);
-    console.log("add listener!");
+    // console.log("add listener!");
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [blockGroups, focusIndex, isDeleting]);
