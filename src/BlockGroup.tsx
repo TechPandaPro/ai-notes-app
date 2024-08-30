@@ -59,7 +59,7 @@ interface BlockGroupPropsBase {
   //   blockIndex: number,
   //   isFocused: boolean
   // ) => void;
-  onOpenColorPicker: (blockGroupIndex: number) => void;
+  onOpenColorPicker: (open: boolean) => void;
   onSelectColor: (blockGroupIndex: number, colorIndex: number) => void;
   onAddBlock: (blockGroupIndex: number, createAtIndex: number) => void;
   onDeleteBlock: (blockGroupIndex: number, deleteIndex: number) => void;
@@ -192,8 +192,8 @@ export default function BlockGroup({
     onSetFocus(blockGroupIndex, blockIndex, isFocused);
   }
 
-  function handleOpenColorPicker() {
-    onOpenColorPicker(blockGroupIndex);
+  function handleOpenColorPicker(open: boolean) {
+    onOpenColorPicker(open);
   }
 
   function handleSelectColor(colorIndex: number) {

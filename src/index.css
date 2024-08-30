@@ -163,6 +163,8 @@ body {
 .blockMarker.moving {
   position: fixed;
   z-index: 100;
+  /* display: none;
+  pointer-events: none; */
 }
 
 /* .blockMarker.moving::before { */
@@ -175,6 +177,8 @@ body {
   left: 0;
   top: 0;
   z-index: 99;
+  /* pointer-events: none;
+  display: none; */
 }
 
 .blockMarker:not(:hover, .moving) .blockMarkerInner {

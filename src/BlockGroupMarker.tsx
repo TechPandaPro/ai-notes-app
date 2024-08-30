@@ -31,7 +31,7 @@ interface BlockMarkerPropsBase {
   onCancelMove: () => void;
   onSetFocus: (blockIndex: number, isFocused: boolean) => void;
   // onSelectColor: (blockGroupIndex: number, colorIndex: number) => void;
-  onOpenColorPicker: () => void;
+  onOpenColorPicker: (open: boolean) => void;
   onSelectColor: (colorIndex: number) => void;
 }
 
@@ -120,7 +120,7 @@ export default function BlockGroupMarker({
       console.log("open color picker");
       // setColorPickerIsOpen(!colorPickerIsOpen);
       // TODO: allow the color picker to be closed
-      onOpenColorPicker();
+      onOpenColorPicker(!colorPickerIsOpen);
       // TODO: maybe remove open picker any time that there is click outside
       if (focusBlockIndex === null) onSetFocus(0, true); // TODO: consider setting this focus within NoteContent
     }
@@ -174,6 +174,16 @@ export default function BlockGroupMarker({
         offsetX: blockMarkerRect.width / 2 - e.offsetX,
         offsetY: blockMarkerRect.height / 2 - e.offsetY,
       });
+
+      onOpenColorPicker(false);
+    }
+  }
+
+  function handleDocumentClick(e: MouseEvent) {
+    console.log("try to close");
+    if (e.target && !(e.target as HTMLElement).matches(".blockMarker *")) {
+      console.log(e.target);
+      onOpenColorPicker(false);
     }
   }
 
@@ -203,6 +213,13 @@ export default function BlockGroupMarker({
       };
     }
   }, [mouseDown, position]);
+
+  useEffect(() => {
+    // if (colorPickerIsOpen)
+    if (colorPickerIsOpen)
+      document.addEventListener("mousedown", handleDocumentClick);
+    return () => document.removeEventListener("mousedown", handleDocumentClick);
+  }, [colorPickerIsOpen]);
 
   // useEffect(() => {
   //   window.addEventListener("mousemove", updateMouseState);

@@ -149,9 +149,7 @@ export default function NoteContent() {
       previewIndex: null,
     },
   ]);
-  const [currOpenColorPicker, setCurrOpenColorPicker] = useState<number | null>(
-    null
-  );
+  const [colorPickerIsOpen, setColorPickerIsOpen] = useState<boolean>(false);
   const [focusIndex, setFocusIndex] = useState<FullBlockIndex | null>(null);
   const [previewIndex, setPreviewIndex] = useState<FullBlockIndex | null>(null);
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
@@ -219,7 +217,70 @@ export default function NoteContent() {
     setBlockGroups(nextBlockGroups);
   }
 
+  function handleSetFocus(
+    blockGroupIndex: number,
+    blockIndex: number,
+    isFocused: boolean
+  ) {
+    if (isFocused) setFocusIndex({ blockGroupIndex, blockIndex });
+    else if (
+      focusIndex && // for type checking
+      blockGroupIndex === focusIndex.blockGroupIndex &&
+      blockIndex === focusIndex.blockIndex
+    )
+      setFocusIndex(null);
+  }
+
   // function handleSetFocus(
+  //   blockGroupIndex: number,
+  //   blockIndex: number,
+  //   isFocused: boolean
+  // ) {
+  //   // if (isFocused) setFocusIndex({ blockGroupIndex, blockIndex });
+  //   // else if (
+  //   //   focusIndex && // for type checking
+  //   //   blockGroupIndex === focusIndex.blockGroupIndex &&
+  //   //   blockIndex === focusIndex.blockIndex
+  //   // )
+  //   //   setFocusIndex(null);
+  //   setFocus(blockGroupIndex, blockIndex, isFocused);
+  //   console.log(isFocused);
+  //   if (!isFocused || blockGroupIndex !== currOpenColorPicker)
+  //     setCurrOpenColorPicker(null);
+  // }
+
+  // FIXME: it's impossible to open the picker with this version of the function
+  // function handleSetFocus(
+  //   blockGroupIndex: number,
+  //   blockIndex: number,
+  //   isFocused: boolean
+  // ) {
+  //   let nextFocusIndex;
+
+  //   if (isFocused) nextFocusIndex = { blockGroupIndex, blockIndex };
+  //   else if (
+  //     focusIndex && // for type checking
+  //     blockGroupIndex === focusIndex.blockGroupIndex &&
+  //     blockIndex === focusIndex.blockIndex
+  //   )
+  //     nextFocusIndex = null;
+
+  //   if (nextFocusIndex !== undefined) {
+  //     if (nextFocusIndex?.blockGroupIndex !== currOpenColorPicker)
+  //       setCurrOpenColorPicker(null);
+  //     setFocusIndex(nextFocusIndex);
+  //   }
+  // }
+
+  // function handleOpenColorPicker(blockGroupIndex: number) {
+  function handleOpenColorPicker(open: boolean) {
+    setColorPickerIsOpen(open);
+    // setCurrOpenColorPicker(blockGroupIndex);
+    // if (focusIndex === null || focusIndex.blockGroupIndex !== blockGroupIndex)
+    //   setFocus(blockGroupIndex, 0, true);
+  }
+
+  // function setFocus(
   //   blockGroupIndex: number,
   //   blockIndex: number,
   //   isFocused: boolean
@@ -232,33 +293,6 @@ export default function NoteContent() {
   //   )
   //     setFocusIndex(null);
   // }
-
-  // FIXME: it's impossible to open the picker with this version of the function
-  function handleSetFocus(
-    blockGroupIndex: number,
-    blockIndex: number,
-    isFocused: boolean
-  ) {
-    let nextFocusIndex;
-
-    if (isFocused) nextFocusIndex = { blockGroupIndex, blockIndex };
-    else if (
-      focusIndex && // for type checking
-      blockGroupIndex === focusIndex.blockGroupIndex &&
-      blockIndex === focusIndex.blockIndex
-    )
-      nextFocusIndex = null;
-
-    if (nextFocusIndex !== undefined) {
-      if (nextFocusIndex?.blockGroupIndex !== currOpenColorPicker)
-        setCurrOpenColorPicker(null);
-      setFocusIndex(nextFocusIndex);
-    }
-  }
-
-  function handleOpenColorPicker(blockGroupIndex: number) {
-    setCurrOpenColorPicker(blockGroupIndex);
-  }
 
   function handleSelectColor(blockGroupIndex: number, colorIndex: number) {
     const nextBlockGroups = blockGroups.slice();
@@ -614,7 +648,7 @@ ${
 
 Previous response: """${regenOptions.lastResponse}"""
 
-Prompt: """${regenOptions.prompt}"""`
+Prompt: """${regenOptions.prompt || "None"}"""`
     : ""
 }`,
     };
@@ -914,6 +948,8 @@ Prompt: """${regenOptions.prompt}"""`
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [blockGroups, focusIndex, isDeleting]);
 
+  // console.log("curr: " + currOpenColorPicker);
+
   return (
     <div
       className={`noteContent ${
@@ -933,7 +969,13 @@ Prompt: """${regenOptions.prompt}"""`
               ? focusIndex.blockIndex
               : null
           }
-          colorPickerIsOpen={currOpenColorPicker === blockGroupIndex}
+          colorPickerIsOpen={
+            !!(
+              focusIndex &&
+              blockGroupIndex === focusIndex.blockGroupIndex &&
+              colorPickerIsOpen
+            )
+          }
           // moving={blockGroup.moving}
           // position={blockGroup.position}
           {...(blockGroup.moving
