@@ -7,6 +7,7 @@ import {
   // useRef,
   // useState,
 } from "react";
+import BlockColorPicker from "./BlockColorPicker";
 
 interface PositionInterface {
   x: number;
@@ -21,10 +22,12 @@ export type Position = PositionInterface | null;
 
 interface BlockMarkerPropsBase {
   blockGroupIndex: number;
+  focusBlockIndex: number | null;
   moving: boolean;
   position: Position;
   onMove: (blockGroupIndex: number, position: Position) => void;
   onCancelMove: (blockGroupIndex: number) => void;
+  onSetFocus: (blockIndex: number, isFocused: boolean) => void;
 }
 
 interface BlockMarkerPropsStatic extends BlockMarkerPropsBase {
@@ -41,10 +44,12 @@ type BlockMarkerProps = BlockMarkerPropsStatic | BlockMarkerPropsMoving;
 
 export default function BlockMarker({
   blockGroupIndex,
+  focusBlockIndex,
   position,
   moving,
   onMove,
   onCancelMove,
+  onSetFocus,
 }: BlockMarkerProps) {
   const [mouseDown, setMouseDown] = useState<boolean>(false);
   const [colorPickerIsOpen, setColorPickerIsOpen] = useState<boolean>(false);
@@ -90,7 +95,8 @@ export default function BlockMarker({
       // TODO: open color picker
       // in color picker: default of ~8 colors, colors should have lower opacity before hover, fully opaque when hovering, right click color for custom hex input (probably an input[type="color"])
       console.log("open color picker");
-      setColorPickerIsOpen(true);
+      setColorPickerIsOpen(!colorPickerIsOpen);
+      if (focusBlockIndex === null) onSetFocus(0, true);
     }
 
     setMouseDown(false);
@@ -172,6 +178,7 @@ export default function BlockMarker({
   //   return () => window.removeEventListener("mousemove", updateMouseState);
   // }, []);
 
+  // TODO: based on selected color, set backgroundColor of blockMarkerInner and set color of box-shadow of blockMarkerInner
   return (
     <>
       {moving ? <div className="blockMarkerOverlay"></div> : ""}
@@ -194,6 +201,7 @@ export default function BlockMarker({
           onMouseDown={handleMouseDown}
           onMouseUp={handleMouseUp}
         ></div>
+        {colorPickerIsOpen ? <BlockColorPicker /> : ""}
       </div>
     </>
   );

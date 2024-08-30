@@ -194,6 +194,47 @@ body {
   transform: translateX(0);
 }
 
+.blockColorPicker {
+  position: absolute;
+  padding: 4px;
+  background-color: rgb(128 128 128 / 0.8);
+  border-radius: 6px;
+  top: 50%;
+  left: 120%;
+  transform: translateY(-50%);
+  /* display: flex; */
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+  filter: drop-shadow(3px 3px 6px rgb(0 0 0 / 0.3));
+  /* filter: drop-shadow(0 0 6px rgb(0 0 0 / 0.3)); */
+}
+
+.blockColorPicker::before {
+  content: "";
+  position: absolute;
+  border-width: 10px 10px 10px 0;
+  border-style: solid;
+  border-color: transparent rgb(128 128 128 / 0.8) transparent transparent;
+  left: 0;
+  top: 50%;
+  transform: translate(-100%, -50%);
+}
+
+.blockColorPickerOption {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  border: 1px solid rgb(128 128 128 / 0.8);
+  cursor: pointer;
+}
+
+.blockColorPickerOption.selected {
+  /* box-shadow: inset 2px 2px 2px black; */
+  /* box-shadow: inset 0px 0px 2px 1px black; */
+  box-shadow: inset 0px 0px 2px 1px rgb(40 40 40 / 0.8);
+}
+
 .blockGroupPreview {
   display: flex;
   position: relative;

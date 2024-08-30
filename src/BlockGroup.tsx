@@ -446,17 +446,19 @@ export default function BlockGroup({
       >
         <BlockMarker
           blockGroupIndex={blockGroupIndex}
-          onMove={onBlockGroupMove}
-          onCancelMove={onBlockGroupCancelMove}
-          // moving={moving}
-          // position={position}
-          // {...{ moving, position }}
+          focusBlockIndex={focusBlockIndex}
           {...(moving
             ? {
                 moving: true as const,
                 position: position as Exclude<Position, null>,
               }
             : { moving: false as const, position: null })}
+          onMove={onBlockGroupMove}
+          onCancelMove={onBlockGroupCancelMove}
+          onSetFocus={handleSetFocus}
+          // moving={moving}
+          // position={position}
+          // {...{ moving, position }}
         />
         {/* {previewIndex === null || !currMovingBlockGroup ? null : (
           <BlockPreview
