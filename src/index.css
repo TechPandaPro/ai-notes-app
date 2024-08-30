@@ -127,7 +127,7 @@ body {
 
 .blockMarkerInner {
   position: absolute;
-  background-color: rgb(211 211 211);
+  /* background-color: rgb(211 211 211); */
   /* background: linear-gradient(
     to bottom,
     transparent,
@@ -135,7 +135,7 @@ body {
     rgb(211 211 211 / 0.3) calc(100% - 5px),
     transparent
   ); */
-  box-shadow: 0 0 4px 1px rgb(211 211 211);
+  /* box-shadow: 0 0 4px 1px rgb(211 211 211); */
   /* height: calc(100% - 15px); */
   height: 100%;
   /* width: 3px; */
@@ -148,7 +148,7 @@ body {
 
   transition: opacity 0.1s, transform 0.1s;
 
-  opacity: 0.3;
+  opacity: 0.6;
 
   /* top: 50%;
   left: 0px;

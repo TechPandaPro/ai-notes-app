@@ -40,6 +40,7 @@ export type BlockInfo = BlockInfoStatic | BlockInfoMoving;
 interface BlockGroupInfoBase {
   // export interface BlockGroupInfo {
   blocks: BlockInfo[];
+  colorIndex: number;
   key: string;
   moving: boolean;
   position: Position;
@@ -87,6 +88,7 @@ export default function NoteContent() {
           position: null,
         },
       ],
+      colorIndex: 0,
       key: `${Date.now()}_0`,
       moving: false,
       position: null,
@@ -113,6 +115,7 @@ export default function NoteContent() {
           position: null,
         },
       ],
+      colorIndex: 0,
       key: `${Date.now()}_1`,
       moving: false,
       position: null,
@@ -139,12 +142,16 @@ export default function NoteContent() {
           position: null,
         },
       ],
+      colorIndex: 0,
       key: `${Date.now()}_2`,
       moving: false,
       position: null,
       previewIndex: null,
     },
   ]);
+  const [currOpenColorPicker, setCurrOpenColorPicker] = useState<number | null>(
+    null
+  );
   const [focusIndex, setFocusIndex] = useState<FullBlockIndex | null>(null);
   const [previewIndex, setPreviewIndex] = useState<FullBlockIndex | null>(null);
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
@@ -212,18 +219,56 @@ export default function NoteContent() {
     setBlockGroups(nextBlockGroups);
   }
 
+  // function handleSetFocus(
+  //   blockGroupIndex: number,
+  //   blockIndex: number,
+  //   isFocused: boolean
+  // ) {
+  //   if (isFocused) setFocusIndex({ blockGroupIndex, blockIndex });
+  //   else if (
+  //     focusIndex && // for type checking
+  //     blockGroupIndex === focusIndex.blockGroupIndex &&
+  //     blockIndex === focusIndex.blockIndex
+  //   )
+  //     setFocusIndex(null);
+  // }
+
+  // FIXME: it's impossible to open the picker with this version of the function
   function handleSetFocus(
     blockGroupIndex: number,
     blockIndex: number,
     isFocused: boolean
   ) {
-    if (isFocused) setFocusIndex({ blockGroupIndex, blockIndex });
+    let nextFocusIndex;
+
+    if (isFocused) nextFocusIndex = { blockGroupIndex, blockIndex };
     else if (
       focusIndex && // for type checking
       blockGroupIndex === focusIndex.blockGroupIndex &&
       blockIndex === focusIndex.blockIndex
     )
-      setFocusIndex(null);
+      nextFocusIndex = null;
+
+    if (nextFocusIndex !== undefined) {
+      if (nextFocusIndex?.blockGroupIndex !== currOpenColorPicker)
+        setCurrOpenColorPicker(null);
+      setFocusIndex(nextFocusIndex);
+    }
+  }
+
+  function handleOpenColorPicker(blockGroupIndex: number) {
+    setCurrOpenColorPicker(blockGroupIndex);
+  }
+
+  function handleSelectColor(blockGroupIndex: number, colorIndex: number) {
+    const nextBlockGroups = blockGroups.slice();
+
+    const nextBlockGroup = { ...nextBlockGroups[blockGroupIndex] };
+    nextBlockGroups[blockGroupIndex] = nextBlockGroup;
+
+    nextBlockGroup.colorIndex = colorIndex;
+
+    setBlockGroups(nextBlockGroups);
   }
 
   // function handleSetMoving(
@@ -283,6 +328,7 @@ export default function NoteContent() {
     if (nextBlockGroups.length === 0) {
       const newBlockGroup: BlockGroupInfo = {
         blocks: [],
+        colorIndex: 0,
         key: generateKey(blockGroups),
         moving: false,
         position: null,
@@ -315,6 +361,7 @@ export default function NoteContent() {
 
     const newBlockGroup: BlockGroupInfo = {
       blocks: [],
+      colorIndex: 0,
       key: generateKey(blockGroups),
       moving: false,
       position: null,
@@ -880,11 +927,13 @@ Prompt: """${regenOptions.prompt}"""`
           key={blockGroup.key}
           blockGroupIndex={blockGroupIndex}
           blocks={blockGroup.blocks}
+          colorIndex={blockGroup.colorIndex}
           focusBlockIndex={
             focusIndex && blockGroupIndex === focusIndex.blockGroupIndex
               ? focusIndex.blockIndex
               : null
           }
+          colorPickerIsOpen={currOpenColorPicker === blockGroupIndex}
           // moving={blockGroup.moving}
           // position={blockGroup.position}
           {...(blockGroup.moving
@@ -941,6 +990,8 @@ Prompt: """${regenOptions.prompt}"""`
           onAttemptLoadUpdate={handleAttemptLoadUpdate}
           onSetFocus={handleSetFocus}
           // onSetMoving={handleSetMoving}
+          onOpenColorPicker={handleOpenColorPicker}
+          onSelectColor={handleSelectColor}
           onAddBlock={handleAddBlock}
           onDeleteBlock={handleDeleteBlock}
           onBlockMove={handleBlockMove}

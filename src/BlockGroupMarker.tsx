@@ -21,13 +21,18 @@ interface PositionInterface {
 export type Position = PositionInterface | null;
 
 interface BlockMarkerPropsBase {
-  blockGroupIndex: number;
+  // colors: string[];
+  colorIndex: number;
   focusBlockIndex: number | null;
+  colorPickerIsOpen: boolean;
   moving: boolean;
   position: Position;
-  onMove: (blockGroupIndex: number, position: Position) => void;
-  onCancelMove: (blockGroupIndex: number) => void;
+  onMove: (position: Position) => void;
+  onCancelMove: () => void;
   onSetFocus: (blockIndex: number, isFocused: boolean) => void;
+  // onSelectColor: (blockGroupIndex: number, colorIndex: number) => void;
+  onOpenColorPicker: () => void;
+  onSelectColor: (colorIndex: number) => void;
 }
 
 interface BlockMarkerPropsStatic extends BlockMarkerPropsBase {
@@ -42,17 +47,35 @@ interface BlockMarkerPropsMoving extends BlockMarkerPropsBase {
 
 type BlockMarkerProps = BlockMarkerPropsStatic | BlockMarkerPropsMoving;
 
-export default function BlockMarker({
-  blockGroupIndex,
+export default function BlockGroupMarker({
+  // colors,
+  colorIndex,
   focusBlockIndex,
+  colorPickerIsOpen,
   position,
   moving,
   onMove,
   onCancelMove,
   onSetFocus,
+  onOpenColorPicker,
+  onSelectColor,
 }: BlockMarkerProps) {
   const [mouseDown, setMouseDown] = useState<boolean>(false);
-  const [colorPickerIsOpen, setColorPickerIsOpen] = useState<boolean>(false);
+  // TODO: probably lift state to parent. only one can be open at a time.
+  // TODO: ^ also, hide picker when blurred
+  // const [colorPickerIsOpen, setColorPickerIsOpen] = useState<boolean>(false);
+
+  const colors = [
+    "#d3d3d3",
+    "#ffff00", // yellow
+    "#ffa500", // orange
+    "#ff0000", // red
+    "#add8e6", // light blue
+    "#0000ff", // blue
+    "#800080", // purple
+    "#00ff00", // green
+    // "#006400", // dark green
+  ];
 
   // const [position, setPosition] = useState<PositionInterface | null>(null);
   // const [moving, setMoving] = useState<boolean>(false);
@@ -90,13 +113,16 @@ export default function BlockMarker({
     // setPosition(null);
     // setOffset(null);
 
-    if (moving) onMove(blockGroupIndex, null);
+    if (moving) onMove(null);
     else {
       // TODO: open color picker
       // in color picker: default of ~8 colors, colors should have lower opacity before hover, fully opaque when hovering, right click color for custom hex input (probably an input[type="color"])
       console.log("open color picker");
-      setColorPickerIsOpen(!colorPickerIsOpen);
-      if (focusBlockIndex === null) onSetFocus(0, true);
+      // setColorPickerIsOpen(!colorPickerIsOpen);
+      // TODO: allow the color picker to be closed
+      onOpenColorPicker();
+      // TODO: maybe remove open picker any time that there is click outside
+      if (focusBlockIndex === null) onSetFocus(0, true); // TODO: consider setting this focus within NoteContent
     }
 
     setMouseDown(false);
@@ -125,7 +151,7 @@ export default function BlockMarker({
     // });
 
     if (moving)
-      onMove(blockGroupIndex, {
+      onMove({
         x: e.clientX,
         y: e.clientY,
         width: position.width,
@@ -140,7 +166,7 @@ export default function BlockMarker({
         e.target as HTMLDivElement
       ).getBoundingClientRect();
 
-      onMove(blockGroupIndex, {
+      onMove({
         x: e.clientX,
         y: e.clientY,
         width: blockMarkerRect.width,
@@ -158,8 +184,13 @@ export default function BlockMarker({
       e.preventDefault();
       e.stopPropagation();
       console.log("reset move");
-      onCancelMove(blockGroupIndex);
+      onCancelMove();
     }
+  }
+
+  function handleSelectColor(colorIndex: number) {
+    // onSelectColor(blockGroupIndex, colorIndex);
+    onSelectColor(colorIndex);
   }
 
   useEffect(() => {
@@ -200,8 +231,20 @@ export default function BlockMarker({
           className="blockMarkerInner"
           onMouseDown={handleMouseDown}
           onMouseUp={handleMouseUp}
+          style={{
+            backgroundColor: colors[colorIndex],
+            boxShadow: `0 0 4px 1px ${colors[colorIndex]}`,
+          }}
         ></div>
-        {colorPickerIsOpen ? <BlockColorPicker /> : ""}
+        {colorPickerIsOpen ? (
+          <BlockColorPicker
+            colors={colors}
+            colorIndex={colorIndex}
+            onSelectColor={handleSelectColor}
+          />
+        ) : (
+          ""
+        )}
       </div>
     </>
   );

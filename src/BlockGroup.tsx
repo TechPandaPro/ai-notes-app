@@ -1,7 +1,6 @@
 // import { useEffect, useRef, useState } from "react";
 import { useEffect, useRef } from "react";
 import BlockAdd from "./BlockAdd";
-import BlockMarker, { Position } from "./BlockGroupMarker";
 import {
   BlockGroupInfoMoving,
   BlockInfo,
@@ -11,6 +10,7 @@ import {
 import Block from "./Block";
 import BlockGroupPreview from "./BlockGroupPreview";
 import { BlockType } from "./BlockTypeOption";
+import BlockGroupMarker, { Position } from "./BlockGroupMarker";
 
 // TODO: content should auto-scroll when dragging for block group move
 
@@ -18,7 +18,9 @@ interface BlockGroupPropsBase {
   // interface BlockGroupProps {
   blockGroupIndex: number;
   blocks: BlockInfo[];
+  colorIndex: number;
   focusBlockIndex: number | null;
+  colorPickerIsOpen: boolean;
   moving: boolean;
   position: Position;
   currMovingBlock: BlockInfoMoving | null;
@@ -57,6 +59,8 @@ interface BlockGroupPropsBase {
   //   blockIndex: number,
   //   isFocused: boolean
   // ) => void;
+  onOpenColorPicker: (blockGroupIndex: number) => void;
+  onSelectColor: (blockGroupIndex: number, colorIndex: number) => void;
   onAddBlock: (blockGroupIndex: number, createAtIndex: number) => void;
   onDeleteBlock: (blockGroupIndex: number, deleteIndex: number) => void;
   onAddBlockGroup: (createAtIndex: number) => void;
@@ -104,7 +108,9 @@ type BlockGroupProps = BlockGroupPropsStatic | BlockGroupPropsMoving;
 export default function BlockGroup({
   blockGroupIndex,
   blocks,
+  colorIndex,
   focusBlockIndex,
+  colorPickerIsOpen,
   position,
   moving,
   currMovingBlock,
@@ -118,6 +124,8 @@ export default function BlockGroup({
   onImageUpdate,
   onAttemptLoadUpdate,
   onSetFocus,
+  onOpenColorPicker,
+  onSelectColor,
   // onSetMoving,
   onAddBlock,
   onDeleteBlock,
@@ -172,8 +180,24 @@ export default function BlockGroup({
     onAttemptLoadUpdate(blockGroupIndex, blockIndex, attemptLoad);
   }
 
+  function handleBlockGroupMove(position: Position) {
+    onBlockGroupMove(blockGroupIndex, position);
+  }
+
+  function handleCancelMove() {
+    onBlockGroupCancelMove(blockGroupIndex);
+  }
+
   function handleSetFocus(blockIndex: number, isFocused: boolean) {
     onSetFocus(blockGroupIndex, blockIndex, isFocused);
+  }
+
+  function handleOpenColorPicker() {
+    onOpenColorPicker(blockGroupIndex);
+  }
+
+  function handleSelectColor(colorIndex: number) {
+    onSelectColor(blockGroupIndex, colorIndex);
   }
 
   // function handleSetMoving(blockIndex: number, isMoving: boolean) {
@@ -444,18 +468,21 @@ export default function BlockGroup({
         } ${doAddPreview && invalidMove ? "failMove" : ""}`}
         ref={blockGroupRef}
       >
-        <BlockMarker
-          blockGroupIndex={blockGroupIndex}
+        <BlockGroupMarker
+          colorIndex={colorIndex}
           focusBlockIndex={focusBlockIndex}
+          colorPickerIsOpen={colorPickerIsOpen}
           {...(moving
             ? {
                 moving: true as const,
                 position: position as Exclude<Position, null>,
               }
             : { moving: false as const, position: null })}
-          onMove={onBlockGroupMove}
-          onCancelMove={onBlockGroupCancelMove}
+          onMove={handleBlockGroupMove}
+          onCancelMove={handleCancelMove}
           onSetFocus={handleSetFocus}
+          onOpenColorPicker={handleOpenColorPicker}
+          onSelectColor={handleSelectColor}
           // moving={moving}
           // position={position}
           // {...{ moving, position }}
