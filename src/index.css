@@ -165,18 +165,20 @@ body {
   z-index: 100;
   /* display: none;
   pointer-events: none; */
+  pointer-events: none;
 }
 
 /* .blockMarker.moving::before { */
 /* content: ""; */
 .blockMarkerOverlay {
-  position: fixed;
-  /* background-color: blue; */
+  /* position: fixed; */
+  position: absolute;
   width: 100%;
   height: 100%;
   left: 0;
   top: 0;
-  z-index: 99;
+  /* z-index: 99; */
+  z-index: 1000;
   /* pointer-events: none;
   display: none; */
 }
@@ -232,6 +234,17 @@ body {
   border: 1px solid rgb(128 128 128 / 0.8);
   cursor: pointer;
 }
+
+.blockColorPicker input[type="color"] {
+  visibility: hidden;
+  width: 100%;
+  height: 100%;
+}
+
+/* for testing */
+/* .blockColorPickerOption:not(:first-of-type) {
+  visibility: hidden;
+} */
 
 .blockColorPickerOption.selected {
   /* box-shadow: inset 2px 2px 2px black; */

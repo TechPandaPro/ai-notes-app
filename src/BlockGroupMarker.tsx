@@ -1,3 +1,4 @@
+// TODO: figure out why marker is sometimes way too large (full window width/height, seemingly) when dragging
 // TODO: maybe make it possible to change BlockMarker color
 
 import {
@@ -21,7 +22,7 @@ interface PositionInterface {
 export type Position = PositionInterface | null;
 
 interface BlockMarkerPropsBase {
-  // colors: string[];
+  colors: string[];
   colorIndex: number;
   focusBlockIndex: number | null;
   colorPickerIsOpen: boolean;
@@ -33,6 +34,7 @@ interface BlockMarkerPropsBase {
   // onSelectColor: (blockGroupIndex: number, colorIndex: number) => void;
   onOpenColorPicker: (open: boolean) => void;
   onSelectColor: (colorIndex: number) => void;
+  onColorChange: (colorIndex: number, hex: string) => void;
 }
 
 interface BlockMarkerPropsStatic extends BlockMarkerPropsBase {
@@ -48,7 +50,7 @@ interface BlockMarkerPropsMoving extends BlockMarkerPropsBase {
 type BlockMarkerProps = BlockMarkerPropsStatic | BlockMarkerPropsMoving;
 
 export default function BlockGroupMarker({
-  // colors,
+  colors,
   colorIndex,
   focusBlockIndex,
   colorPickerIsOpen,
@@ -59,23 +61,22 @@ export default function BlockGroupMarker({
   onSetFocus,
   onOpenColorPicker,
   onSelectColor,
+  onColorChange,
 }: BlockMarkerProps) {
   const [mouseDown, setMouseDown] = useState<boolean>(false);
-  // TODO: probably lift state to parent. only one can be open at a time.
-  // TODO: ^ also, hide picker when blurred
   // const [colorPickerIsOpen, setColorPickerIsOpen] = useState<boolean>(false);
 
-  const colors = [
-    "#d3d3d3",
-    "#ffff00", // yellow
-    "#ffa500", // orange
-    "#ff0000", // red
-    "#add8e6", // light blue
-    "#0000ff", // blue
-    "#800080", // purple
-    "#00ff00", // green
-    // "#006400", // dark green
-  ];
+  // const colors = [
+  //   "#d3d3d3",
+  //   "#ffff00", // yellow
+  //   "#ffa500", // orange
+  //   "#ff0000", // red
+  //   "#add8e6", // light blue
+  //   "#0000ff", // blue
+  //   "#800080", // purple
+  //   "#00ff00", // green
+  //   // "#006400", // dark green
+  // ];
 
   // const [position, setPosition] = useState<PositionInterface | null>(null);
   // const [moving, setMoving] = useState<boolean>(false);
@@ -103,7 +104,7 @@ export default function BlockGroupMarker({
     setMouseDown(true);
   }
 
-  function handleMouseUp(e: ReactMouseEvent) {
+  function handleMouseUp(e: MouseEvent) {
     if (!mouseDown && !moving) return;
 
     // window.removeEventListener("mousemove", updateMouseState);
@@ -115,11 +116,9 @@ export default function BlockGroupMarker({
 
     if (moving) onMove(null);
     else {
-      // TODO: open color picker
       // in color picker: default of ~8 colors, colors should have lower opacity before hover, fully opaque when hovering, right click color for custom hex input (probably an input[type="color"])
       console.log("open color picker");
       // setColorPickerIsOpen(!colorPickerIsOpen);
-      // TODO: allow the color picker to be closed
       onOpenColorPicker(!colorPickerIsOpen);
       // TODO: maybe remove open picker any time that there is click outside
       if (focusBlockIndex === null) onSetFocus(0, true); // TODO: consider setting this focus within NoteContent
@@ -203,13 +202,19 @@ export default function BlockGroupMarker({
     onSelectColor(colorIndex);
   }
 
+  function handleColorChange(colorIndex: number, hex: string) {
+    onColorChange(colorIndex, hex);
+  }
+
   useEffect(() => {
     if (mouseDown || moving) {
       window.addEventListener("mousemove", updateMouseState);
       window.addEventListener("keydown", handleKeyDown);
+      window.addEventListener("mouseup", handleMouseUp);
       return () => {
         window.removeEventListener("mousemove", updateMouseState);
         window.removeEventListener("keydown", handleKeyDown);
+        window.removeEventListener("mouseup", handleMouseUp);
       };
     }
   }, [mouseDown, position]);
@@ -229,7 +234,7 @@ export default function BlockGroupMarker({
   // TODO: based on selected color, set backgroundColor of blockMarkerInner and set color of box-shadow of blockMarkerInner
   return (
     <>
-      {moving ? <div className="blockMarkerOverlay"></div> : ""}
+      {/* {moving ? <div className="blockMarkerOverlay"></div> : ""} */}
       <div
         // ref={blockMarkerRef}
         className={`blockMarker ${moving ? "moving" : ""}`}
@@ -247,7 +252,7 @@ export default function BlockGroupMarker({
         <div
           className="blockMarkerInner"
           onMouseDown={handleMouseDown}
-          onMouseUp={handleMouseUp}
+          // onMouseUp={handleMouseUp}
           style={{
             backgroundColor: colors[colorIndex],
             boxShadow: `0 0 4px 1px ${colors[colorIndex]}`,
@@ -258,6 +263,7 @@ export default function BlockGroupMarker({
             colors={colors}
             colorIndex={colorIndex}
             onSelectColor={handleSelectColor}
+            onColorChange={handleColorChange}
           />
         ) : (
           ""

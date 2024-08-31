@@ -18,6 +18,7 @@ interface BlockGroupPropsBase {
   // interface BlockGroupProps {
   blockGroupIndex: number;
   blocks: BlockInfo[];
+  colors: string[];
   colorIndex: number;
   focusBlockIndex: number | null;
   colorPickerIsOpen: boolean;
@@ -61,6 +62,7 @@ interface BlockGroupPropsBase {
   // ) => void;
   onOpenColorPicker: (open: boolean) => void;
   onSelectColor: (blockGroupIndex: number, colorIndex: number) => void;
+  onColorChange: (blockGroupIndex: number, hex: string) => void;
   onAddBlock: (blockGroupIndex: number, createAtIndex: number) => void;
   onDeleteBlock: (blockGroupIndex: number, deleteIndex: number) => void;
   onAddBlockGroup: (createAtIndex: number) => void;
@@ -108,6 +110,7 @@ type BlockGroupProps = BlockGroupPropsStatic | BlockGroupPropsMoving;
 export default function BlockGroup({
   blockGroupIndex,
   blocks,
+  colors,
   colorIndex,
   focusBlockIndex,
   colorPickerIsOpen,
@@ -126,6 +129,7 @@ export default function BlockGroup({
   onSetFocus,
   onOpenColorPicker,
   onSelectColor,
+  onColorChange,
   // onSetMoving,
   onAddBlock,
   onDeleteBlock,
@@ -198,6 +202,10 @@ export default function BlockGroup({
 
   function handleSelectColor(colorIndex: number) {
     onSelectColor(blockGroupIndex, colorIndex);
+  }
+
+  function handleColorChange(colorIndex: number, hex: string) {
+    onColorChange(colorIndex, hex);
   }
 
   // function handleSetMoving(blockIndex: number, isMoving: boolean) {
@@ -469,6 +477,7 @@ export default function BlockGroup({
         ref={blockGroupRef}
       >
         <BlockGroupMarker
+          colors={colors}
           colorIndex={colorIndex}
           focusBlockIndex={focusBlockIndex}
           colorPickerIsOpen={colorPickerIsOpen}
@@ -483,6 +492,7 @@ export default function BlockGroup({
           onSetFocus={handleSetFocus}
           onOpenColorPicker={handleOpenColorPicker}
           onSelectColor={handleSelectColor}
+          onColorChange={handleColorChange}
           // moving={moving}
           // position={position}
           // {...{ moving, position }}

@@ -5,12 +5,14 @@ interface BlockColorPickerProps {
   colors: string[];
   colorIndex: number;
   onSelectColor: (colorIndex: number) => void;
+  onColorChange: (colorIndex: number, hex: string) => void;
 }
 
 export default function BlockColorPicker({
   colors,
   colorIndex,
   onSelectColor,
+  onColorChange,
 }: BlockColorPickerProps) {
   // const [selectedColorIndex, setSelectedColorIndex] = useState<number>(0);
 
@@ -32,6 +34,10 @@ export default function BlockColorPicker({
     onSelectColor(colorIndex);
   }
 
+  function handleColorChange(colorIndex: number, hex: string) {
+    onColorChange(colorIndex, hex);
+  }
+
   return (
     <div className="blockColorPicker regionsIgnore">
       {colors.map((color, index) => (
@@ -41,6 +47,7 @@ export default function BlockColorPicker({
           color={color}
           selected={colorIndex === index}
           onSelectColor={handleSelectColor}
+          onColorChange={handleColorChange}
         />
         // <div
         //   key={index}

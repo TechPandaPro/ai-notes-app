@@ -153,6 +153,19 @@ export default function NoteContent() {
   const [focusIndex, setFocusIndex] = useState<FullBlockIndex | null>(null);
   const [previewIndex, setPreviewIndex] = useState<FullBlockIndex | null>(null);
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
+  const [colors, setColors] = useState<string[]>([
+    "#d3d3d3",
+    "#ffff00", // yellow
+    "#ffa500", // orange
+    "#ff0000", // red
+    "#add8e6", // light blue
+    "#0000ff", // blue
+    "#800080", // purple
+    "#00ff00", // green
+    // "#006400", // dark green
+  ]);
+
+  console.log(colors);
 
   function handleTypeUpdate(
     blockGroupIndex: number,
@@ -303,6 +316,12 @@ export default function NoteContent() {
     nextBlockGroup.colorIndex = colorIndex;
 
     setBlockGroups(nextBlockGroups);
+  }
+
+  function handleColorChange(blockGroupIndex: number, hex: string) {
+    const nextColors = colors.slice();
+    nextColors[blockGroupIndex] = hex;
+    setColors(nextColors);
   }
 
   // function handleSetMoving(
@@ -958,11 +977,13 @@ Prompt: """${regenOptions.prompt || "None"}"""`
       } ${isDeleting ? "deleting" : ""}`}
       // onKeyDown={handleKeyDown}
     >
+      {currMovingBlockGroup ? <div className="blockMarkerOverlay"></div> : ""}
       {blockGroups.map((blockGroup, blockGroupIndex) => (
         <BlockGroup
           key={blockGroup.key}
           blockGroupIndex={blockGroupIndex}
           blocks={blockGroup.blocks}
+          colors={colors}
           colorIndex={blockGroup.colorIndex}
           focusBlockIndex={
             focusIndex && blockGroupIndex === focusIndex.blockGroupIndex
@@ -1034,6 +1055,7 @@ Prompt: """${regenOptions.prompt || "None"}"""`
           // onSetMoving={handleSetMoving}
           onOpenColorPicker={handleOpenColorPicker}
           onSelectColor={handleSelectColor}
+          onColorChange={handleColorChange}
           onAddBlock={handleAddBlock}
           onDeleteBlock={handleDeleteBlock}
           onBlockMove={handleBlockMove}
