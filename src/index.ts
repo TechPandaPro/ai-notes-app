@@ -23,6 +23,7 @@ const createWindow = (): void => {
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
     },
     titleBarStyle: "hiddenInset",
+    // titleBarStyle: "hidden",
     // trafficLightPosition: { x: 10, y: 20 },
 
     // background material is only supported on windows! :(

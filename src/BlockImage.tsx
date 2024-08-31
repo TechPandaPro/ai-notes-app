@@ -17,6 +17,8 @@ interface ImageOpenInfo {
   startHeight: number;
 }
 
+// TODO: drag images into block
+
 export default function BlockImage({
   imgUrl,
   attemptLoad,

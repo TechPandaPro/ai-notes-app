@@ -130,6 +130,14 @@ export default function BlockGroupMarker({
   }
 
   function updateMouseState(e: MouseEvent) {
+    // console.log((e.target as HTMLElement).matches(".blockMarkerInner"));
+
+    // if (
+    //   (!mouseDown && !moving) ||
+    //   !(e.target as HTMLElement).matches(".blockMarkerInner")
+    // )
+    //   return;
+
     if (!mouseDown && !moving) return;
 
     // const blockMarker = (e.target as HTMLDivElement).parentElement;
@@ -158,8 +166,10 @@ export default function BlockGroupMarker({
         offsetX: position.offsetX,
         offsetY: position.offsetY,
       });
-    else {
+    else if ((e.target as HTMLElement).matches(".blockMarkerInner")) {
       console.log("start move");
+
+      console.log(e.target);
 
       const blockMarkerRect = (
         e.target as HTMLDivElement

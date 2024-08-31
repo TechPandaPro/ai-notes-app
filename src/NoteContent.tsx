@@ -165,7 +165,7 @@ export default function NoteContent() {
     // "#006400", // dark green
   ]);
 
-  console.log(colors);
+  // console.log(colors);
 
   function handleTypeUpdate(
     blockGroupIndex: number,
