@@ -1,7 +1,7 @@
 // import { createRoot } from "react-dom/client";
 
 // import DragRegion from "./DragRegion";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import NoteContent from "./NoteContent";
 import Toolbar from "./Toolbar";
 import { BlockGroupInfo, BlockType, Tab } from "./types";
@@ -148,19 +148,7 @@ export default function App() {
   ]);
 
   function handleSelectTab(id: string) {
-    const nextTabs = tabs.slice();
-
-    const currentTabIndex = tabs.findIndex((tab) => tab.current);
-    const nextCurrentTab = { ...nextTabs[currentTabIndex] };
-    nextTabs[currentTabIndex] = nextCurrentTab;
-    nextCurrentTab.current = false;
-
-    const toSelectTabIndex = tabs.findIndex((tab) => tab.id === id);
-    const nextSelectedTab = { ...nextTabs[toSelectTabIndex] };
-    nextTabs[toSelectTabIndex] = nextSelectedTab;
-    nextSelectedTab.current = true;
-
-    setTabs(nextTabs);
+    selectTab(id);
   }
 
   // TODO: consider what new tab should open on
@@ -169,10 +157,25 @@ export default function App() {
     // FIXME: generate ID properly (refer to generateKey() in NoteContent)
     // TODO: generate unique name
     // TODO: deselect previously selected tab
+
+    const newNoteCount = tabs.filter((tab) =>
+      tab.name.startsWith("New Note")
+    ).length;
+
+    // const noteId = `${currDate}_0`;
+
+    const noteId = generateTabKey();
+
     const nextTabs = tabs.slice();
+
+    const currentTabIndex = tabs.findIndex((tab) => tab.current);
+    const nextCurrentTab = { ...nextTabs[currentTabIndex] };
+    nextTabs[currentTabIndex] = nextCurrentTab;
+    nextCurrentTab.current = false;
+
     nextTabs.push({
-      id: `${currDate}_0`,
-      name: "New Note",
+      id: noteId,
+      name: `New Note${newNoteCount >= 1 ? ` ${newNoteCount}` : ""}`,
       current: true,
       blockGroups: [
         {
@@ -188,14 +191,39 @@ export default function App() {
             },
           ],
           colorIndex: 0,
-          key: `${currDate}_0_${Date.now()}_0`,
+          key: `${noteId}_${Date.now()}_0`,
           moving: false,
           position: null,
           previewIndex: null,
         },
       ],
     });
+
     setTabs(nextTabs);
+  }
+
+  function selectTab(id: string) {
+    const nextTabs = tabs.slice();
+
+    const currentTabIndex = tabs.findIndex((tab) => tab.current);
+    const nextCurrentTab = { ...nextTabs[currentTabIndex] };
+    nextTabs[currentTabIndex] = nextCurrentTab;
+    nextCurrentTab.current = false;
+
+    const toSelectTabIndex = tabs.findIndex((tab) => tab.id === id);
+    const nextSelectedTab = { ...nextTabs[toSelectTabIndex] };
+    nextTabs[toSelectTabIndex] = nextSelectedTab;
+    nextSelectedTab.current = true;
+
+    setTabs(nextTabs);
+  }
+
+  function generateTabKey() {
+    const stamp = Date.now();
+    const foundCount = tabs.filter(
+      (tab) => tab.id && tab.id.startsWith(`${stamp}_`)
+    ).length;
+    return `${stamp}_${foundCount}`;
   }
 
   function handleBlockGroupsUpdate(
@@ -215,6 +243,22 @@ export default function App() {
 
     setTabs(nextTabs);
   }
+
+  function handleKeydown(e: KeyboardEvent) {
+    // console.log(e);
+    if (e.key === "Tab" && e.ctrlKey) {
+      if (e.shiftKey) {
+        console.log("prev tab");
+      } else {
+        console.log("next tab");
+      }
+    }
+  }
+
+  useEffect(() => {
+    document.addEventListener("keydown", handleKeydown);
+    return () => document.removeEventListener("keydown", handleKeydown);
+  }, [tabs]);
 
   // setTabs([
   //   { id: `${Date.now()}_0`, name: "my note", current: true },
@@ -240,7 +284,7 @@ export default function App() {
     <>
       {/* <DragRegion /> */}
       <Toolbar
-        openFiles={tabs}
+        tabs={tabs}
         onSelectTab={handleSelectTab}
         onCreateTab={handleCreateTab}
       />

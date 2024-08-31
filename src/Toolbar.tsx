@@ -1,18 +1,20 @@
 // import ToolbarTab, { Tab } from "./ToolbarTab";
 import ToolbarCreateTab from "./ToolbarCreateTab";
-import ToolbarTab from "./ToolbarTab";
+// import ToolbarTab from "./ToolbarTab";
+import ToolbarTabs from "./ToolbarTabs";
+import { Tab } from "./types";
 
 // TODO: maybe don't show the toolbar shadow if the content is scrolled to top
 
 interface ToolbarProps {
   // openFiles: { name: string; current: boolean }[];
-  openFiles: { id: string; name: string; current: boolean }[];
+  tabs: Tab[];
   onSelectTab: (id: string) => void;
   onCreateTab: () => void;
 }
 
 export default function Toolbar({
-  openFiles,
+  tabs,
   onSelectTab,
   onCreateTab,
 }: ToolbarProps) {
@@ -28,18 +30,21 @@ export default function Toolbar({
   return (
     <div className="toolbar">
       <div className="toolbarDragRegion first"></div>
-      {openFiles.map((file) => (
-        // <div className={`openTab ${file.current ? "current" : ""}`}>
-        //   {file.name}
-        // </div>
-        <ToolbarTab
-          key={file.id}
-          id={file.id}
-          name={file.name}
-          current={file.current}
-          onSelectTab={handleSelectTab}
-        />
-      ))}
+      {/* <div className="openTabs">
+        {tabs.map((file) => (
+          // <div className={`openTab ${file.current ? "current" : ""}`}>
+          //   {file.name}
+          // </div>
+          <ToolbarTab
+            key={file.id}
+            id={file.id}
+            name={file.name}
+            current={file.current}
+            onSelectTab={handleSelectTab}
+          />
+        ))}
+      </div> */}
+      <ToolbarTabs tabs={tabs} onSelectTab={handleSelectTab} />
       <div className="toolbarDragRegion last"></div>
       <ToolbarCreateTab onCreateTab={handleCreateTab} />
     </div>

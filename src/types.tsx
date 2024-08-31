@@ -1,3 +1,5 @@
+// TODO: rename file from types.tsx -> types.ts?
+
 interface PositionInterface {
   x: number;
   y: number;

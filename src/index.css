@@ -23,6 +23,7 @@ body {
 /* TODO: check toolbar height - it seems a bit tall? */
 .toolbar {
   flex: 0 0 42px;
+  max-height: 42px;
   background-image: linear-gradient(
     to bottom,
     rgb(0 0 0 / 0.1),
@@ -32,7 +33,6 @@ body {
   /* background: blue; */
   /* -webkit-app-region: drag; */
   box-shadow: 0px 2px 3px rgb(0 0 0 / 0.3);
-
   display: flex;
 }
 
@@ -44,11 +44,28 @@ body {
 
 .toolbar .toolbarDragRegion.first {
   width: 77px;
+  flex-shrink: 0;
 }
 
 .toolbar .toolbarDragRegion.last {
   flex-grow: 1;
 }
+
+.toolbar .openTabs {
+  display: flex;
+  overflow-x: auto;
+  /* overflow-y: hidden; */
+  /* flex-basis: 0; */
+  /* flex-grow: 1; */
+  /* scrollbar-gutter: stable both-edges; */
+  scrollbar-width: thin;
+  scrollbar-color: rgb(100 100 100) rgb(0 0 0 / 0.1);
+}
+
+/* .toolbar .openTabs::-webkit-scrollbar, */
+/* .toolbar .openTabs::-webkit-scrollbar-thumb { */
+/* width: 5px; */
+/* } */
 
 .toolbar .openTab {
   display: flex;
@@ -56,11 +73,13 @@ body {
   /* justify-content: center; */
   /* background-color: green; */
   padding: 0 15px;
+  /* min-height: 37px; */
   /* margin-top: 5px;
   border: 1px solid rgb(128 128 128 / 0.5);
   border-radius: 5px 5px 0 0; */
   background-color: rgb(0 0 0 / 0.1);
   cursor: pointer;
+  white-space: nowrap;
   /* user-select: none; */
 }
 
@@ -74,6 +93,7 @@ body {
   justify-content: center;
   /* cursor: pointer; */
   width: 50px;
+  flex-shrink: 0;
 }
 
 .toolbar .createTab svg {
