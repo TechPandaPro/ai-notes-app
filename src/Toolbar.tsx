@@ -13,6 +13,8 @@ interface ToolbarProps {
   onCreateTab: () => void;
 }
 
+// TODO: add pin button
+
 export default function Toolbar({
   tabs,
   onSelectTab,

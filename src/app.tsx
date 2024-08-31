@@ -182,8 +182,6 @@ export default function App() {
   }
 
   function createTab() {
-    // FIXME: generate ID properly (refer to generateKey() in NoteContent)
-
     const newNoteCount = tabs.filter((tab) =>
       tab.name.startsWith("New Note")
     ).length;
@@ -226,6 +224,10 @@ export default function App() {
     });
 
     setTabs(nextTabs);
+  }
+
+  function saveData() {
+    window.electronApi.saveData(tabs);
   }
 
   function createWindow() {
@@ -303,7 +305,11 @@ export default function App() {
 
   useEffect(() => {
     window.electronApi.onCreateTab(createTab);
-    return () => window.electronApi.offCreateTab(createTab);
+    window.electronApi.onSaveData(saveData);
+    return () => {
+      window.electronApi.offCreateTab(createTab);
+      window.electronApi.offSaveData(saveData);
+    };
   }, []);
 
   // setTabs([
@@ -324,7 +330,6 @@ export default function App() {
 
   if (!currentTab) return <p>No selected tab</p>;
 
-  // TODO: using ctrl+tab should navigate to next tab
   // TODO: save scroll position
   return (
     <>

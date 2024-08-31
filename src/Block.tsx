@@ -1,7 +1,3 @@
-// TODO: AI! keybind can maybe be shift+enter to send to GPT
-
-// TODO: add keybind to delete block (cmd+backspace?)
-
 import {
   ChangeEvent,
   ClipboardEvent,
