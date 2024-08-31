@@ -7,6 +7,8 @@ interface ToolbarTabsProps {
   onSelectTab: (id: string) => void;
 }
 
+// TODO: ability to drag tabs
+
 export default function ToolbarTabs({ tabs, onSelectTab }: ToolbarTabsProps) {
   // const [prevCurrentId, setPrevCurrentId] = useState<string | null>(null);
 

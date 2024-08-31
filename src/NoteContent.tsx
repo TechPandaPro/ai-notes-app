@@ -658,6 +658,7 @@ export default function NoteContent({
     onBlockGroupsUpdate(id, nextBlockGroups);
   }
 
+  // TODO: ask for API key if it is not provided
   async function handleQueryAi(
     blockGroupIndex: number,
     regenOptions?: { lastResponse: string; prompt: string }

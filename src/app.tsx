@@ -5,10 +5,17 @@ import { useEffect, useState } from "react";
 import NoteContent from "./NoteContent";
 import Toolbar from "./Toolbar";
 import { BlockGroupInfo, BlockType, Tab } from "./types";
+import { ContextBridgeApi } from "./preload";
 // import { Tab } from "./ToolbarTab";
 
 // const root = createRoot(document.body);
 // root.render(<h2>Hello from React!</h2>);
+
+declare global {
+  interface Window {
+    electronApi: ContextBridgeApi;
+  }
+}
 
 export default function App() {
   // const files = ["my note", "Class Notes", "Project ideas"];
@@ -148,15 +155,34 @@ export default function App() {
   ]);
 
   function handleSelectTab(id: string) {
-    selectTab(id);
+    const toSelectTabIndex = tabs.findIndex((tab) => tab.id === id);
+    selectTab(toSelectTabIndex);
   }
 
   // TODO: consider what new tab should open on
   // probably just with empty blockGroups, but it might be convenient to also have a page on which the user can open particular tabs (in which case the user could close tabs too)
   function handleCreateTab() {
+    createTab();
+  }
+
+  function selectTab(toSelectTabIndex: number) {
+    const nextTabs = tabs.slice();
+
+    const currentTabIndex = tabs.findIndex((tab) => tab.current);
+    const nextCurrentTab = { ...nextTabs[currentTabIndex] };
+    nextTabs[currentTabIndex] = nextCurrentTab;
+    nextCurrentTab.current = false;
+
+    // const toSelectTabIndex = tabs.findIndex((tab) => tab.id === id);
+    const nextSelectedTab = { ...nextTabs[toSelectTabIndex] };
+    nextTabs[toSelectTabIndex] = nextSelectedTab;
+    nextSelectedTab.current = true;
+
+    setTabs(nextTabs);
+  }
+
+  function createTab() {
     // FIXME: generate ID properly (refer to generateKey() in NoteContent)
-    // TODO: generate unique name
-    // TODO: deselect previously selected tab
 
     const newNoteCount = tabs.filter((tab) =>
       tab.name.startsWith("New Note")
@@ -202,20 +228,9 @@ export default function App() {
     setTabs(nextTabs);
   }
 
-  function selectTab(id: string) {
-    const nextTabs = tabs.slice();
-
-    const currentTabIndex = tabs.findIndex((tab) => tab.current);
-    const nextCurrentTab = { ...nextTabs[currentTabIndex] };
-    nextTabs[currentTabIndex] = nextCurrentTab;
-    nextCurrentTab.current = false;
-
-    const toSelectTabIndex = tabs.findIndex((tab) => tab.id === id);
-    const nextSelectedTab = { ...nextTabs[toSelectTabIndex] };
-    nextTabs[toSelectTabIndex] = nextSelectedTab;
-    nextSelectedTab.current = true;
-
-    setTabs(nextTabs);
+  function createWindow() {
+    // create new window here
+    window.electronApi.createWindow();
   }
 
   function generateTabKey() {
@@ -244,14 +259,40 @@ export default function App() {
     setTabs(nextTabs);
   }
 
+  // TODO: add close note button
+
   function handleKeydown(e: KeyboardEvent) {
+    console.log(e.key);
+
+    // TODO: meta key + w = close note, meta key + shift + w = close window
+
     // console.log(e);
     if (e.key === "Tab" && e.ctrlKey) {
+      const currTabIndex = tabs.findIndex((tab) => tab.current);
+      let selectTabIndex: number;
       if (e.shiftKey) {
+        selectTabIndex =
+          currTabIndex === 0 ? tabs.length - 1 : currTabIndex - 1;
         console.log("prev tab");
       } else {
+        selectTabIndex =
+          currTabIndex === tabs.length - 1 ? 0 : currTabIndex + 1;
         console.log("next tab");
       }
+      selectTab(selectTabIndex);
+    } else if (!Number.isNaN(Number(e.key)) && e.metaKey) {
+      const index = Number(e.key) - 1;
+      console.log(`select ${index}`);
+      if (index <= tabs.length - 1) {
+        console.log(`select ${index}`);
+        selectTab(index);
+      }
+    } else if (e.key === "t" && e.metaKey) {
+      console.log("create tab");
+      createTab();
+    } else if (e.key === "n" && e.metaKey) {
+      console.log("create window");
+      createWindow();
     }
   }
 
@@ -259,6 +300,11 @@ export default function App() {
     document.addEventListener("keydown", handleKeydown);
     return () => document.removeEventListener("keydown", handleKeydown);
   }, [tabs]);
+
+  useEffect(() => {
+    window.electronApi.onCreateTab(createTab);
+    return () => window.electronApi.offCreateTab(createTab);
+  }, []);
 
   // setTabs([
   //   { id: `${Date.now()}_0`, name: "my note", current: true },
