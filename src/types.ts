@@ -1,4 +1,11 @@
-// TODO: rename file from types.tsx -> types.ts?
+export interface StoreWindowInterface {
+  id: string;
+  tabs: Tab[];
+}
+
+export interface StoreInterface {
+  windows: StoreWindowInterface[];
+}
 
 interface PositionInterface {
   x: number;

@@ -6,6 +6,7 @@ import NoteContent from "./NoteContent";
 import Toolbar from "./Toolbar";
 import { BlockGroupInfo, BlockType, Tab } from "./types";
 import { ContextBridgeApi } from "./preload";
+// import { IpcRendererEvent } from "electron";
 // import { Tab } from "./ToolbarTab";
 
 // const root = createRoot(document.body);
@@ -21,6 +22,8 @@ export default function App() {
   // const files = ["my note", "Class Notes", "Project ideas"];
 
   const currDate = Date.now();
+
+  const [windowId, setWindowId] = useState<string | null>(null);
 
   const [tabs, setTabs] = useState<Tab[]>([
     {
@@ -181,6 +184,10 @@ export default function App() {
     setTabs(nextTabs);
   }
 
+  // function setId(_event: IpcRendererEvent, id: string) {
+  //   setWindowId(id);
+  // }
+
   function createTab() {
     const newNoteCount = tabs.filter((tab) =>
       tab.name.startsWith("New Note")
@@ -227,7 +234,7 @@ export default function App() {
   }
 
   function saveData() {
-    window.electronApi.saveData(tabs);
+    if (windowId) window.electronApi.saveData(windowId, tabs);
   }
 
   function createWindow() {
@@ -304,9 +311,22 @@ export default function App() {
   }, [tabs]);
 
   useEffect(() => {
+    // if (!windowId) window.electronApi.requestWindowId();
+    // if (!windowId) setWindowId(window.electronApi.getId());
+    if (!windowId) {
+      window.electronApi.getId().then(async (id) => {
+        if (!id) throw new Error("Could not find ID");
+        window.electronApi.getWindowFromStore(id).then((windowData) => {
+          console.log(windowData);
+          setWindowId(id);
+        });
+      });
+    }
+    // window.electronApi.onSetId(setId);
     window.electronApi.onCreateTab(createTab);
     window.electronApi.onSaveData(saveData);
     return () => {
+      // window.electronApi.offSetId(setId);
       window.electronApi.offCreateTab(createTab);
       window.electronApi.offSaveData(saveData);
     };
@@ -331,19 +351,21 @@ export default function App() {
   if (!currentTab) return <p>No selected tab</p>;
 
   // TODO: save scroll position
-  return (
-    <>
-      {/* <DragRegion /> */}
-      <Toolbar
-        tabs={tabs}
-        onSelectTab={handleSelectTab}
-        onCreateTab={handleCreateTab}
-      />
-      <NoteContent
-        id={currentTab.id}
-        blockGroups={currentTab.blockGroups}
-        onBlockGroupsUpdate={handleBlockGroupsUpdate}
-      />
-    </>
-  );
+  if (windowId)
+    return (
+      <>
+        {/* <DragRegion /> */}
+        <Toolbar
+          tabs={tabs}
+          onSelectTab={handleSelectTab}
+          onCreateTab={handleCreateTab}
+        />
+        <NoteContent
+          id={currentTab.id}
+          blockGroups={currentTab.blockGroups}
+          onBlockGroupsUpdate={handleBlockGroupsUpdate}
+        />
+      </>
+    );
+  else return <></>;
 }
