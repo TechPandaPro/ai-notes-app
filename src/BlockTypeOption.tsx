@@ -1,11 +1,12 @@
 import { MouseEvent, ReactNode } from "react";
+import { BlockType } from "./types";
 
-export enum BlockType {
-  Text = "TEXT",
-  Header = "HEADER",
-  Image = "IMAGE",
-  AI = "AI",
-}
+// export enum BlockType {
+//   Text = "TEXT",
+//   Header = "HEADER",
+//   Image = "IMAGE",
+//   AI = "AI",
+// }
 
 // export type BlockTypeId = "text" | "header" | "image";
 

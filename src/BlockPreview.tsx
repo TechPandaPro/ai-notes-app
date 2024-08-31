@@ -1,4 +1,6 @@
-import { BlockInfo } from "./NoteContent";
+// import { BlockInfo } from "./NoteContent";
+
+import { BlockInfo } from "./types";
 
 interface BlockPreviewProps {
   text: BlockInfo;

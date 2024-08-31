@@ -1,69 +1,82 @@
 import { useEffect, useState } from "react";
-import { Position } from "./BlockGroupMarker";
+// import { Position } from "./BlockGroupMarker";
 import BlockGroup from "./BlockGroup";
-import { BlockType } from "./BlockTypeOption";
+// import { BlockType } from "./BlockTypeOption";
 import OpenAI from "openai";
 import {
   ChatCompletionMessageParam,
   ChatCompletionSystemMessageParam,
   ChatCompletionUserMessageParam,
 } from "openai/resources";
+import {
+  BlockGroupInfo,
+  BlockInfo,
+  BlockType,
+  FullBlockIndex,
+  Position,
+} from "./types";
 
-interface BlockInfoBase {
-  type: BlockType;
-  text: string;
-  generating?: boolean;
-  addingText?: { char: string; key: string }[];
-  regenPrompt?: string;
-  imgUrl: string | null;
-  attemptLoad: boolean;
-  key: string;
-  moving: boolean;
-  position: Position;
-  // previewIndex: number | null;
-}
+// interface BlockInfoBase {
+//   type: BlockType;
+//   text: string;
+//   generating?: boolean;
+//   addingText?: { char: string; key: string }[];
+//   regenPrompt?: string;
+//   imgUrl: string | null;
+//   attemptLoad: boolean;
+//   key: string;
+//   moving: boolean;
+//   position: Position;
+//   // previewIndex: number | null;
+// }
 
-export interface BlockInfoStatic extends BlockInfoBase {
-  moving: false;
-  position: null;
-  // previewIndex: null;
-}
+// export interface BlockInfoStatic extends BlockInfoBase {
+//   moving: false;
+//   position: null;
+//   // previewIndex: null;
+// }
 
-export interface BlockInfoMoving extends BlockInfoBase {
-  moving: true;
-  position: Exclude<Position, null>;
-  // previewIndex: number;
-}
+// export interface BlockInfoMoving extends BlockInfoBase {
+//   moving: true;
+//   position: Exclude<Position, null>;
+//   // previewIndex: number;
+// }
 
-export type BlockInfo = BlockInfoStatic | BlockInfoMoving;
+// export type BlockInfo = BlockInfoStatic | BlockInfoMoving;
 
-interface BlockGroupInfoBase {
-  // export interface BlockGroupInfo {
-  blocks: BlockInfo[];
-  colorIndex: number;
-  key: string;
-  moving: boolean;
-  position: Position;
-  previewIndex: number | null;
-}
+// interface BlockGroupInfoBase {
+//   // export interface BlockGroupInfo {
+//   blocks: BlockInfo[];
+//   colorIndex: number;
+//   key: string;
+//   moving: boolean;
+//   position: Position;
+//   previewIndex: number | null;
+// }
 
-export interface BlockGroupInfoStatic extends BlockGroupInfoBase {
-  moving: false;
-  position: null;
-  previewIndex: null;
-}
+// export interface BlockGroupInfoStatic extends BlockGroupInfoBase {
+//   moving: false;
+//   position: null;
+//   previewIndex: null;
+// }
 
-export interface BlockGroupInfoMoving extends BlockGroupInfoBase {
-  moving: true;
-  position: Exclude<Position, null>;
-  previewIndex: number;
-}
+// export interface BlockGroupInfoMoving extends BlockGroupInfoBase {
+//   moving: true;
+//   position: Exclude<Position, null>;
+//   previewIndex: number;
+// }
 
-export type BlockGroupInfo = BlockGroupInfoStatic | BlockGroupInfoMoving;
+// export type BlockGroupInfo = BlockGroupInfoStatic | BlockGroupInfoMoving;
 
-export interface FullBlockIndex {
-  blockGroupIndex: number;
-  blockIndex: number;
+// export interface FullBlockIndex {
+//   blockGroupIndex: number;
+//   blockIndex: number;
+// }
+
+interface NoteContentProps {
+  id: string;
+  blockGroups: BlockGroupInfo[];
+  onBlockGroupsUpdate: (id: string, nextBlockGroups: BlockGroupInfo[]) => void;
 }
 
 // TODO: consider using immer for blocks state
@@ -74,81 +87,85 @@ const apiKey = "";
 
 const openai = new OpenAI({ apiKey, dangerouslyAllowBrowser: true });
 
-export default function NoteContent() {
-  const [blockGroups, setBlockGroups] = useState<BlockGroupInfo[]>([
-    {
-      blocks: [
-        {
-          type: BlockType.Header,
-          text: "Welcome to the AI Notes app!",
-          imgUrl: null,
-          attemptLoad: false,
-          key: `${Date.now()}_0`,
-          moving: false,
-          position: null,
-        },
-      ],
-      colorIndex: 0,
-      key: `${Date.now()}_0`,
-      moving: false,
-      position: null,
-      previewIndex: null,
-    },
-    {
-      blocks: [
-        {
-          type: BlockType.Text,
-          text: "you can type in each of these blocks!",
-          imgUrl: null,
-          attemptLoad: false,
-          key: `${Date.now()}_1`,
-          moving: false,
-          position: null,
-        },
-        {
-          type: BlockType.Text,
-          text: "each row has its own set of blocks!",
-          imgUrl: null,
-          attemptLoad: false,
-          key: `${Date.now()}_2`,
-          moving: false,
-          position: null,
-        },
-      ],
-      colorIndex: 0,
-      key: `${Date.now()}_1`,
-      moving: false,
-      position: null,
-      previewIndex: null,
-    },
-    {
-      blocks: [
-        {
-          type: BlockType.Text,
-          text: "you can add images to blocks, too!",
-          imgUrl: null,
-          attemptLoad: false,
-          key: `${Date.now()}_0`,
-          moving: false,
-          position: null,
-        },
-        {
-          type: BlockType.AI,
-          text: "[add an image here]",
-          imgUrl: null,
-          attemptLoad: false,
-          key: `${Date.now()}_1`,
-          moving: false,
-          position: null,
-        },
-      ],
-      colorIndex: 0,
-      key: `${Date.now()}_2`,
-      moving: false,
-      position: null,
-      previewIndex: null,
-    },
-  ]);
+export default function NoteContent({
+  id,
+  blockGroups,
+  onBlockGroupsUpdate,
+}: NoteContentProps) {
+  // const [blockGroups, setBlockGroups] = useState<BlockGroupInfo[]>([
+  //   {
+  //     blocks: [
+  //       {
+  //         type: BlockType.Header,
+  //         text: "Welcome to the AI Notes app!",
+  //         imgUrl: null,
+  //         attemptLoad: false,
+  //         key: `${Date.now()}_0`,
+  //         moving: false,
+  //         position: null,
+  //       },
+  //     ],
+  //     colorIndex: 0,
+  //     key: `${Date.now()}_0`,
+  //     moving: false,
+  //     position: null,
+  //     previewIndex: null,
+  //   },
+  //   {
+  //     blocks: [
+  //       {
+  //         type: BlockType.Text,
+  //         text: "you can type in each of these blocks!",
+  //         imgUrl: null,
+  //         attemptLoad: false,
+  //         key: `${Date.now()}_1`,
+  //         moving: false,
+  //         position: null,
+  //       },
+  //       {
+  //         type: BlockType.Text,
+  //         text: "each row has its own set of blocks!",
+  //         imgUrl: null,
+  //         attemptLoad: false,
+  //         key: `${Date.now()}_2`,
+  //         moving: false,
+  //         position: null,
+  //       },
+  //     ],
+  //     colorIndex: 0,
+  //     key: `${Date.now()}_1`,
+  //     moving: false,
+  //     position: null,
+  //     previewIndex: null,
+  //   },
+  //   {
+  //     blocks: [
+  //       {
+  //         type: BlockType.Text,
+  //         text: "you can add images to blocks, too!",
+  //         imgUrl: null,
+  //         attemptLoad: false,
+  //         key: `${Date.now()}_0`,
+  //         moving: false,
+  //         position: null,
+  //       },
+  //       {
+  //         type: BlockType.AI,
+  //         text: "[add an image here]",
+  //         imgUrl: null,
+  //         attemptLoad: false,
+  //         key: `${Date.now()}_1`,
+  //         moving: false,
+  //         position: null,
+  //       },
+  //     ],
+  //     colorIndex: 0,
+  //     key: `${Date.now()}_2`,
+  //     moving: false,
+  //     position: null,
+  //     previewIndex: null,
+  //   },
+  // ]);
   const [colorPickerIsOpen, setColorPickerIsOpen] = useState<boolean>(false);
   const [focusIndex, setFocusIndex] = useState<FullBlockIndex | null>(null);
   const [previewIndex, setPreviewIndex] = useState<FullBlockIndex | null>(null);
@@ -178,7 +195,7 @@ export default function NoteContent() {
     nextBlockGroup.blocks[blockIndex].type = type;
     if (type === BlockType.Image)
       nextBlockGroup.blocks[blockIndex].attemptLoad = true;
-    setBlockGroups(nextBlockGroups);
+    onBlockGroupsUpdate(id, nextBlockGroups);
     setFocusIndex({ blockGroupIndex, blockIndex });
     console.log({ blockGroupIndex, blockIndex });
   }
@@ -198,7 +215,7 @@ export default function NoteContent() {
       nextBlock.imgUrl = null;
     }
     nextBlock.text = newText;
-    setBlockGroups(nextBlockGroups);
+    onBlockGroupsUpdate(id, nextBlockGroups);
   }
 
   function handleImageUpdate(
@@ -215,7 +232,7 @@ export default function NoteContent() {
     nextBlockGroup.blocks[blockIndex] = nextBlock;
     nextBlock.type = BlockType.Image;
     nextBlock.imgUrl = imgUrl;
-    setBlockGroups(nextBlockGroups);
+    onBlockGroupsUpdate(id, nextBlockGroups);
   }
 
   function handleAttemptLoadUpdate(
@@ -227,7 +244,7 @@ export default function NoteContent() {
     const nextBlockGroup = { ...nextBlockGroups[blockGroupIndex] };
     nextBlockGroups[blockGroupIndex] = nextBlockGroup;
     nextBlockGroup.blocks[blockIndex].attemptLoad = attemptLoad;
-    setBlockGroups(nextBlockGroups);
+    onBlockGroupsUpdate(id, nextBlockGroups);
   }
 
   function handleSetFocus(
@@ -315,7 +332,7 @@ export default function NoteContent() {
 
     nextBlockGroup.colorIndex = colorIndex;
 
-    setBlockGroups(nextBlockGroups);
+    onBlockGroupsUpdate(id, nextBlockGroups);
   }
 
   function handleColorChange(blockGroupIndex: number, hex: string) {
@@ -349,7 +366,7 @@ export default function NoteContent() {
       moving: false,
       position: null,
     });
-    setBlockGroups(nextBlockGroups);
+    onBlockGroupsUpdate(id, nextBlockGroups);
     setFocusIndex({ blockGroupIndex, blockIndex: createAtIndex });
   }
 
@@ -399,7 +416,7 @@ export default function NoteContent() {
       nextBlockGroups.push(newBlockGroup);
     }
 
-    setBlockGroups(nextBlockGroups);
+    onBlockGroupsUpdate(id, nextBlockGroups);
 
     if (
       focusIndex &&
@@ -433,7 +450,7 @@ export default function NoteContent() {
     const nextBlockGroups = blockGroups.slice();
     nextBlockGroups.splice(createAtIndex, 0, newBlockGroup);
 
-    setBlockGroups(nextBlockGroups);
+    onBlockGroupsUpdate(id, nextBlockGroups);
   }
 
   // function handleBlockMove(
@@ -477,7 +494,7 @@ export default function NoteContent() {
       nextBlock.moving = false;
       nextBlock.position = null;
     }
-    setBlockGroups(nextBlockGroups);
+    onBlockGroupsUpdate(id, nextBlockGroups);
   }
 
   function handleBlockGroupMove(blockGroupIndex: number, position: Position) {
@@ -510,7 +527,7 @@ export default function NoteContent() {
         setPreviewIndex(null);
       }
     }
-    setBlockGroups(nextBlockGroups);
+    onBlockGroupsUpdate(id, nextBlockGroups);
   }
 
   function handleBlockGroupCancelMove(blockGroupIndex: number) {
@@ -541,7 +558,7 @@ export default function NoteContent() {
     // }
     setPreviewIndex(null);
 
-    setBlockGroups(nextBlockGroups);
+    onBlockGroupsUpdate(id, nextBlockGroups);
   }
 
   function handleMovingBlockUpdate(
@@ -590,7 +607,7 @@ export default function NoteContent() {
     //   blockFromGroup.blocks.splice(blockIndex, 1);
     // }
 
-    setBlockGroups(nextBlockGroups);
+    onBlockGroupsUpdate(id, nextBlockGroups);
 
     // nextBlockGroup.blocks.splice(createAtIndex, 0, {
     //   type: BlockType.Text,
@@ -638,7 +655,7 @@ export default function NoteContent() {
 
     nextBlock.regenPrompt = newPrompt;
 
-    setBlockGroups(nextBlockGroups);
+    onBlockGroupsUpdate(id, nextBlockGroups);
   }
 
   async function handleQueryAi(
@@ -782,7 +799,7 @@ Prompt: """${regenOptions.prompt || "None"}"""`
     nextBlock.regenPrompt = "";
     nextBlock.text = "";
 
-    setBlockGroups(nextBlockGroups);
+    onBlockGroupsUpdate(id, nextBlockGroups);
 
     return true;
   }
@@ -833,7 +850,7 @@ Prompt: """${regenOptions.prompt || "None"}"""`
       key: generateKey(nextBlock.addingText),
     });
 
-    setBlockGroups(nextBlockGroups);
+    onBlockGroupsUpdate(id, nextBlockGroups);
 
     // console.log(nextBlock);
 
@@ -908,16 +925,16 @@ Prompt: """${regenOptions.prompt || "None"}"""`
 
       // if (nextAddingText.length === 0) delete nextBlock.addingText;
 
-      setBlockGroups(nextBlockGroups);
+      onBlockGroupsUpdate(id, nextBlockGroups);
     }
   }
 
   function generateKey(siblings: { key: string }[]) {
     const stamp = Date.now();
     const foundCount = siblings.filter(
-      (sibling) => sibling.key && sibling.key.startsWith(`${stamp}_`)
+      (sibling) => sibling.key && sibling.key.startsWith(`${id}_${stamp}_`)
     ).length;
-    return `${stamp}_${foundCount}`;
+    return `${id}_${stamp}_${foundCount}`;
   }
 
   // const currMovingBlock =

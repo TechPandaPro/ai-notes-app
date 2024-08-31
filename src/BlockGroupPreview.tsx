@@ -1,5 +1,6 @@
 import BlockPreview from "./BlockPreview";
-import { BlockInfo } from "./NoteContent";
+import { BlockInfo } from "./types";
+// import { BlockInfo } from "./NoteContent";
 
 interface BlockGroupPreviewProps {
   blocks: BlockInfo[];

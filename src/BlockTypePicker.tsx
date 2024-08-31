@@ -1,9 +1,12 @@
 // first two text/header svgs made in figma
 // third image svg from https://flowbite.com/icons/
 
+import BlockTypeOption from "./BlockTypeOption";
+import { BlockType } from "./types";
+
 // TODO: prevent block type picker from overflowing when block is first added and animating
 
-import BlockTypeOption, { BlockType } from "./BlockTypeOption";
+// import BlockTypeOption, { BlockType } from "./BlockTypeOption";
 
 interface BlockTypePickerProps {
   selectedOption: BlockType;

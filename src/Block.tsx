@@ -16,9 +16,10 @@ import BlockAddInline from "./BlockAddInline";
 import DeleteBlock from "./DeleteBlock";
 import BlockTypePicker from "./BlockTypePicker";
 import BlockImage from "./BlockImage";
-import { BlockType } from "./BlockTypeOption";
-import { Position } from "./BlockGroupMarker";
+// import { BlockType } from "./BlockTypeOption";
+// import { Position } from "./BlockGroupMarker";
 import BlockAI from "./BlockAI";
+import { BlockType, Position } from "./types";
 
 interface BlockProps {
   blockIndex: number;

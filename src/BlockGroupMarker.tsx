@@ -1,5 +1,5 @@
 // TODO: figure out why marker is sometimes way too large (full window width/height, seemingly) when dragging
-// TODO: maybe make it possible to change BlockMarker color
+// TODO: allow grouping by BlockMarker color etc.
 
 import {
   MouseEvent as ReactMouseEvent,
@@ -9,17 +9,18 @@ import {
   // useState,
 } from "react";
 import BlockColorPicker from "./BlockColorPicker";
+import { Position } from "./types";
 
-interface PositionInterface {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  offsetX: number;
-  offsetY: number;
-}
+// interface PositionInterface {
+//   x: number;
+//   y: number;
+//   width: number;
+//   height: number;
+//   offsetX: number;
+//   offsetY: number;
+// }
 
-export type Position = PositionInterface | null;
+// export type Position = PositionInterface | null;
 
 interface BlockMarkerPropsBase {
   colors: string[];

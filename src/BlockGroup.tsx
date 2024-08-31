@@ -1,18 +1,27 @@
 // import { useEffect, useRef, useState } from "react";
 import { useEffect, useRef } from "react";
 import BlockAdd from "./BlockAdd";
+// import {
+//   BlockGroupInfoMoving,
+//   BlockInfo,
+//   BlockInfoMoving,
+//   FullBlockIndex,
+// } from "./NoteContent";
+import Block from "./Block";
+import BlockGroupPreview from "./BlockGroupPreview";
+// import { BlockType } from "./BlockTypeOption";
+// import BlockGroupMarker, { Position } from "./BlockGroupMarker";
 import {
   BlockGroupInfoMoving,
   BlockInfo,
   BlockInfoMoving,
+  BlockType,
   FullBlockIndex,
-} from "./NoteContent";
-import Block from "./Block";
-import BlockGroupPreview from "./BlockGroupPreview";
-import { BlockType } from "./BlockTypeOption";
-import BlockGroupMarker, { Position } from "./BlockGroupMarker";
+  Position,
+} from "./types";
+import BlockGroupMarker from "./BlockGroupMarker";
 
-// TODO: content should auto-scroll when dragging for block group move
+// TODO: only animate height if block has JUST been added
 
 interface BlockGroupPropsBase {
   // interface BlockGroupProps {
