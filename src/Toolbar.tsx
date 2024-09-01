@@ -10,6 +10,7 @@ interface ToolbarProps {
   // openFiles: { name: string; current: boolean }[];
   tabs: Tab[];
   onSelectTab: (id: string) => void;
+  onCloseTab: (id: string) => void;
   onCreateTab: () => void;
 }
 
@@ -18,11 +19,16 @@ interface ToolbarProps {
 export default function Toolbar({
   tabs,
   onSelectTab,
+  onCloseTab,
   onCreateTab,
 }: ToolbarProps) {
   function handleSelectTab(id: string) {
     console.log(id);
     onSelectTab(id);
+  }
+
+  function handleCloseTab(id: string) {
+    onCloseTab(id);
   }
 
   function handleCreateTab() {
@@ -46,7 +52,11 @@ export default function Toolbar({
           />
         ))}
       </div> */}
-      <ToolbarTabs tabs={tabs} onSelectTab={handleSelectTab} />
+      <ToolbarTabs
+        tabs={tabs}
+        onSelectTab={handleSelectTab}
+        onCloseTab={handleCloseTab}
+      />
       <div className="toolbarDragRegion last"></div>
       <ToolbarCreateTab onCreateTab={handleCreateTab} />
     </div>

@@ -69,6 +69,7 @@ body {
 
 .toolbar .openTab {
   display: flex;
+  position: relative;
   align-items: center;
   /* justify-content: center; */
   /* background-color: green; */
@@ -85,7 +86,89 @@ body {
 
 /* TODO: consider making this a linear gradient that goes from dark (top) -> light (bottom), to make it more visible on dark background */
 .toolbar .openTab.current {
+  /* position: relative; */
+  /* background-color: red; */
   background-color: rgb(0 0 0 / 0.3);
+  /* border-bottom: 2px solid gray; */
+  /* background-image: linear-gradient(
+    to bottom,
+    rgb(0 0 0 / 0.3) 50%,
+    rgb(50 50 50 / 0.3)
+  ); */
+}
+
+/* .toolbar .openTab.current::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 2px;
+  * background-color: white; *
+  background-color: rgb(128 128 128 / 0.4);
+} */
+
+.toolbar .openTab:first-child::before,
+.toolbar .openTab::after {
+  content: "";
+  position: absolute;
+  /* left: 0; */
+  top: 0;
+  width: 2px;
+  height: 100%;
+  background-color: rgb(128 128 128 / 0.2);
+}
+
+.toolbar .openTab:first-child::before {
+  left: 0;
+}
+
+.toolbar .openTab::after {
+  right: 0;
+}
+
+/* .toolbar .openTab::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 2px;
+  height: 100%;
+  background-color: white;
+} */
+
+/* .toolbar .openTab.current::after { */
+.toolbar .openTab .currentBar {
+  /* content: ""; */
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: calc(100% - 4px);
+  height: 2px;
+  /* background-color: white; */
+  background-color: rgb(128 128 128 / 0.4);
+}
+
+.toolbar .openTab {
+  display: flex;
+  gap: 5px;
+}
+
+.toolbar .openTab .closeTab {
+  display: flex;
+  opacity: 0.5;
+  transition: opacity 0.1s;
+}
+
+.toolbar .openTab .closeTab svg {
+  width: 17px;
+  height: auto;
+  /* color: inherit; */
+}
+
+.toolbar .openTab .closeTab:hover {
+  opacity: 1;
 }
 
 .toolbar .createTab {

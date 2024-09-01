@@ -24,7 +24,6 @@ export default function App() {
   const currDate = Date.now();
 
   const [windowId, setWindowId] = useState<string | null>(null);
-
   const [tabs, setTabs] = useState<Tab[]>([
     {
       id: `${currDate}_0`,
@@ -156,10 +155,16 @@ export default function App() {
       ],
     },
   ]);
+  // const [deleteTabIndex, setDeleteTabIndex] = useState<number | null>(null);
 
   function handleSelectTab(id: string) {
     const toSelectTabIndex = tabs.findIndex((tab) => tab.id === id);
     selectTab(toSelectTabIndex);
+  }
+
+  function handleCloseTab(id: string) {
+    const toCloseTabIndex = tabs.findIndex((tab) => tab.id === id);
+    closeTab(toCloseTabIndex);
   }
 
   // TODO: consider what new tab should open on
@@ -182,6 +187,36 @@ export default function App() {
     nextSelectedTab.current = true;
 
     setTabs(nextTabs);
+  }
+
+  // TODO: add button for deleting tab
+  // TODO: consider simplifying code for selection after close/delete (i.e. make it a separate function?)
+
+  function deleteTab(toDeleteTabIndex: number) {
+    confirm(
+      `Are you sure you want to delete "${tabs[toDeleteTabIndex].name}"?`
+    );
+
+    if (tabs.length === 1) window.close();
+    else {
+      const nextTabs = tabs.slice();
+
+      const tabWasSelected = nextTabs[toDeleteTabIndex].current;
+
+      nextTabs.splice(toDeleteTabIndex, 1);
+
+      if (tabWasSelected) {
+        const selectTabIndex =
+          toDeleteTabIndex === tabs.length - 1
+            ? toDeleteTabIndex - 1
+            : toDeleteTabIndex;
+        const nextSelectedTab = { ...nextTabs[selectTabIndex] };
+        nextTabs[selectTabIndex] = nextSelectedTab;
+        nextSelectedTab.current = true;
+      }
+
+      setTabs(nextTabs);
+    }
   }
 
   // function setId(_event: IpcRendererEvent, id: string) {
@@ -235,8 +270,19 @@ export default function App() {
     setTabs(nextTabs);
   }
 
+  function closeCurrentTab() {
+    const currentTabIndex = tabs.findIndex((tab) => tab.current);
+
+    if (currentTabIndex === -1)
+      throw new Error("Could not find tab index to close");
+
+    closeTab(currentTabIndex);
+  }
+
   // FIXME: closing tab shouldn't actually remove it from the stored data. it should just hide it.
-  function closeTab() {
+  function closeTab(toCloseTabIndex: number) {
+    console.log(`deleting ${toCloseTabIndex}`);
+
     console.log("close tab!");
 
     console.log(`tabs length: ${tabs.length}`);
@@ -246,19 +292,32 @@ export default function App() {
     else {
       const nextTabs = tabs.slice();
 
-      const currentTabIndex = nextTabs.findIndex((tab) => tab.current);
+      // const currentTabIndex = nextTabs.findIndex((tab) => tab.current);
+
+      // if (tabIndex === null)
+      //   toCloseTabIndex = nextTabs.findIndex((tab) => tab.current);
+      // else toCloseTabIndex = tabIndex
+
       // const nextCurrentTab = { ...nextTabs[currentTabIndex] };
       // nextTabs[currentTabIndex] = nextCurrentTab;
       // nextCurrentTab.current = false;
-      nextTabs.splice(currentTabIndex, 1);
 
-      const selectTabIndex =
-        currentTabIndex === tabs.length - 1
-          ? currentTabIndex - 1
-          : currentTabIndex;
-      const nextSelectedTab = { ...nextTabs[selectTabIndex] };
-      nextTabs[selectTabIndex] = nextSelectedTab;
-      nextSelectedTab.current = true;
+      const tabWasSelected = nextTabs[toCloseTabIndex].current;
+
+      nextTabs.splice(toCloseTabIndex, 1);
+
+      if (tabWasSelected) {
+        console.log(`close index ${toCloseTabIndex}`);
+        console.log(toCloseTabIndex);
+
+        const selectTabIndex =
+          toCloseTabIndex === tabs.length - 1
+            ? toCloseTabIndex - 1
+            : toCloseTabIndex;
+        const nextSelectedTab = { ...nextTabs[selectTabIndex] };
+        nextTabs[selectTabIndex] = nextSelectedTab;
+        nextSelectedTab.current = true;
+      }
 
       setTabs(nextTabs);
     }
@@ -305,8 +364,6 @@ export default function App() {
   function handleKeydown(e: KeyboardEvent) {
     console.log(e.key);
 
-    // TODO: meta key + w = close note, meta key + shift + w = close window
-
     // console.log(e);
     if (e.key === "Tab" && e.ctrlKey) {
       const currTabIndex = tabs.findIndex((tab) => tab.current);
@@ -328,6 +385,9 @@ export default function App() {
         console.log(`select ${index}`);
         selectTab(index);
       }
+    } else if (e.key === "Backspace" && e.metaKey) {
+      const currTabIndex = tabs.findIndex((tab) => tab.current);
+      deleteTab(currTabIndex);
     }
     // } else if (e.key === "t" && e.metaKey) {
     //   console.log("create tab");
@@ -361,7 +421,7 @@ export default function App() {
     // window.electronApi.onSetId(setId);
     console.log("LISTENER ADD");
     window.electronApi.onCreateTab(createTab);
-    window.electronApi.onCloseTab(closeTab);
+    window.electronApi.onCloseTab(closeCurrentTab);
     // window.electronApi.onSaveData(saveData);
     return () => {
       console.log("LISTENER REMOVE");
@@ -378,6 +438,10 @@ export default function App() {
     window.addEventListener("beforeunload", saveData);
     return () => window.removeEventListener("beforeunload", saveData);
   }, [windowId, tabs]);
+
+  useEffect(() => {
+    document.title = tabs.find((tab) => tab.current)?.name ?? "";
+  }, [tabs]);
 
   // setTabs([
   //   { id: `${Date.now()}_0`, name: "my note", current: true },
@@ -397,6 +461,8 @@ export default function App() {
 
   if (!currentTab) return <p>No selected tab</p>;
 
+  // TODO: save window position
+
   // TODO: save scroll position
   if (windowId)
     return (
@@ -405,6 +471,7 @@ export default function App() {
         <Toolbar
           tabs={tabs}
           onSelectTab={handleSelectTab}
+          onCloseTab={handleCloseTab}
           onCreateTab={handleCreateTab}
         />
         <NoteContent
@@ -412,6 +479,7 @@ export default function App() {
           blockGroups={currentTab.blockGroups}
           onBlockGroupsUpdate={handleBlockGroupsUpdate}
         />
+        {/* {deleteTabIndex !== null ? <></> : ""} */}
       </>
     );
   else return <></>;

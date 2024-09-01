@@ -5,11 +5,16 @@ import { Tab } from "./types";
 interface ToolbarTabsProps {
   tabs: Tab[];
   onSelectTab: (id: string) => void;
+  onCloseTab: (id: string) => void;
 }
 
 // TODO: ability to drag tabs
 
-export default function ToolbarTabs({ tabs, onSelectTab }: ToolbarTabsProps) {
+export default function ToolbarTabs({
+  tabs,
+  onSelectTab,
+  onCloseTab,
+}: ToolbarTabsProps) {
   // const [prevCurrentId, setPrevCurrentId] = useState<string | null>(null);
 
   // const currentId = tabs.find((tab) => tab.current)?.id ?? null;
@@ -21,6 +26,10 @@ export default function ToolbarTabs({ tabs, onSelectTab }: ToolbarTabsProps) {
 
   function handleSelectTab(id: string) {
     onSelectTab(id);
+  }
+
+  function handleCloseTab(id: string) {
+    onCloseTab(id);
   }
 
   return (
@@ -35,6 +44,7 @@ export default function ToolbarTabs({ tabs, onSelectTab }: ToolbarTabsProps) {
           name={tab.name}
           current={tab.current}
           onSelectTab={handleSelectTab}
+          onCloseTab={handleCloseTab}
         />
       ))}
     </div>
