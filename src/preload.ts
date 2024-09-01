@@ -9,8 +9,8 @@ export interface ContextBridgeApi {
   offSetId: (callback: (event: IpcRendererEvent, id: string) => void) => void;
   onCreateTab: (callback: () => void) => void;
   offCreateTab: (callback: () => void) => void;
-  onSaveData: (callback: () => void) => void;
-  offSaveData: (callback: () => void) => void;
+  // onSaveData: (callback: () => void) => void;
+  // offSaveData: (callback: () => void) => void;
   getId: () => Promise<string | null>;
   // requestWindowId: () => void;
   saveData: (id: string, data: Tab[]) => void;
@@ -23,8 +23,8 @@ const contextBridgeApi: ContextBridgeApi = {
   offSetId: (callback) => ipcRenderer.off("set-id", callback),
   onCreateTab: (callback) => ipcRenderer.on("create-tab", callback),
   offCreateTab: (callback) => ipcRenderer.off("create-tab", callback),
-  onSaveData: (callback) => ipcRenderer.on("get-data", callback),
-  offSaveData: (callback) => ipcRenderer.off("get-data", callback),
+  // onSaveData: (callback) => ipcRenderer.on("get-data", callback),
+  // offSaveData: (callback) => ipcRenderer.off("get-data", callback),
   getId: () => ipcRenderer.invoke("get-id"),
   // requestWindowId: () => ipcRenderer.invoke("request-id"),
   // ipcRenderer.on("get-data", (_event, data) => callback(data)),

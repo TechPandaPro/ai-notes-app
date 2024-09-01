@@ -237,10 +237,10 @@ export default function App() {
     if (windowId) window.electronApi.saveData(windowId, tabs);
   }
 
-  function createWindow() {
-    // create new window here
-    window.electronApi.createWindow();
-  }
+  // function createWindow() {
+  // create new window here
+  // window.electronApi.createWindow();
+  // }
 
   function generateTabKey() {
     const stamp = Date.now();
@@ -296,13 +296,14 @@ export default function App() {
         console.log(`select ${index}`);
         selectTab(index);
       }
-    } else if (e.key === "t" && e.metaKey) {
-      console.log("create tab");
-      createTab();
-    } else if (e.key === "n" && e.metaKey) {
-      console.log("create window");
-      createWindow();
     }
+    // } else if (e.key === "t" && e.metaKey) {
+    //   console.log("create tab");
+    //   createTab();
+    // } else if (e.key === "n" && e.metaKey) {
+    //   console.log("create window");
+    //   createWindow();
+    // }
   }
 
   useEffect(() => {
@@ -317,20 +318,28 @@ export default function App() {
       window.electronApi.getId().then(async (id) => {
         if (!id) throw new Error("Could not find ID");
         window.electronApi.getWindowFromStore(id).then((windowData) => {
-          console.log(windowData);
+          if (windowData) {
+            console.log(windowData);
+            setTabs(windowData.tabs);
+          }
           setWindowId(id);
         });
       });
     }
     // window.electronApi.onSetId(setId);
     window.electronApi.onCreateTab(createTab);
-    window.electronApi.onSaveData(saveData);
+    // window.electronApi.onSaveData(saveData);
     return () => {
       // window.electronApi.offSetId(setId);
       window.electronApi.offCreateTab(createTab);
-      window.electronApi.offSaveData(saveData);
+      // window.electronApi.offSaveData(saveData);
     };
-  }, []);
+  }, [windowId]);
+
+  useEffect(() => {
+    window.addEventListener("beforeunload", saveData);
+    return () => window.removeEventListener("beforeunload", saveData);
+  }, [windowId, tabs]);
 
   // setTabs([
   //   { id: `${Date.now()}_0`, name: "my note", current: true },

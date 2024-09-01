@@ -1,3 +1,4 @@
+// import { app, BrowserWindow, ipcMain, Menu, MenuItem, session } from "electron";
 import { app, BrowserWindow, ipcMain, Menu, session } from "electron";
 import { StoreInterface, Tab } from "./types";
 // import Store, { Schema } from "electron-store";
@@ -62,19 +63,46 @@ const createWindow = (): BrowserWindow => {
   // TODO: add this line back
   // const windowId = generateWindowId();
 
-  openWindows.push({
-    id: (electronStore.get("windows") ?? [])[0]?.id ?? generateWindowId(),
+  // const openWindowObj = {
+  //   id: (electronStore.get("windows") ?? [])[0]?.id ?? generateWindowId(),
+  //   browserWindow: newWindow,
+  //   // awaitingClose: false,
+  //   // canClose: false,
+  // };
+
+  // openWindows.push(openWindowObj);
+
+  const existingWindowId = (electronStore.get("windows") ?? []).find(
+    (storeWindow) =>
+      !openWindows.some((openWindow) => storeWindow.id === openWindow.id)
+  )?.id;
+
+  const openWindow = {
+    id: existingWindowId ?? generateWindowId(),
     browserWindow: newWindow,
-  });
+  };
+
+  openWindows.push(openWindow);
+
+  // let awaitingClose = false;
+  // let canClose = false;
 
   // newWindow.on("close", (e) => {
-  newWindow.on("close", () => {
-    // e.preventDefault();
-    newWindow.webContents.send("get-data");
-  });
+  // newWindow.on("close", () => {
+  // if (!openWindowObj.canClose) {
+  // e.preventDefault();
+  // openWindowObj.awaitingClose = true;
+  // newWindow.webContents.send("get-data");
+  // }
+  // });
+
+  // TODO: make shortcuts work when no windows are open but app is focused
+  // https://www.electronjs.org/docs/latest/tutorial/keyboard-shortcuts/
 
   newWindow.on("closed", () => {
-    const windowIndex = openWindows.findIndex((win) => win.id);
+    // const windowIndex = openWindows.findIndex((win) => );
+    const windowIndex = openWindows.indexOf(openWindow);
+    if (windowIndex === -1) console.error("Could not find open window object");
     openWindows.splice(windowIndex, 1);
   });
 
@@ -108,10 +136,73 @@ app.on("ready", () => {
     });
   });
 
+  // const menu = Menu.getApplicationMenu();
+  // const menu = new Menu();
+  // menu.append(
+  //   new MenuItem({
+  //     label: "hello!",
+  //     submenu: [{ role: "help", click: () => console.log("clicked") }],
+  //   })
+  // );
+
+  console.log(app.name);
+
+  // TODO: consider adding more keybinds to this
+  const applicationMenu = Menu.buildFromTemplate([
+    {
+      label: "Electron", // TODO: consider using app.name instead
+      submenu: [
+        { role: "about" },
+        { type: "separator" },
+        { role: "hide" },
+        { role: "hideOthers" },
+        { role: "unhide" },
+        { type: "separator" },
+        { role: "quit" },
+      ],
+    },
+    {
+      label: "File",
+      submenu: [
+        {
+          label: "New Note",
+          accelerator: "Cmd+T",
+          // TODO: add functionality
+          click: () => console.log("hello"),
+        },
+        {
+          label: "New Window",
+          accelerator: "Cmd+N",
+          // TODO: add functionality
+          click: () => console.log("new window"),
+        },
+        { type: "separator" },
+        { role: "close" },
+        // { role: "quit" },
+      ],
+    },
+    {
+      label: "Edit",
+      submenu: [
+        { role: "undo" },
+        { role: "redo" },
+        { type: "separator" },
+        { role: "cut" },
+        { role: "copy" },
+        { role: "paste" },
+        // TODO: add more to edit menu
+      ],
+    },
+  ]);
+
+  Menu.setApplicationMenu(applicationMenu);
+
   const dockMenu = Menu.buildFromTemplate([
     // TODO: add functionality to this button
     {
       label: "New Note",
+      // TODO: check how accelerator works cross-platform
+      // accelerator: "Cmd+T",
       async click() {
         console.log("clicked!! make a new note!");
         // TODO: new windows should be blank - default blocks should only exist in first window
@@ -128,6 +219,7 @@ app.on("ready", () => {
     },
     {
       label: "New Window",
+      accelerator: "Cmd+N",
       click() {
         console.log("clicked!! make a new window!");
         createWindow();
@@ -156,6 +248,12 @@ app.on("ready", () => {
     }
     console.log(savedWindows);
     electronStore.set("windows", savedWindows);
+
+    // const openWindowObj = openWindows.find((win) => win.id === id);
+    // if (openWindowObj && openWindowObj.awaitingClose) {
+    // openWindowObj.canClose = true;
+    // openWindowObj.browserWindow.close();
+    // }
     // TODO: add distinction for which window. each window needs an id.
     // TODO: add data
     // electronStore.set("windows");
