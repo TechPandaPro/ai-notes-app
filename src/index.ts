@@ -24,6 +24,20 @@ const electronStore = new Store<StoreInterface>();
 
 const openWindows: { id: string; browserWindow: BrowserWindow }[] = [];
 
+const createNote = async (): Promise<void> => {
+  console.log("clicked!! make a new note!");
+  // TODO: new windows should be blank - default blocks should only exist in first window
+  let targetWindow =
+    BrowserWindow.getFocusedWindow() ?? BrowserWindow.getAllWindows()[0];
+  if (!targetWindow) {
+    targetWindow = createWindow();
+    await new Promise((resolve) =>
+      targetWindow.webContents.once("did-finish-load", resolve)
+    );
+  }
+  targetWindow.webContents.send("create-tab");
+};
+
 // const createWindow = async (): Promise<BrowserWindow> => {
 const createWindow = (): BrowserWindow => {
   // TODO: maybe make new windows offset from others
@@ -121,6 +135,21 @@ const createWindow = (): BrowserWindow => {
   // mainWindow.webContents.openDevTools({ mode: "detach" }); // dev tools need to be detached with transparent window
 };
 
+const closeNote = async (): Promise<void> => {
+  console.log("clicked!! close note!");
+  // TODO: new windows should be blank - default blocks should only exist in first window
+  const targetWindow =
+    BrowserWindow.getFocusedWindow() ?? BrowserWindow.getAllWindows()[0];
+  if (!targetWindow) return;
+  targetWindow.webContents.send("close-tab");
+};
+
+const closeWindow = async (): Promise<void> => {
+  console.log("clicked!! close window!");
+  const targetWindow = BrowserWindow.getFocusedWindow();
+  if (targetWindow) targetWindow.close();
+};
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
@@ -168,16 +197,22 @@ app.on("ready", () => {
           label: "New Note",
           accelerator: "Cmd+T",
           // TODO: add functionality
-          click: () => console.log("hello"),
+          click: createNote,
         },
         {
           label: "New Window",
           accelerator: "Cmd+N",
           // TODO: add functionality
-          click: () => console.log("new window"),
+          click: createWindow,
         },
         { type: "separator" },
-        { role: "close" },
+        // { role: "close" },
+        { label: "Close Note", accelerator: "Cmd+W", click: closeNote },
+        {
+          label: "Close Window",
+          accelerator: "Cmd+Shift+W",
+          click: closeWindow,
+        },
         // { role: "quit" },
       ],
     },
@@ -193,6 +228,11 @@ app.on("ready", () => {
         // TODO: add more to edit menu
       ],
     },
+    { label: "View", submenu: [{ role: "toggleDevTools" }] },
+    {
+      label: "Window",
+      submenu: [{ role: "minimize" }, { role: "zoom" }],
+    },
   ]);
 
   Menu.setApplicationMenu(applicationMenu);
@@ -205,16 +245,17 @@ app.on("ready", () => {
       // accelerator: "Cmd+T",
       async click() {
         console.log("clicked!! make a new note!");
-        // TODO: new windows should be blank - default blocks should only exist in first window
-        let targetWindow =
-          BrowserWindow.getFocusedWindow() ?? BrowserWindow.getAllWindows()[0];
-        if (!targetWindow) {
-          targetWindow = createWindow();
-          await new Promise((resolve) =>
-            targetWindow.webContents.once("did-finish-load", resolve)
-          );
-        }
-        targetWindow.webContents.send("create-tab");
+        // // TODO: new windows should be blank - default blocks should only exist in first window
+        // let targetWindow =
+        //   BrowserWindow.getFocusedWindow() ?? BrowserWindow.getAllWindows()[0];
+        // if (!targetWindow) {
+        //   targetWindow = createWindow();
+        //   await new Promise((resolve) =>
+        //     targetWindow.webContents.once("did-finish-load", resolve)
+        //   );
+        // }
+        // targetWindow.webContents.send("create-tab");
+        createNote();
       },
     },
     {

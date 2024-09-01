@@ -20,11 +20,10 @@ export default function BlockColorOption({
 
   const hexPickerRef = useRef<HTMLInputElement>(null);
 
+  // TODO: fix color picker not showing up when right clicking twice
   function handleMouseDown(e: MouseEvent) {
     e.preventDefault();
-    if (e.button === 2) {
-      setShowingHexPicker(true);
-    }
+    if (e.button === 2) setShowingHexPicker(true);
   }
 
   function handleClick(e: MouseEvent) {

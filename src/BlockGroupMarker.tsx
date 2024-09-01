@@ -121,7 +121,6 @@ export default function BlockGroupMarker({
       console.log("open color picker");
       // setColorPickerIsOpen(!colorPickerIsOpen);
       onOpenColorPicker(!colorPickerIsOpen);
-      // TODO: maybe remove open picker any time that there is click outside
       if (focusBlockIndex === null) onSetFocus(0, true); // TODO: consider setting this focus within NoteContent
     }
 
@@ -242,7 +241,6 @@ export default function BlockGroupMarker({
   //   return () => window.removeEventListener("mousemove", updateMouseState);
   // }, []);
 
-  // TODO: based on selected color, set backgroundColor of blockMarkerInner and set color of box-shadow of blockMarkerInner
   return (
     <>
       {/* {moving ? <div className="blockMarkerOverlay"></div> : ""} */}

@@ -275,41 +275,75 @@ export default function Block({
   // TODO: prevent newlines via pasting or AI
 
   function handleKeyDown(e: KeyboardEvent<HTMLDivElement>) {
-    // console.log(e);
-    // TODO: improve conditions (combine all shiftKey combos)
-    if (e.key === "Enter" && e.shiftKey) {
-      e.preventDefault();
-      // TODO: decide between query or inquire
-      // onQueryAi(blockIndex);
-      onQueryAi();
+    if (e.shiftKey) {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        onQueryAi();
+      } else if (e.key === "Backspace") {
+        e.preventDefault();
+        onDeleteBlock(blockIndex);
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        handleInsert();
+      } else if (
+        type !== BlockType.AI &&
+        text.length === 0 &&
+        !imgUrl &&
+        !isDeleting &&
+        e.code.startsWith("Digit") &&
+        e.shiftKey
+      ) {
+        const num = Number(e.code.substring("Digit".length));
+        const setType = [BlockType.Text, BlockType.Header, BlockType.Image][
+          num - 1
+        ];
+        if (setType) {
+          e.preventDefault();
+          onTypeUpdate(blockIndex, setType);
+        }
+      }
     } else if (e.key === "Enter") {
       e.preventDefault();
       onAddBlockGroup();
-    } else if (e.key === "Backspace" && e.shiftKey) {
-      e.preventDefault();
-      onDeleteBlock(blockIndex);
-      // } else if (!isNaN(Number(e.key)) && e.shiftKey) {
-    } else if (
-      type !== BlockType.AI &&
-      text.length === 0 &&
-      !imgUrl &&
-      !isDeleting &&
-      e.code.startsWith("Digit") &&
-      e.shiftKey
-    ) {
-      // const num = Number(e.key);
-      const num = Number(e.code.substring("Digit".length));
-      const setType = [BlockType.Text, BlockType.Header, BlockType.Image][
-        num - 1
-      ];
-      if (setType) {
-        e.preventDefault();
-        onTypeUpdate(blockIndex, setType);
-      }
-    } else if (e.key === "ArrowUp" && e.shiftKey) {
-      handleInsert();
     }
   }
+
+  // function handleKeyDown(e: KeyboardEvent<HTMLDivElement>) {
+  //   // console.log(e);
+  //   // TODO: improve conditions (combine all shiftKey combos)
+  //   if (e.key === "Enter" && e.shiftKey) {
+  //     e.preventDefault();
+  //     // TODO: decide between query or inquire
+  //     // onQueryAi(blockIndex);
+  //     onQueryAi();
+  //   } else if (e.key === "Enter") {
+  //     e.preventDefault();
+  //     onAddBlockGroup();
+  //   } else if (e.key === "Backspace" && e.shiftKey) {
+  //     e.preventDefault();
+  //     onDeleteBlock(blockIndex);
+  //     // } else if (!isNaN(Number(e.key)) && e.shiftKey) {
+  //   } else if (
+  //     type !== BlockType.AI &&
+  //     text.length === 0 &&
+  //     !imgUrl &&
+  //     !isDeleting &&
+  //     e.code.startsWith("Digit") &&
+  //     e.shiftKey
+  //   ) {
+  //     // const num = Number(e.key);
+  //     const num = Number(e.code.substring("Digit".length));
+  //     const setType = [BlockType.Text, BlockType.Header, BlockType.Image][
+  //       num - 1
+  //     ];
+  //     if (setType) {
+  //       e.preventDefault();
+  //       onTypeUpdate(blockIndex, setType);
+  //     }
+  //   } else if (e.key === "ArrowUp" && e.shiftKey) {
+  //     handleInsert();
+  //   }
+  // }
 
   function setSize() {
     const blockEditable = blockEditableRef.current;

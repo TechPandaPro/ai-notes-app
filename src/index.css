@@ -83,6 +83,7 @@ body {
   /* user-select: none; */
 }
 
+/* TODO: consider making this a linear gradient that goes from dark (top) -> light (bottom), to make it more visible on dark background */
 .toolbar .openTab.current {
   background-color: rgb(0 0 0 / 0.3);
 }

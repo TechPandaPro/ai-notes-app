@@ -189,6 +189,8 @@ export default function App() {
   // }
 
   function createTab() {
+    console.log("new tab!");
+
     const newNoteCount = tabs.filter((tab) =>
       tab.name.startsWith("New Note")
     ).length;
@@ -233,6 +235,36 @@ export default function App() {
     setTabs(nextTabs);
   }
 
+  // FIXME: closing tab shouldn't actually remove it from the stored data. it should just hide it.
+  function closeTab() {
+    console.log("close tab!");
+
+    console.log(`tabs length: ${tabs.length}`);
+
+    // if (tabs.length === 1) console.log("close :))");
+    if (tabs.length === 1) window.close();
+    else {
+      const nextTabs = tabs.slice();
+
+      const currentTabIndex = nextTabs.findIndex((tab) => tab.current);
+      // const nextCurrentTab = { ...nextTabs[currentTabIndex] };
+      // nextTabs[currentTabIndex] = nextCurrentTab;
+      // nextCurrentTab.current = false;
+      nextTabs.splice(currentTabIndex, 1);
+
+      const selectTabIndex =
+        currentTabIndex === tabs.length - 1
+          ? currentTabIndex - 1
+          : currentTabIndex;
+      const nextSelectedTab = { ...nextTabs[selectTabIndex] };
+      nextTabs[selectTabIndex] = nextSelectedTab;
+      nextSelectedTab.current = true;
+
+      setTabs(nextTabs);
+    }
+  }
+
+  // TODO: save at interval, also save with cmd+s
   function saveData() {
     if (windowId) window.electronApi.saveData(windowId, tabs);
   }
@@ -327,14 +359,20 @@ export default function App() {
       });
     }
     // window.electronApi.onSetId(setId);
+    console.log("LISTENER ADD");
     window.electronApi.onCreateTab(createTab);
+    window.electronApi.onCloseTab(closeTab);
     // window.electronApi.onSaveData(saveData);
     return () => {
+      console.log("LISTENER REMOVE");
       // window.electronApi.offSetId(setId);
-      window.electronApi.offCreateTab(createTab);
+      window.electronApi.offCreateTab();
+      // window.electronApi.offCreateTab(createTab);
+      window.electronApi.offCloseTab();
+      // window.electronApi.offCloseTab(closeTab);
       // window.electronApi.offSaveData(saveData);
     };
-  }, [windowId]);
+  }, [windowId, tabs]);
 
   useEffect(() => {
     window.addEventListener("beforeunload", saveData);

@@ -8,7 +8,11 @@ export interface ContextBridgeApi {
   // onSetId: (callback: (event: IpcRendererEvent, id: string) => void) => void;
   offSetId: (callback: (event: IpcRendererEvent, id: string) => void) => void;
   onCreateTab: (callback: () => void) => void;
-  offCreateTab: (callback: () => void) => void;
+  offCreateTab: () => void;
+  // offCreateTab: (callback: () => void) => void;
+  onCloseTab: (callback: () => void) => void;
+  offCloseTab: () => void;
+  // offCloseTab: (callback: () => void) => void;
   // onSaveData: (callback: () => void) => void;
   // offSaveData: (callback: () => void) => void;
   getId: () => Promise<string | null>;
@@ -18,11 +22,17 @@ export interface ContextBridgeApi {
   getWindowFromStore: (id: string) => Promise<StoreWindowInterface | null>;
 }
 
+ipcRenderer.setMaxListeners(1);
+
 const contextBridgeApi: ContextBridgeApi = {
   // onSetId: (callback) => ipcRenderer.on("set-id", callback),
   offSetId: (callback) => ipcRenderer.off("set-id", callback),
   onCreateTab: (callback) => ipcRenderer.on("create-tab", callback),
-  offCreateTab: (callback) => ipcRenderer.off("create-tab", callback),
+  offCreateTab: () => ipcRenderer.removeAllListeners("create-tab"),
+  // offCreateTab: (callback) => ipcRenderer.off("create-tab", callback),
+  onCloseTab: (callback) => ipcRenderer.on("close-tab", callback),
+  offCloseTab: () => ipcRenderer.removeAllListeners("close-tab"),
+  // offCloseTab: (callback) => ipcRenderer.off("close-tab", callback),
   // onSaveData: (callback) => ipcRenderer.on("get-data", callback),
   // offSaveData: (callback) => ipcRenderer.off("get-data", callback),
   getId: () => ipcRenderer.invoke("get-id"),
