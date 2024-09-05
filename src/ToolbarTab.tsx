@@ -6,6 +6,8 @@
 // import { useEffect, useRef, useState } from "react";
 import { MouseEvent, useEffect, useRef } from "react";
 
+// TODO: add ability to rename tabs
+
 interface ToolbarTabProps {
   id: string;
   name: string;

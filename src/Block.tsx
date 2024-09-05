@@ -17,6 +17,8 @@ import BlockImage from "./BlockImage";
 import BlockAI from "./BlockAI";
 import { BlockType, Position } from "./types";
 
+// FIXME: fix ctrl+a not working to select all text in block
+
 interface BlockProps {
   blockIndex: number;
   type: BlockType;
